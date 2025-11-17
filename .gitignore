@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+
+# Builds de Electron
+dist/
+out/
+release/
+build/
+
+# Binarios grandes
+*.exe
+*.dll
+
+# Logs
+*.log
+
+# Archivos de entorno
+.env
+.env.local
+
+# Cachés
+.cache/
+.temp/
+
+# Configuraciones de editor
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
