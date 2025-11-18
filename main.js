@@ -8,9 +8,9 @@ function createWindows() {
 		minWidth: 400,
 		minHeight: 400,
 		webPreferences: {
-			preload: path.join(__dirname, 'preload.js'), // opcional
+			//preload: path.join(__dirname, 'renderer.js'), // opcional
 			// nodeIntegration: true, // si quieres usar Node.js en tu ventana
-			// contextIsolation: false,
+			contextIsolation: false,
 		},
 	})
 	mainWindows.loadFile('index.html')
