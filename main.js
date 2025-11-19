@@ -4,10 +4,10 @@ const path = require('path')
 
 function createWindows() {
 	const mainWindows = new BrowserWindow({
-		width: 1020,
-		height: 680,
-		minWidth: 400,
-		minHeight: 400,
+		width: 1620,
+		height: 1500,
+		minWidth: 1040,
+		minHeight: 860,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
 			// nodeIntegration: true, // si quieres usar Node.js en tu ventana
