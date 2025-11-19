@@ -12,7 +12,52 @@
 </head>
 
 <body>
-  <div class="mainContainer">
+  <header class="flex items-center bg-gray-800 h-12 px-4 shadow-md">
+    <nav class="flex gap-4 ">
+      <div class="menu-item text-white">Dashboard
+        <ul class="submenu">
+          <li data-view="dashboard.html">Resumen general</li>
+          <li id="VentaDia">Ventas del día</li>
+          <li id="StockProdu">Productos con stock bajo</li>
+          <hr>
+          <li id="Ingresos">Total de ingresos del mes</li>
+        </ul>
+      </div>
+      <div class="menu-item text-white">Venta
+        <ul class="submenu">
+          <li data-view="nueva_venta.html">Nueva venta</li>
+          <li data-view="historial_ventas.html">Historial</li>
+          <hr>
+          <li id="Facturas">Facturas</li>
+          <li id="Clientes">Clientes</li>
+        </ul>
+      </div>
+      <div class="menu-item text-white">Producto
+        <ul class="submenu">
+          <li id="Agregar">Nuevo producto</li>
+          <li id="Actualizar">Actualizar</li>
+          <li id="Listar">Lista de productos</li>
+          <hr>
+          <li id="Categorias">Categorías</li>
+        </ul>
+      </div>
+      <div class="menu-item text-white">Reportes
+        <ul class="submenu">
+          <li id="RepoVenta">Venta por dd/mm/aa</li>
+          <li id="GraficoIng">Gráfico de ingresos</li>
+          <hr>
+          <li id="RepoProdu">Articulos más vendidos</li>
+        </ul>
+      </div>
+      <div class="menu-item text-white">Configuración</div>
+      <div class="menu-item text-white">Ayuda</div>
+    </nav>
+  </header>
+
+  <!-- Contenedor donde se carga el contenido -->
+  <main id="mainContent" class="p-4"></main>
+
+  <div class="tableComponent">
     <div class="p-6">
       <div class="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
         <table class="min-w-full bg-white">
@@ -54,6 +99,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Scripts -->
+  <script src="./renderer.js"></script>
 </body>
 
 </html>

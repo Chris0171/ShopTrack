@@ -7,3 +7,40 @@
 .myThead {
 	@apply bg-gray-100 border-b border-gray-200;
 }
+.menu-item {
+	position: relative;
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	border-radius: 12px;
+	transition: background 0.2s;
+}
+
+.menu-item:hover {
+	background-color: #4b5563; /* Gris oscuro al pasar el mouse */
+}
+
+/* Submenú desplegable */
+.menu-item ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background-color: #383f49;
+	padding: 0.5rem 0;
+	border-radius: 8px;
+	min-width: 250px;
+}
+
+.menu-item:hover ul {
+	display: block;
+}
+
+.menu-item ul li {
+	padding: 0.5rem 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.menu-item ul li:hover {
+	background-color: #67707f;
+}
