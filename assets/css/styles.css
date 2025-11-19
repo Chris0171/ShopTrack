@@ -18,6 +18,10 @@
 .menu-item:hover {
 	background-color: #4b5563; /* Gris oscuro al pasar el mouse */
 }
+.submenu {
+	position: absolute; /* ya debería estar así */
+	z-index: 50; /* suficientemente alto para aparecer sobre todo */
+}
 
 /* Submenú desplegable */
 .menu-item ul {
