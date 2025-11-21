@@ -43,8 +43,8 @@ ipcMain.handle('load-view', (event, viewName) => {
 ipcMain.handle('producto:getAll', async () => {
 	return new Promise((resolve, reject) => {
 		productoController.getAll((err, rows) => {
-			if (err) reject(err.message)
-			else resolve(rows)
+			if (err) return reject(err.message)
+			resolve(rows)
 		})
 	})
 })
@@ -57,15 +57,11 @@ ipcMain.handle('producto:create', async (event, data) => {
 		})
 	})
 })
-ipcMain.handle('buscar-producto', async (event, nroParte) => {
+ipcMain.handle('producto:buscar-producto', async (event, nroParte) => {
 	return new Promise((resolve, reject) => {
-		db.get(
-			'SELECT * FROM Producto WHERE NroParte = ?',
-			[nroParte],
-			(err, row) => {
-				if (err) reject(err)
-				else resolve(row)
-			}
-		)
+		productoController.buscarPorNroParte(nroParte, (err, row) => {
+			if (err) return reject(err.message)
+			resolve(row)
+		})
 	})
 })
