@@ -4,6 +4,7 @@
 CREATE TABLE IF NOT EXISTS Producto (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 NroParte TEXT NOT NULL UNIQUE,
+Descripcion TEXT NOT NULL,
 Cantidad INTEGER NOT NULL DEFAULT 0,
 Precio REAL NOT NULL,
 Tasas REAL NOT NULL DEFAULT 0
@@ -84,27 +85,27 @@ FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
 
 
-INSERT INTO Producto (NroParte, Cantidad, Precio, Tasas) VALUES
-('P-001', 25, 12.99, 0.21),
-('P-002', 14, 8.50, 0.18),
-('P-003', 50, 22.30, 0.21),
-('P-004', 8, 150.00, 0.21),
-('P-005', 12, 5.99, 0.10),
-('P-006', 34, 18.75, 0.21),
-('P-007', 60, 3.40, 0.10),
-('P-008', 20, 99.99, 0.21),
-('P-009', 15, 45.00, 0.21),
-('P-010', 100, 1.20, 0.10),
-('P-011', 40, 6.75, 0.18),
-('P-012', 10, 250.00, 0.21),
-('P-013', 70, 2.90, 0.10),
-('P-014', 90, 4.50, 0.18),
-('P-015', 18, 13.00, 0.21),
-('P-016', 24, 7.25, 0.18),
-('P-017', 35, 15.80, 0.21),
-('P-018', 27, 11.40, 0.21),
-('P-019', 9, 199.99, 0.21),
-('P-020', 55, 9.99, 0.18);
+INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas) VALUES
+('P-001', 'Cables HDMI de alta velocidad', 25, 12.99, 0.21),
+('P-002', 'Ratón inalámbrico óptico', 14, 8.50, 0.18),
+('P-003', 'Teclado mecánico básico', 50, 22.30, 0.21),
+('P-004', 'Monitor LED 24 pulgadas', 8, 150.00, 0.21),
+('P-005', 'Adaptador USB a Ethernet', 12, 5.99, 0.10),
+('P-006', 'Auriculares con micrófono', 34, 18.75, 0.21),
+('P-007', 'Bolígrafos tinta gel azul (pack 10)', 60, 3.40, 0.10),
+('P-008', 'Disco SSD 512GB NVMe', 20, 99.99, 0.21),
+('P-009', 'Powerbank 20,000 mAh', 15, 45.00, 0.21),
+('P-010', 'Lápices HB (pack 20)', 100, 1.20, 0.10),
+('P-011', 'Cuaderno tapa dura A5', 40, 6.75, 0.18),
+('P-012', 'Tarjeta gráfica gama media', 10, 250.00, 0.21),
+('P-013', 'Goma de borrar escolar', 70, 2.90, 0.10),
+('P-014', 'Regla de plástico 30 cm', 90, 4.50, 0.18),
+('P-015', 'Altavoces USB estéreo', 18, 13.00, 0.21),
+('P-016', 'Memoria USB 32GB', 24, 7.25, 0.18),
+('P-017', 'Router WiFi dual band', 35, 15.80, 0.21),
+('P-018', 'Caja organizadora mediana', 27, 11.40, 0.21),
+('P-019', 'Impresora multifunción láser', 9, 199.99, 0.21),
+('P-020', 'Agenda 2025 semanal', 55, 9.99, 0.18);
 
 
 INSERT INTO Clientes (nombre, telefono, email, direccion) VALUES
