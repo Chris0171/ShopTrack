@@ -2,6 +2,7 @@
 const db = require('../db/initDatabase')
 
 module.exports = {
+	// Obtener todos los productos
 	getAll: function (callback) {
 		const sql = `SELECT * FROM Producto ORDER BY id DESC`
 		db.all(sql, [], (err, rows) => {
@@ -10,31 +11,63 @@ module.exports = {
 		})
 	},
 
+	// Crear producto (incluye Descripcion)
 	create: function (
-		{ NroParte, Cantidad = 0, Precio = 0, Tasas = 0 },
+		{ NroParte, Descripcion, Cantidad = 0, Precio = 0, Tasas = 0 },
 		callback
 	) {
-		const sql = `INSERT INTO Producto (NroParte, Cantidad, Precio, Tasas)
-                 VALUES (?, ?, ?, ?)`
-		db.run(sql, [NroParte, Cantidad, Precio, Tasas], function (err) {
-			if (err) return callback(err)
-			callback(null, { id: this.lastID })
-		})
+		if (!NroParte || !Descripcion) {
+			return callback(new Error('NroParte y Descripcion son obligatorios'))
+		}
+
+		const sql = `
+			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas)
+			VALUES (?, ?, ?, ?, ?)
+		`
+
+		db.run(
+			sql,
+			[NroParte, Descripcion, Cantidad, Precio, Tasas],
+			function (err) {
+				if (err) return callback(err)
+				callback(null, { id: this.lastID })
+			}
+		)
 	},
 
+	// Actualizar producto (incluye Descripcion)
 	update: function (id, data, callback) {
-		const { NroParte, Cantidad, Precio, Tasas } = data
-		const sql = `UPDATE Producto SET NroParte=?, Cantidad=?, Precio=?, Tasas=? WHERE id=?`
-		db.run(sql, [NroParte, Cantidad, Precio, Tasas, id], function (err) {
+		const { NroParte, Descripcion, Cantidad, Precio, Tasas } = data
+
+		const sql = `
+			UPDATE Producto 
+			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?
+			WHERE id = ?
+		`
+
+		db.run(
+			sql,
+			[NroParte, Descripcion, Cantidad, Precio, Tasas, id],
+			function (err) {
+				if (err) return callback(err)
+				callback(null)
+			}
+		)
+	},
+
+	// Eliminar producto
+	delete: function (id, callback) {
+		db.run(`DELETE FROM Producto WHERE id = ?`, [id], function (err) {
 			if (err) return callback(err)
 			callback(null)
 		})
 	},
-
-	delete: function (id, callback) {
-		db.run(`DELETE FROM Producto WHERE id=?`, [id], function (err) {
+	// Buscar producto por número de parte
+	buscarPorNroParte: function (nroParte, callback) {
+		const sql = `SELECT * FROM Producto WHERE NroParte = ?`
+		db.get(sql, [nroParte], (err, row) => {
 			if (err) return callback(err)
-			callback(null)
+			callback(null, row)
 		})
 	},
 }
