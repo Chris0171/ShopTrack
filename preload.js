@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('api', {
 		create: (data) => ipcRenderer.invoke('producto:create', data),
 		update: (id, data) => ipcRenderer.invoke('producto:update', { id, data }),
 		delete: (id) => ipcRenderer.invoke('producto:delete', id),
+		buscarProducto: (nroParte) =>
+			ipcRenderer.invoke('producto:buscar-producto', nroParte),
 	},
-	buscarProducto: (nroParte) => ipcRenderer.invoke('buscar-producto', nroParte),
 })
