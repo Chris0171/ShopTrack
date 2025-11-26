@@ -70,4 +70,13 @@ module.exports = {
 			callback(null, row)
 		})
 	},
+	// 🔥 Actualizar solo el stock de un producto
+	actualizarStock: function (idProducto, nuevaCantidad, callback) {
+		const sql = `UPDATE Producto SET Cantidad = ? WHERE id = ?`
+
+		db.run(sql, [nuevaCantidad, idProducto], function (err) {
+			if (err) return callback(err)
+			callback(null, { success: true })
+		})
+	},
 }
