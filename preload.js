@@ -12,5 +12,11 @@ contextBridge.exposeInMainWorld('api', {
 		delete: (id) => ipcRenderer.invoke('producto:delete', id),
 		buscarProducto: (nroParte) =>
 			ipcRenderer.invoke('producto:buscar-producto', nroParte),
+		actualizarStock: (idProducto, nuevaCantidad) =>
+			ipcRenderer.invoke(
+				'producto:actualizar-stock',
+				idProducto,
+				nuevaCantidad
+			),
 	},
 })
