@@ -65,3 +65,21 @@ ipcMain.handle('producto:buscar-producto', async (event, nroParte) => {
 		})
 	})
 })
+ipcMain.handle(
+	'producto:actualizar-stock',
+	async (event, idProducto, nuevaCantidad) => {
+		return new Promise((resolve) => {
+			productoController.actualizarStock(
+				idProducto,
+				nuevaCantidad,
+				(err, result) => {
+					if (err) {
+						resolve({ ok: false, error: err.message })
+					} else {
+						resolve({ ok: true })
+					}
+				}
+			)
+		})
+	}
+)
