@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('api', {
 				nuevaCantidad
 			),
 	},
+
 	cliente: {
 		create: (data) => ipcRenderer.invoke('crear-cliente', data),
 		getAll: () => ipcRenderer.invoke('cliente:getAll'),
@@ -27,5 +28,15 @@ contextBridge.exposeInMainWorld('api', {
 		buscarPorNombre: (nombre) =>
 			ipcRenderer.invoke('cliente:buscar-nombre', nombre),
 		getById: (id) => ipcRenderer.invoke('cliente:getById', id),
+	},
+
+	venta: {
+		create: (data) => ipcRenderer.invoke('venta:create', data),
+		getAll: () => ipcRenderer.invoke('venta:getAll'),
+		update: (id, data) => ipcRenderer.invoke('venta:update', { id, data }),
+		delete: (id) => ipcRenderer.invoke('venta:delete', id),
+		getById: (id) => ipcRenderer.invoke('venta:getById', id),
+		getByClienteId: (idCliente) =>
+			ipcRenderer.invoke('venta:getByClienteId', idCliente),
 	},
 })
