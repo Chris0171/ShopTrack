@@ -31,6 +31,32 @@ async function cargarClientes() {
 		clienteSelect.appendChild(opt)
 	})
 }
+// ** Mensaje de error
+function showFieldError(id, msg, elem) {
+	const div = document.getElementById(id)
+	if (!div) return
+
+	div.textContent = msg
+	div.classList.remove('opacity-0')
+
+	// Ocultar automáticamente
+	setTimeout(() => {
+		div.classList.add('opacity-0')
+		setTimeout(() => {
+			div.textContent = ''
+			div.classList.remove('opacity-0')
+		}, 300)
+	}, 2500)
+
+	// Esperar a que el DOM renderice los cambios antes de hacer scroll
+	requestAnimationFrame(() => {
+		document.getElementById(elem).scrollIntoView({
+			behavior: 'smooth',
+			block: 'start',
+		})
+	})
+}
+
 async function cargarTodo() {
 	const ventas = await window.api.venta.getAll()
 	console.log(ventas)
@@ -51,7 +77,7 @@ buscarInput.addEventListener('keydown', async (e) => {
 		const producto = await window.api.producto.buscarProducto(nroParte)
 
 		if (!producto) {
-			alert('Producto no encontrado')
+			showFieldError('mensajeError', 'Producto no encontrado', 'buscador')
 			buscarInput.focus()
 			return
 		}
@@ -144,7 +170,7 @@ function actualizarTotales() {
 // FINALIZAR VENTA
 btnFinalizarVenta.addEventListener('click', async () => {
 	if (productosVenta.length === 0) {
-		alert('No hay productos en la venta.')
+		showFieldError('errorVenta', 'Agregue productos a la venta.', 'btnVenta')
 		return
 	}
 
@@ -161,7 +187,20 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	}
 
 	if (!idCliente) {
-		alert('Debe seleccionar o crear un cliente.')
+		showFieldError(
+			'errorCliente',
+			'Debe seleccionar o crear un cliente.',
+			'clienteForm'
+		)
+		return
+	}
+
+	if (!numeroFactura.value.trim()) {
+		showFieldError(
+			'errorFactura',
+			'Debe ingresar un número de factura.',
+			'facturaForm'
+		)
 		return
 	}
 
@@ -204,7 +243,12 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	})
 
 	console.log(idCliente, ' ', idVenta)
-	alert('Venta y factura registradas correctamente.')
+	showFieldError(
+		'errorVenta',
+		'Venta y factura registradas correctamente.',
+		'btnVenta'
+	)
+
 	// Limpiar pantalla para nueva venta
 	productosVenta = []
 	renderTabla()
