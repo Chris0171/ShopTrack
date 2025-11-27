@@ -7,6 +7,7 @@ const productoController = require('./backend/controllers/producto-controller')
 const clienteController = require('./backend/controllers/cliente-controller')
 const ventaController = require('./backend/controllers/venta-controller')
 const detalleController = require('./backend/controllers/detalleVenta-controller')
+const facturaController = require('./backend/controllers/factura-controller')
 
 const db = require('./backend/db/initDatabase') // * Inicializa DB
 
@@ -143,7 +144,7 @@ ipcMain.handle('cliente:getById', async (event, id) => {
 	})
 })
 
-// ** === Venta == ** //
+// ** === Venta === ** //
 ipcMain.handle('venta:create', async (event, data) => {
 	return new Promise((resolve) => {
 		ventaController.create(data, (err, result) => {
@@ -193,7 +194,7 @@ ipcMain.handle('venta:getByClienteId', async (event, idCliente) => {
 	})
 })
 
-// ** === DetalleVenta == ** //
+// ** === DetalleVenta === ** //
 ipcMain.handle('detalle:create', async (event, data) => {
 	return new Promise((resolve) => {
 		detalleController.create(data, (err, result) => {
@@ -239,6 +240,56 @@ ipcMain.handle('detalle:getByVentaId', async (event, idVenta) => {
 		detalleController.getByVentaId(idVenta, (err, rows) => {
 			if (err) resolve({ ok: false, error: err.message })
 			else resolve({ ok: true, detalles: rows })
+		})
+	})
+})
+
+// ** === Factura === ** //
+ipcMain.handle('factura:create', async (event, data) => {
+	return new Promise((resolve) => {
+		facturaController.create(data, (err, result) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, id: result.id })
+		})
+	})
+})
+ipcMain.handle('factura:getAll', async () => {
+	return new Promise((resolve) => {
+		facturaController.getAll((err, rows) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, facturas: rows })
+		})
+	})
+})
+ipcMain.handle('factura:update', async (event, { id, data }) => {
+	return new Promise((resolve) => {
+		facturaController.update(id, data, (err, result) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, changes: result.changes })
+		})
+	})
+})
+ipcMain.handle('factura:delete', async (event, id) => {
+	return new Promise((resolve) => {
+		facturaController.delete(id, (err, result) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, changes: result.changes })
+		})
+	})
+})
+ipcMain.handle('factura:getById', async (event, id) => {
+	return new Promise((resolve) => {
+		facturaController.getById(id, (err, row) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, factura: row })
+		})
+	})
+})
+ipcMain.handle('factura:getByVentaId', async (event, idVenta) => {
+	return new Promise((resolve) => {
+		facturaController.getByVentaId(idVenta, (err, rows) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, facturas: rows })
 		})
 	})
 })
