@@ -143,7 +143,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 
 	// Crear cliente si es nuevo
 	if (!idCliente && clienteNombre.value.trim()) {
-		idCliente = await window.api.cliente.crearCliente({
+		idCliente = await window.api.cliente.create({
 			nombre: clienteNombre.value.trim(),
 			telefono: clienteTelefono.value.trim(),
 			email: clienteEmail.value.trim(),
@@ -161,7 +161,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	const impuestos = parseFloat(impuestosInput.value)
 	const total = parseFloat(totalInput.value)
 
-	const idVenta = await window.api.venta.crearVenta({
+	const idVenta = await window.api.venta.create({
 		idCliente,
 		subtotal,
 		impuestos,
@@ -170,7 +170,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 
 	// Crear detalles de venta y actualizar stock
 	for (const p of productosVenta) {
-		await window.api.detalleVenta.crearDetalle({
+		await window.api.detalleVenta.create({
 			idVenta,
 			idProducto: p.id,
 			cantidad: p.cantidad,
@@ -185,7 +185,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	}
 
 	// Crear factura
-	await window.api.factura.crearFactura({
+	await window.api.factura.create({
 		idVenta,
 		numeroFactura: numeroFactura.value.trim(),
 		subtotal,
