@@ -52,7 +52,7 @@ tasaAplicada REAL NOT NULL,
 totalLinea REAL NOT NULL,
 
 
-FOREIGN KEY (idVenta) REFERENCES Venta(id),
+FOREIGN KEY (idVenta) REFERENCES Venta(id) ON DELETE CASCADE,
 FOREIGN KEY (idProducto) REFERENCES Producto(id)
 );
 
