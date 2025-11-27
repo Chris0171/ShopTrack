@@ -23,6 +23,7 @@
 		"extends": "standard"
 	},
 	"dependencies": {
+		"@fortawesome/fontawesome-free": "^7.1.0",
 		"sqlite3": "^5.1.7"
 	}
 }
