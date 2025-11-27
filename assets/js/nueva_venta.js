@@ -31,7 +31,15 @@ async function cargarClientes() {
 		clienteSelect.appendChild(opt)
 	})
 }
-
+async function cargarTodo() {
+	const ventas = await window.api.venta.getAll()
+	console.log(ventas)
+	const detalleVentas = await window.api.detalleVenta.getAll()
+	console.log(detalleVentas)
+	const facturas = await window.api.factura.getAll()
+	console.log(facturas)
+}
+cargarTodo()
 cargarClientes()
 
 // BUSCADOR DE PRODUCTOS
@@ -67,6 +75,7 @@ function agregarProducto(producto) {
 			precio: producto.Precio,
 			tasa: producto.Tasas,
 			cantidad: 1,
+			stockActual: producto.Cantidad,
 		})
 	}
 
@@ -163,7 +172,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 
 	const idVenta = await window.api.venta.create({
 		idCliente,
-		subtotal,
+		subtotal: subtotal,
 		impuestos,
 		total,
 	})
@@ -171,22 +180,21 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	// Crear detalles de venta y actualizar stock
 	for (const p of productosVenta) {
 		await window.api.detalleVenta.create({
-			idVenta,
+			idVenta: idVenta.id,
 			idProducto: p.id,
 			cantidad: p.cantidad,
 			precioUnitario: p.precio,
 			tasaAplicada: p.tasa,
 			totalLinea: p.cantidad * p.precio * (1 + p.tasa),
 		})
-
 		// Reducir stock
-		const nuevoStock = Math.max(0, p.Cantidad - p.cantidad) // opcional
+		const nuevoStock = Math.max(0, p.stockActual - p.cantidad)
 		await window.api.producto.actualizarStock(p.id, nuevoStock)
 	}
 
 	// Crear factura
 	await window.api.factura.create({
-		idVenta,
+		idVenta: idVenta.id,
 		numeroFactura: numeroFactura.value.trim(),
 		subtotal,
 		impuestos,
@@ -195,6 +203,7 @@ btnFinalizarVenta.addEventListener('click', async () => {
 		observaciones: observaciones.value.trim(),
 	})
 
+	console.log(idCliente, ' ', idVenta)
 	alert('Venta y factura registradas correctamente.')
 	// Limpiar pantalla para nueva venta
 	productosVenta = []
@@ -207,4 +216,27 @@ btnFinalizarVenta.addEventListener('click', async () => {
 	clienteDireccion.value = ''
 	numeroFactura.value = ''
 	observaciones.value = ''
+})
+
+// ** Agregar evento change al serector
+clienteSelect.addEventListener('change', async () => {
+	const idCliente = clienteSelect.value
+	if (!idCliente) {
+		// Si no hay cliente seleccionado, limpiar campos
+		clienteNombre.value = ''
+		clienteTelefono.value = ''
+		clienteEmail.value = ''
+		clienteDireccion.value = ''
+		return
+	}
+
+	// Obtener cliente por ID
+	const res = await window.api.cliente.getById(idCliente)
+	if (res.ok) {
+		const c = res.cliente
+		clienteNombre.value = c.nombre
+		clienteTelefono.value = c.telefono || ''
+		clienteEmail.value = c.email || ''
+		clienteDireccion.value = c.direccion || ''
+	}
 })
