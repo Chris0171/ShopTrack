@@ -22,15 +22,17 @@ const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
 
 // CARGAR CLIENTES EXISTENTES
 async function cargarClientes() {
-	const clientes = await window.api.cliente.obtenerClientes()
-	clientes.forEach((c) => {
+	const clientes = await window.api.cliente.getAll()
+	console.log(clientes)
+	clientes.clientes.forEach((c) => {
 		const opt = document.createElement('option')
 		opt.value = c.id
 		opt.textContent = `${c.nombre} (${c.telefono || 'sin teléfono'})`
 		clienteSelect.appendChild(opt)
 	})
 }
-// cargarClientes()
+
+cargarClientes()
 
 // BUSCADOR DE PRODUCTOS
 buscarInput.addEventListener('keydown', async (e) => {
