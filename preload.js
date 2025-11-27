@@ -19,4 +19,13 @@ contextBridge.exposeInMainWorld('api', {
 				nuevaCantidad
 			),
 	},
+	cliente: {
+		create: (data) => ipcRenderer.invoke('crear-cliente', data),
+		getAll: () => ipcRenderer.invoke('cliente:getAll'),
+		update: (id, data) => ipcRenderer.invoke('cliente:update', { id, data }),
+		delete: (id) => ipcRenderer.invoke('cliente:delete', id),
+		buscarPorNombre: (nombre) =>
+			ipcRenderer.invoke('cliente:buscar-nombre', nombre),
+		getById: (id) => ipcRenderer.invoke('cliente:getById', id),
+	},
 })
