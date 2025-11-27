@@ -12,6 +12,11 @@ const db = new sqlite3.Database(dbPath, (err) => {
 })
 
 db.serialize(() => {
+	db.run('PRAGMA foreign_keys = ON;', (err) => {
+		if (err)
+			console.error('⚠ No se pudieron activar las foreign keys:', err.message)
+		else console.log('✔ Foreign keys activadas')
+	})
 	if (fs.existsSync(sqlPath)) {
 		const sql = fs.readFileSync(sqlPath, 'utf8')
 		db.exec(sql, (err) => {
