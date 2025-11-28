@@ -129,7 +129,9 @@ function renderTabla() {
             <td class="p-2 border">${p.precio.toFixed(2)} €</td>
             <td class="p-2 border font-semibold">${total} €</td>
             <td class="p-2 border text-center">
-                <button class="btn-eliminar bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">X</button>
+                <button class="btn-eliminar bg-red-600 text-white px-4
+								py-3 rounded-lg hover:bg-red-700 hover:scale-110
+								active:scale-100 transition duration-300 ease-in-out"><i class="fas fa-trash"></i><b>ELIMINAR</b></button>
             </td>
         `
 
