@@ -3,10 +3,15 @@
 
 .myTh {
 	@apply px-6 py-3 font-bold text-gray-700;
-	font-size: 16px;
+	font-size: 18px;
 }
 .myThead {
-	@apply bg-gray-100 border-b border-gray-200;
+	@apply bg-gray-100 border-b border-gray-200 bg-linear-to-r from-blue-200 to-indigo-200 text-lg;
+}
+input,
+select,
+textarea {
+	@apply text-xl border-3 border-indigo-900;
 }
 .menu-item {
 	position: relative;
@@ -14,10 +19,11 @@
 	cursor: pointer;
 	border-radius: 12px;
 	transition: background 0.2s;
+	font-weight: bold;
 }
 
 .menu-item:hover {
-	background-color: #4b5563; /* Gris oscuro al pasar el mouse */
+	background-color: #534aa7; /* Gris oscuro al pasar el mouse */
 }
 .submenu {
 	position: absolute; /* ya debería estar así */
@@ -30,7 +36,11 @@
 	position: absolute;
 	top: 100%;
 	left: 0;
-	background-color: #383f49;
+	background-image: linear-gradient(
+		to right,
+		rgb(49, 33, 111),
+		rgb(23, 48, 95)
+	);
 	padding: 0.5rem 0;
 	border-radius: 8px;
 	min-width: 250px;
@@ -44,13 +54,15 @@
 	padding: 0.5rem 1rem;
 	cursor: pointer;
 	transition: background 0.2s;
+	font-weight: bold;
 }
 
 .menu-item ul li:hover {
-	background-color: #67707f;
+	background-color: #534aa7;
 }
-
-.opacity-0 {
-	opacity: 0;
-	transition: opacity 0.3s;
+.bg-nuevaVenta {
+	background-color: rgba(255, 255, 255, 0.75);
+}
+.bg-other {
+	background-color: rgba(255, 255, 255, 0.5);
 }

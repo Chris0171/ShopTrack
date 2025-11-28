@@ -118,19 +118,19 @@ function renderTabla() {
 		const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
 
 		tr.innerHTML = `
-            <td class="p-2 border">${p.NroParte}</td>
-            <td class="p-2 border">${p.Descripcion}</td>
-            <td class="p-2 border">
+            <td class="p-1 pl-6">${p.NroParte}</td>
+            <td class="p-1 pl-6">${p.Descripcion}</td>
+            <td class="p-1 pl-6">
                 <input type="number" min="1" value="${
 									p.cantidad
-								}" class="w-16 p-1 border rounded cantidad-input">
+								}" class="w-16 p-1 pl-6 cantidad-input rounded-xl">
             </td>
-            <td class="p-2 border">${(p.tasa * 100).toFixed(0)}%</td>
-            <td class="p-2 border">${p.precio.toFixed(2)} €</td>
-            <td class="p-2 border font-semibold">${total} €</td>
-            <td class="p-2 border text-center">
-                <button class="btn-eliminar bg-red-600 text-white px-4
-								py-3 rounded-lg hover:bg-red-700 hover:scale-110
+            <td class="p-1 pl-6">${(p.tasa * 100).toFixed(0)}%</td>
+            <td class="p-1 pl-6">${p.precio.toFixed(2)} €</td>
+            <td class="p-1 pl-6 font-semibold">${total} €</td>
+            <td class="p-1 pl-6 text-center">
+                <button class="btn-eliminar bg-red-600 text-white px-3
+								py-2 rounded-lg hover:bg-red-700 hover:scale-110
 								active:scale-100 transition duration-300 ease-in-out"><i class="fas fa-trash"></i><b>ELIMINAR</b></button>
             </td>
         `
