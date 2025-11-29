@@ -24,6 +24,7 @@
 	},
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^7.1.0",
+		"echarts": "^6.0.0",
 		"sqlite3": "^5.1.7"
 	}
 }
