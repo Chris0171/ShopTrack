@@ -1,3 +1,6 @@
+import { initDashboard } from './assets/js/dashboard.js'
+import { initNuevaVenta } from './assets/js/nueva_venta.js'
+
 window.addEventListener('DOMContentLoaded', async () => {
 	const content = document.getElementById('mainContent')
 
@@ -18,21 +21,19 @@ async function loadView(viewName) {
 
 	content.innerHTML = await window.api.loadView(viewName)
 
-	// Cargar JS asociado a la vista
-	loadViewScript(viewName)
+	// Esperar a que el DOM se haya actualizado
+	await new Promise((r) => setTimeout(r, 0))
+
+	loadInitFunctionView(viewName)
 }
 
-function loadViewScript(viewName) {
-	// Extrae nombre sin extensión => nuevaVenta
-	const baseName = viewName.split('.')[0]
-
-	const scriptPath = `./assets/js/${baseName}.js`
-
-	// Cargar dinámicamente el script
-	const script = document.createElement('script')
-	script.src = scriptPath
-	script.type = 'module'
-	document.body.appendChild(script)
-
-	console.log('→ Script cargado:', scriptPath)
+function loadInitFunctionView(viewName) {
+	switch (viewName) {
+		case 'dashboard.html':
+			initDashboard()
+			break
+		case 'nueva_venta.html':
+			initNuevaVenta()
+			break
+	}
 }
