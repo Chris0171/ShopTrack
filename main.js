@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain, screen } = require('electron')
 const fs = require('fs')
 const path = require('path')
 
@@ -11,28 +11,33 @@ const facturaController = require('./backend/controllers/factura-controller')
 
 const db = require('./backend/db/initDatabase') // * Inicializa DB
 
-function createWindows() {
-	const mainWindows = new BrowserWindow({
-		width: 1620,
-		height: 1500,
-		minWidth: 1040,
-		minHeight: 860,
+function createWindow(width, height) {
+	const mainWindow = new BrowserWindow({
+		minWidth: width,
+		minHeight: height,
+		maxWidth: width,
+		maxHeight: height,
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js'),
-			// nodeIntegration: true, // si quieres usar Node.js en tu ventana
+			nodeIntegration: false, // si quieres usar Node.js en tu ventana
 			contextIsolation: true,
 		},
 	})
-	mainWindows.loadFile('index.html')
+	mainWindow.maximize()
+	mainWindow.setBounds({ x: 0, y: 0, width, height })
+	mainWindow.loadFile('index.html')
 }
 
 // Menu.setApplicationMenu(null)
 
 app.whenReady().then(() => {
-	createWindows()
+	// ** Obtener parámetros de la pantalla
+	const primaryDisplay = screen.getPrimaryDisplay()
+	const { width, height } = primaryDisplay.workAreaSize
+	createWindow(width, height)
 
 	app.on('activate', () => {
-		if (BrowserWindow.getAllWindows().length === 0) createWindows()
+		if (BrowserWindow.getAllWindows().length === 0) createWindow()
 	})
 })
 
