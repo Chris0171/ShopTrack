@@ -36,11 +36,7 @@ textarea {
 	position: absolute;
 	top: 100%;
 	left: 0;
-	background-image: linear-gradient(
-		to right,
-		rgb(49, 33, 111),
-		rgb(23, 48, 95)
-	);
+	background-image: linear-gradient(to right, #31216f, #183262);
 	padding: 0.5rem 0;
 	border-radius: 8px;
 	min-width: 250px;
@@ -65,4 +61,8 @@ textarea {
 }
 .bg-other {
 	background-color: rgba(255, 255, 255, 0.5);
+}
+.chart-box {
+	width: 500px;
+	height: 300px;
 }
