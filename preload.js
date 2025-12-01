@@ -48,6 +48,8 @@ contextBridge.exposeInMainWorld('api', {
 		getById: (id) => ipcRenderer.invoke('detalle:getById', id),
 		getByVentaId: (idVenta) =>
 			ipcRenderer.invoke('detalle:getByVentaId', idVenta),
+		getPaginated: (limit, offset) =>
+			ipcRenderer.invoke('detalle:getPaginated', { limit, offset }),
 	},
 	factura: {
 		create: (data) => ipcRenderer.invoke('factura:create', data),
