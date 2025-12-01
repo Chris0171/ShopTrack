@@ -103,4 +103,31 @@ module.exports = {
 			callback(null, rows)
 		})
 	},
+	// ** Obtener historial
+	getPaginated: function (limit, offset, callback) {
+		const sql = `
+        SELECT 
+            v.id AS idVenta,
+            v.fecha,
+            v.subtotal,
+            v.impuestos,
+            v.total,
+            c.nombre AS clienteNombre,
+            c.telefono AS clienteTelefono,
+            c.email AS clienteEmail,
+            c.direccion AS clienteDireccion,
+            f.numeroFactura,
+            f.metodoPago,
+            f.estado
+        FROM Venta v
+        JOIN Clientes c ON v.idCliente = c.id
+        LEFT JOIN Factura f ON f.idVenta = v.id
+        ORDER BY v.id DESC
+        LIMIT ? OFFSET ?;
+    `
+		db.all(sql, [limit, offset], (err, rows) => {
+			if (err) return callback(err)
+			callback(null, rows)
+		})
+	},
 }
