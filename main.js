@@ -248,6 +248,14 @@ ipcMain.handle('detalle:getByVentaId', async (event, idVenta) => {
 		})
 	})
 })
+ipcMain.handle('detalle:getPaginated', async (event, { limit, offset }) => {
+	return new Promise((resolve) => {
+		detalleController.getPaginated(limit, offset, (err, rows) => {
+			if (err) resolve({ ok: false, error: err.message })
+			else resolve({ ok: true, ventas: rows })
+		})
+	})
+})
 
 // ** === Factura === ** //
 ipcMain.handle('factura:create', async (event, data) => {
