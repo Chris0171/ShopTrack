@@ -1,6 +1,4 @@
--- ======================================
 -- TABLA: Producto
--- ======================================
 CREATE TABLE IF NOT EXISTS Producto (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 NroParte TEXT NOT NULL UNIQUE,
@@ -10,10 +8,7 @@ Precio REAL NOT NULL,
 Tasas REAL NOT NULL DEFAULT 0
 );
 
-
--- ======================================
 -- TABLA: Clientes
--- ======================================
 CREATE TABLE IF NOT EXISTS Clientes (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 nombre TEXT NOT NULL,
@@ -22,10 +17,7 @@ email TEXT,
 direccion TEXT
 );
 
-
--- ======================================
 -- TABLA: Venta
--- ======================================
 CREATE TABLE IF NOT EXISTS Venta (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 idCliente INTEGER NOT NULL,
@@ -34,14 +26,10 @@ subtotal REAL NOT NULL,
 impuestos REAL NOT NULL,
 total REAL NOT NULL,
 
-
 FOREIGN KEY (idCliente) REFERENCES Clientes(id)
 );
 
-
--- ======================================
 -- TABLA: DetalleVenta
--- ======================================
 CREATE TABLE IF NOT EXISTS DetalleVenta (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 idVenta INTEGER NOT NULL,
@@ -51,35 +39,22 @@ precioUnitario REAL NOT NULL,
 tasaAplicada REAL NOT NULL,
 totalLinea REAL NOT NULL,
 
-
 FOREIGN KEY (idVenta) REFERENCES Venta(id) ON DELETE CASCADE,
 FOREIGN KEY (idProducto) REFERENCES Producto(id)
 );
 
-
--- ======================================
 -- TABLA: Factura
--- ======================================
 CREATE TABLE IF NOT EXISTS Factura (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 idVenta INTEGER NOT NULL,
-
-
 numeroFactura TEXT UNIQUE NOT NULL,
 fechaEmision TEXT NOT NULL DEFAULT (datetime('now')),
-
-
 subtotal REAL NOT NULL,
 impuestos REAL NOT NULL,
 total REAL NOT NULL,
-
-
 metodoPago TEXT NOT NULL DEFAULT 'efectivo',
 observaciones TEXT,
-
-
 estado TEXT NOT NULL DEFAULT 'emitida',
-
 
 FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
