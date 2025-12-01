@@ -1,5 +1,6 @@
 import { initDashboard } from './assets/js/dashboard.js'
 import { initNuevaVenta } from './assets/js/nueva_venta.js'
+import { initHistorialVenta } from './assets/js/historial_venta.js'
 
 window.addEventListener('DOMContentLoaded', async () => {
 	const content = document.getElementById('mainContent')
@@ -34,6 +35,9 @@ function loadInitFunctionView(viewName) {
 			break
 		case 'nueva_venta.html':
 			initNuevaVenta()
+			break
+		case 'historial_ventas.html':
+			initHistorialVenta()
 			break
 	}
 }
