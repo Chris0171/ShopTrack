@@ -1,0 +1,32 @@
+<h1 class="text-3xl font-bold text-white mb-6">
+  Listado de Clientes
+</h1>
+
+<!-- Buscador -->
+<div class="mb-4">
+  <input id="searchInput" type="text" placeholder="Buscar cliente por nombre..."
+    class="w-80 px-4 py-2 border border-yellow-500 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none">
+</div>
+
+<!-- Tabla -->
+<div class="overflow-x-auto shadow-lg rounded-xl bg-white">
+  <table class="w-full bg-other">
+    <thead class="myClientThead bg-table rounded-3xl">
+      <tr>
+        <th class="myTh text-left cursor-pointer sortable">ID</th>
+        <th class="myTh text-left cursor-pointer sortable">Nombre</th>
+        <th class="myTh text-left cursor-pointer sortable">Teléfono</th>
+        <th class="myTh text-left">Email</th>
+        <th class="myTh text-left">Dirección</th>
+        <th class="myTh text-left cursor-pointer sortable">Ventas</th>
+        <th class="myTh text-left cursor-pointer sortable">Artículos</th>
+        <th class="myTh text-left cursor-pointer sortable">Total Gastado ($)</th>
+        <th class="myTh text-left cursor-pointer sortable">Última Compra</th>
+      </tr>
+    </thead>
+
+    <tbody id="tbodyClientes" class="divide-y divide-gray-200">
+      <!-- Aquí se insertarán las filas dinámicamente -->
+    </tbody>
+  </table>
+</div>
