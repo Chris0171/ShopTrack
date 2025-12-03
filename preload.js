@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('api', {
 		buscarPorNombre: (nombre) =>
 			ipcRenderer.invoke('cliente:buscar-nombre', nombre),
 		getById: (id) => ipcRenderer.invoke('cliente:getById', id),
+		getAllWithStats: () => ipcRenderer.invoke('cliente:getAllWithStats'),
 	},
 
 	venta: {
