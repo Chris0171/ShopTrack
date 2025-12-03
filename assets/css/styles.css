@@ -2,12 +2,19 @@
 @import 'tailwindcss';
 
 .myTh {
-	@apply px-6 py-3 font-bold text-gray-700;
+	@apply px-4 py-3 font-bold text-gray-700;
 	font-size: 18px;
 }
 .myThead {
 	@apply bg-gray-100 border-b border-gray-200 bg-linear-to-r from-blue-200 to-indigo-200 text-lg;
 }
+.myClientThead {
+	@apply bg-gray-100 border-b border-gray-200 bg-linear-to-r from-cyan-800 to-indigo-800 text-lg;
+}
+.myClientThead th {
+	@apply text-white;
+}
+
 input,
 select,
 textarea {
@@ -15,11 +22,12 @@ textarea {
 }
 .menu-item {
 	position: relative;
-	padding: 0.5rem 1rem;
+	padding: 0.7rem 1rem;
 	cursor: pointer;
 	border-radius: 12px;
 	transition: background 0.2s;
 	font-weight: bold;
+	font-size: 17px;
 }
 
 .menu-item:hover {
