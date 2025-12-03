@@ -71,4 +71,24 @@ module.exports = {
 			callback(null, row)
 		})
 	},
+	getAllWithStats: function (callback) {
+		const sql = `
+        SELECT 
+            c.*,
+            COUNT(DISTINCT v.id) AS totalVentas,
+            IFNULL(SUM(dv.cantidad), 0) AS totalArticulos,
+            IFNULL(SUM(v.total), 0) AS totalGastado,
+            MAX(v.fecha) AS ultimaCompra
+        FROM Clientes c
+        LEFT JOIN Venta v ON v.idCliente = c.id
+        LEFT JOIN DetalleVenta dv ON dv.idVenta = v.id
+        GROUP BY c.id
+        ORDER BY c.id
+    `
+
+		db.all(sql, [], (err, rows) => {
+			if (err) callback(err)
+			else callback(null, rows)
+		})
+	},
 }
