@@ -52,4 +52,15 @@ module.exports = function registerClienteIPC(ipcMain) {
 			})
 		})
 	})
+	ipcMain.handle('cliente:getAllWithStats', async () => {
+		return new Promise((resolve) => {
+			clienteController.getAllWithStats((err, rows) => {
+				if (err) {
+					resolve({ ok: false, error: err.message })
+				} else {
+					resolve({ ok: true, clientes: rows })
+				}
+			})
+		})
+	})
 }
