@@ -1,6 +1,6 @@
 const ventaController = require('../controllers/venta-controller')
 
-module.exports = function registerVentaIPC(ipc) {
+module.exports = function registerVentaIPC(ipcMain) {
 	ipcMain.handle('venta:create', async (event, data) => {
 		return new Promise((resolve) => {
 			ventaController.create(data, (err, result) => {
