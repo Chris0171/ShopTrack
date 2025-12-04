@@ -1,11 +1,49 @@
-<div class="p-6 space-y-4" id="historialContainer">
+<div class="p-4">
 
-  <h1 class="text-3xl font-bold text-gray-800 mb-4">Historial de Ventas</h1>
+  <h1 class="text-2xl font-bold mb-4">Historial de Ventas</h1>
 
-  <div id="ventasList" class="space-y-4"></div>
+  <!-- Filtros -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <input id="filtroFactura" type="text" placeholder="Buscar por Nº factura"
+      class="border px-3 py-2 rounded-lg w-full" />
 
-  <div id="loading" class="text-center text-gray-500 hidden">
+    <input id="filtroCliente" type="text" placeholder="Buscar por cliente" class="border px-3 py-2 rounded-lg w-full" />
+
+    <select id="filtroMetodo" class="border px-3 py-2 rounded-lg w-full">
+      <option value="">Filtrar por método de pago</option>
+      <option value="efectivo">Efectivo</option>
+      <option value="tarjeta">Tarjeta</option>
+      <option value="transferencia">Transferencia</option>
+      <option value="bizum">Bizum</option>
+    </select>
+  </div>
+
+  <!-- Tabla -->
+  <div class="overflow-x-auto shadow rounded-lg bg-white">
+    <table class="min-w-full">
+      <thead class="bg-gray-100 border-b">
+        <tr>
+          <th class="px-4 py-2 text-left">Nº Factura</th>
+          <th class="px-4 py-2 text-left">Cliente</th>
+          <th class="px-4 py-2 text-left">Método Pago</th>
+          <th class="px-4 py-2 text-left">Subtotal</th>
+          <th class="px-4 py-2 text-left">Impuestos</th>
+          <th class="px-4 py-2 text-left">Total</th>
+          <th class="px-4 py-2 text-left">Fecha</th>
+          <th class="px-4 py-2 text-left">Detalles</th>
+          <th class="px-4 py-2 text-left">Factura</th>
+        </tr>
+      </thead>
+
+      <tbody id="tablaVentasBody"></tbody>
+    </table>
+  </div>
+
+  <div id="loading" class="text-center py-4 hidden text-gray-600">
     Cargando más ventas...
   </div>
 
 </div>
+
+<!-- MODALES -->
+<div id="modalContainer"></div>
