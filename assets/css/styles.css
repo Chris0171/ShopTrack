@@ -1,6 +1,9 @@
 /* tailwindcss */
 @import 'tailwindcss';
 
+body {
+	min-height: 100vh;
+}
 .myTh {
 	@apply px-4 py-3 font-bold text-gray-700;
 	font-size: 18px;
