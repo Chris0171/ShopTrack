@@ -44,4 +44,12 @@ module.exports = function registerProductoIPC(ipcMain) {
 			})
 		}
 	)
+	ipcMain.handle('producto:getPaginated', async (event, filtros) => {
+		return new Promise((resolve, reject) => {
+			productoController.getPaginated(filtros, (err, result) => {
+				if (err) return reject(err.message)
+				resolve(result)
+			})
+		})
+	})
 }
