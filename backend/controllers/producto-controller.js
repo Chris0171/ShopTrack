@@ -79,4 +79,40 @@ module.exports = {
 			callback(null, { success: true })
 		})
 	},
+	getPaginated: function (filtros, callback) {
+		const { NroParte = '', Descripcion = '', pagina = 1, limite = 10 } = filtros
+		const offset = (pagina - 1) * limite
+
+		const countSql = `
+    SELECT COUNT(*) AS total 
+    FROM Producto 
+    WHERE NroParte LIKE ? AND Descripcion LIKE ?
+  `
+		db.get(countSql, [`%${NroParte}%`, `%${Descripcion}%`], (err, countRow) => {
+			if (err) return callback(err)
+
+			const total = countRow.total
+
+			const dataSql = `
+      SELECT * FROM Producto
+      WHERE NroParte LIKE ? AND Descripcion LIKE ?
+      ORDER BY id ASC
+      LIMIT ? OFFSET ?
+    `
+			db.all(
+				dataSql,
+				[`%${NroParte}%`, `%${Descripcion}%`, limite, offset],
+				(err, rows) => {
+					if (err) return callback(err)
+					callback(null, {
+						productos: rows,
+						total,
+						pagina,
+						limite,
+						totalPaginas: Math.ceil(total / limite),
+					})
+				}
+			)
+		})
+	},
 }
