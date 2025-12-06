@@ -1,0 +1,35 @@
+<h1 class="text-2xl font-bold mb-4">Listado de Productos</h1>
+
+<!-- Filtros -->
+<div class="flex gap-4 mb-4">
+  <input id="filtroNroParte" type="text" placeholder="Filtrar por NroParte" class="border rounded p-2 w-1/4">
+  <input id="filtroDescripcion" type="text" placeholder="Filtrar por Descripción" class="border rounded p-2 w-1/4">
+  <button id="btnFiltrar" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filtrar</button>
+</div>
+
+<!-- Tabla -->
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-white rounded shadow">
+    <thead>
+      <tr class="bg-gray-200 text-gray-700">
+        <th class="py-2 px-4 border">NroParte</th>
+        <th class="py-2 px-4 border">Descripción</th>
+        <th class="py-2 px-4 border">Cantidad</th>
+        <th class="py-2 px-4 border">Precio</th>
+        <th class="py-2 px-4 border">Tasas</th>
+        <th class="py-2 px-4 border">Actualizar</th>
+        <th class="py-2 px-4 border">Eliminar</th>
+      </tr>
+    </thead>
+    <tbody id="tablaProductosBody">
+      <!-- Filas generadas dinámicamente -->
+    </tbody>
+  </table>
+</div>
+
+<!-- Paginación -->
+<div class="flex justify-between items-center mt-4">
+  <button id="prevPage" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Anterior</button>
+  <span id="paginaActual" class="font-semibold"></span>
+  <button id="nextPage" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Siguiente</button>
+</div>
