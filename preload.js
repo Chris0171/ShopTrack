@@ -18,6 +18,8 @@ contextBridge.exposeInMainWorld('api', {
 				idProducto,
 				nuevaCantidad
 			),
+		getPaginated: (filtros) =>
+			ipcRenderer.invoke('producto:getPaginated', filtros),
 	},
 
 	cliente: {
