@@ -28,6 +28,15 @@ module.exports = function registerProductoIPC(ipcMain) {
 		})
 	})
 
+	ipcMain.handle('producto:update', async (event, { id, data }) => {
+		return new Promise((resolve, reject) => {
+			productoController.update(id, data, (err) => {
+				if (err) return reject(err.message)
+				resolve({ ok: true })
+			})
+		})
+	})
+
 	ipcMain.handle('producto:buscar-producto', async (event, nroParte) => {
 		return new Promise((resolve, reject) => {
 			productoController.buscarPorNroParte(nroParte, (err, row) => {
