@@ -39,11 +39,23 @@ export function initProductList() {
           <button class="bg-yellow-400 px-2 py-1 rounded hover:bg-yellow-500" disabled>Actualizar</button>
         </td>
         <td class="py-2 px-4 border text-center">
-          <button class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-            onclick="eliminarProducto(${p.id})">Eliminar</button>
+          <button id="btn_${p.id}" class="bg-red-500 
+					text-white px-2 py-1 rounded hover:bg-red-600">Eliminar</button>
         </td>
       `
+
 			tablaBody.appendChild(tr)
+
+			document
+				.getElementById(`btn_${p.id}`)
+				.addEventListener('click', async (e) => {
+					if (confirm('¿Desea eliminar este producto?')) {
+						window.api.producto
+							.delete(p.id)
+							.then(() => cargarProductos())
+							.catch((err) => console.log('Error al eliminar: ' + err.message))
+					}
+				})
 		})
 
 		// Actualizar número de página
@@ -53,16 +65,6 @@ export function initProductList() {
 		prevPageBtn.style.display = pagina > 1 ? 'inline-block' : 'none'
 		nextPageBtn.style.display = pagina < totalPaginas ? 'inline-block' : 'none'
 	}
-
-	function eliminarProducto(id) {
-		if (confirm('¿Desea eliminar este producto?')) {
-			window.api.producto
-				.delete(id)
-				.then(() => cargarProductos())
-				.catch((err) => alert('Error al eliminar: ' + err.message))
-		}
-	}
-
 	// Filtrar automáticamente al escribir
 	filtroNroParte.addEventListener('input', () => {
 		pagina = 1
