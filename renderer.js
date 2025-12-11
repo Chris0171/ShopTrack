@@ -3,6 +3,7 @@ import { initNuevaVenta } from './assets/js/nueva_venta.js'
 import { initHistorialVenta } from './assets/js/historial_venta.js'
 import { initClientsList } from './assets/js/clientes.js'
 import { initProductList } from './assets/js/listar_productos.js'
+import { initUpdateProducto } from './assets/js/actualizar_producto.js'
 
 window.addEventListener('DOMContentLoaded', async () => {
 	const content = document.getElementById('mainContent')
@@ -46,6 +47,11 @@ function loadInitFunctionView(viewName) {
 			break
 		case 'listar_productos.html':
 			initProductList()
+			break
+		case 'actualizar_producto.html':
+			const urlParams = new URLSearchParams(window.location.search)
+			const id = urlParams.get('id')
+			initUpdateProducto(id)
 			break
 	}
 }
