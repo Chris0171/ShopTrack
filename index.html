@@ -32,7 +32,7 @@
       <div class="menu-item text-white">Producto
         <ul class="submenu">
           <li id="Agregar">Nuevo producto</li>
-          <li id="Actualizar">Actualizar</li>
+          <li data-view="actualizar_producto.html">Actualizar</li>
           <li data-view="listar_productos.html">Lista de productos</li>
           <hr>
           <li id="Categorias">Categorías</li>
@@ -53,49 +53,6 @@
 
   <!-- Contenedor donde se carga el contenido -->
   <main id="mainContent" class="p-4"></main>
-
-  <div class="tableComponent">
-    <div class="p-6">
-      <div class="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
-        <table class="min-w-full bg-white">
-          <thead class="myThead">
-            <tr>
-              <th class="myTh text-left">ID</th>
-              <th class="myTh text-left">Número de parte</th>
-              <th class="myTh text-left">Descripción</th>
-              <th class="myTh text-left">Cantidad</th>
-              <th class="myTh text-left">Tasas</th>
-              <th class="myTh text-left">Precio</th>
-              <th class="myTh text-center">Acciones</th>
-            </tr>
-          </thead>
-
-          <tbody class="divide-y divide-gray-200">
-            <tr class="hover:bg-gray-50 transition">
-              <td class="px-6 py-4 text-sm text-gray-700">1</td>
-              <td class="px-6 py-4 text-sm text-gray-700">P-2456</td>
-              <td class="px-6 py-4 text-sm text-gray-700">Tornillo de acero inoxidable</td>
-              <td class="px-6 py-4 text-sm text-gray-700">50</td>
-              <td class="px-6 py-4 text-sm text-gray-700">21%</td>
-              <td class="px-6 py-4 text-sm text-gray-700">0.35€</td>
-
-              <!-- ACCIONES -->
-              <td class="px-6 py-4 flex items-center justify-center gap-3">
-                <button
-                  class="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-                  Actualizar
-                </button>
-                <button
-                  class="px-3 py-1 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition">
-                  Eliminar
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 
   <!-- Scripts -->
   <script type="module" src="./renderer.js"></script>
