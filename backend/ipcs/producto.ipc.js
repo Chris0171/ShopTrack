@@ -18,6 +18,16 @@ module.exports = function registerProductoIPC(ipcMain) {
 			})
 		})
 	})
+
+	ipcMain.handle('producto:delete', async (event, id) => {
+		return new Promise((resolve, reject) => {
+			productoController.delete(id, (err) => {
+				if (err) return reject(err.message)
+				resolve({ ok: true })
+			})
+		})
+	})
+
 	ipcMain.handle('producto:buscar-producto', async (event, nroParte) => {
 		return new Promise((resolve, reject) => {
 			productoController.buscarPorNroParte(nroParte, (err, row) => {
