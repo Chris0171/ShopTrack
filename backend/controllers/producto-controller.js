@@ -4,7 +4,7 @@ const db = require('../db/initDatabase')
 module.exports = {
 	// Obtener todos los productos
 	getAll: function (callback) {
-		const sql = `SELECT * FROM Producto ORDER BY id DESC`
+		const sql = `SELECT * FROM Producto WHERE activo = 1 ORDER BY id DESC`
 		db.all(sql, [], (err, rows) => {
 			if (err) return callback(err)
 			callback(null, rows)
@@ -57,7 +57,8 @@ module.exports = {
 
 	// Eliminar producto
 	delete: function (id, callback) {
-		db.run(`DELETE FROM Producto WHERE id = ?`, [id], function (err) {
+		const sql = `UPDATE Producto SET activo = 0 WHERE id = ?`
+		db.run(sql, [id], function (err) {
 			if (err) return callback(err)
 			callback(null)
 		})
@@ -86,7 +87,7 @@ module.exports = {
 		const countSql = `
     SELECT COUNT(*) AS total 
     FROM Producto 
-    WHERE NroParte LIKE ? AND Descripcion LIKE ?
+    WHERE activo = 1 AND NroParte LIKE ? AND Descripcion LIKE ?
   `
 		db.get(countSql, [`%${NroParte}%`, `%${Descripcion}%`], (err, countRow) => {
 			if (err) return callback(err)
@@ -95,7 +96,7 @@ module.exports = {
 
 			const dataSql = `
       SELECT * FROM Producto
-      WHERE NroParte LIKE ? AND Descripcion LIKE ?
+      WHERE activo = 1 AND NroParte LIKE ? AND Descripcion LIKE ?
       ORDER BY id ASC
       LIMIT ? OFFSET ?
     `
