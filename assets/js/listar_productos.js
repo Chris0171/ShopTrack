@@ -1,3 +1,6 @@
+import { initUpdateProducto } from './actualizar_producto.js'
+import { loadView } from '../../renderer.js'
+
 export function initProductList() {
 	const tablaBody = document.getElementById('tablaProductosBody')
 	const filtroNroParte = document.getElementById('filtroNroParte')
@@ -36,10 +39,11 @@ export function initProductList() {
         <td class="py-2 px-4 border">${p.Precio.toFixed(2)}</td>
         <td class="py-2 px-4 border">${p.Tasas.toFixed(2)}</td>
         <td class="py-2 px-4 border text-center">
-          <button class="bg-yellow-400 px-2 py-1 rounded hover:bg-yellow-500" disabled>Actualizar</button>
+          <button id="btn_upd_${p.id}" class="bg-yellow-400 px-2 py-1
+					 rounded hover:bg-yellow-500">Actualizar</button>
         </td>
         <td class="py-2 px-4 border text-center">
-          <button id="btn_${p.id}" class="bg-red-500 
+          <button id="btn_del_${p.id}" class="bg-red-500 
 					text-white px-2 py-1 rounded hover:bg-red-600">Eliminar</button>
         </td>
       `
@@ -47,8 +51,17 @@ export function initProductList() {
 			tablaBody.appendChild(tr)
 
 			document
-				.getElementById(`btn_${p.id}`)
-				.addEventListener('click', async (e) => {
+				.getElementById(`btn_upd_${p.id}`)
+				.addEventListener('click', async () => {
+					loadView('actualizar_producto.html')
+					setTimeout(() => {
+						initUpdateProducto(p.id)
+					}, 50)
+				})
+
+			document
+				.getElementById(`btn_del_${p.id}`)
+				.addEventListener('click', async () => {
 					if (confirm('¿Desea eliminar este producto?')) {
 						window.api.producto
 							.delete(p.id)
