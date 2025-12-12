@@ -49,9 +49,11 @@ function loadInitFunctionView(viewName) {
 			initProductList()
 			break
 		case 'actualizar_producto.html':
-			const urlParams = new URLSearchParams(window.location.search)
-			const id = urlParams.get('id')
-			initUpdateProducto(id)
+			// const urlParams = new URLSearchParams(window.location.search)
+			// const id = urlParams.get('id')
+			initUpdateProducto(null)
 			break
 	}
 }
+
+export { loadView }
