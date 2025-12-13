@@ -25,6 +25,7 @@ build/
 # Configuraciones de editor
 .vscode/
 .idea/
+.github/
 
 # Archivos del sistema
 .DS_Store
