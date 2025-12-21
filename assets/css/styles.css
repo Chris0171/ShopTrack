@@ -74,6 +74,44 @@ textarea {
 	background-color: rgba(255, 255, 255, 0.5);
 }
 .chart-box {
-	width: 500px;
-	height: 300px;
+	min-width: auto;
+	min-height: 400px;
+	max-width: 100%;
+	width: 100%;
+}
+
+@media (min-width: 768px) {
+	.chart-box {
+		min-height: 450px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.chart-box {
+		min-width: 600px;
+		min-height: 500px;
+	}
+}
+
+/* * Estilos para los botones del período * */
+.btn-periodo {
+	@apply px-4 py-2 bg-blue-600 text-white rounded-xl transition font-medium;
+}
+
+.btn-periodo:hover {
+	@apply bg-blue-700;
+}
+
+.btn-periodo.active {
+	@apply bg-indigo-700;
+}
+
+.btn-periodo.active:hover {
+	@apply bg-indigo-800;
+}
+
+/* * Estilos para las tarjetas con efecto de desenfoque */
+.tarjetas {
+	backdrop-filter: blur(10px);
+	@apply bg-white/60 rounded-2xl shadow;
 }
