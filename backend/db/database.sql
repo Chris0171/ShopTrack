@@ -26,6 +26,8 @@ fecha TEXT NOT NULL DEFAULT (datetime('now')),
 subtotal REAL NOT NULL,
 impuestos REAL NOT NULL,
 total REAL NOT NULL,
+descuento REAL NOT NULL DEFAULT 0,
+motivoDescuento TEXT,
 
 FOREIGN KEY (idCliente) REFERENCES Clientes(id)
 );
