@@ -14,6 +14,8 @@ export function initNuevaVenta() {
 	const subtotalInput = document.getElementById('subtotalVenta')
 	const impuestosInput = document.getElementById('impuestosVenta')
 	const totalInput = document.getElementById('totalVenta')
+	const descuentoInput = document.getElementById('descuentoVenta')
+	const motivoDescuentoInput = document.getElementById('motivoDescuento')
 
 	const metodoPago = document.getElementById('metodoPago')
 	const numeroFactura = document.getElementById('numeroFactura')
@@ -68,6 +70,11 @@ export function initNuevaVenta() {
 	}
 	cargarTodo()
 	cargarClientes()
+
+	// Event listener para descuento
+	descuentoInput.addEventListener('change', () => {
+		actualizarTotales()
+	})
 
 	// BUSCADOR DE PRODUCTOS
 	buscarInput.addEventListener('keydown', async (e) => {
@@ -163,7 +170,8 @@ export function initNuevaVenta() {
 			(acc, p) => acc + p.precio * p.cantidad * p.tasa,
 			0
 		)
-		const total = subtotal + impuestos
+		const descuento = parseFloat(descuentoInput.value) || 0
+		const total = subtotal + impuestos - descuento
 
 		subtotalInput.value = subtotal.toFixed(2)
 		impuestosInput.value = impuestos.toFixed(2)
@@ -210,6 +218,8 @@ export function initNuevaVenta() {
 		// Crear venta
 		const subtotal = parseFloat(subtotalInput.value)
 		const impuestos = parseFloat(impuestosInput.value)
+		const descuento = parseFloat(descuentoInput.value) || 0
+		const motivoDescuento = motivoDescuentoInput.value.trim()
 		const total = parseFloat(totalInput.value)
 
 		const idVenta = await window.api.venta.create({
@@ -217,6 +227,8 @@ export function initNuevaVenta() {
 			subtotal: subtotal,
 			impuestos,
 			total,
+			descuento,
+			motivoDescuento,
 		})
 
 		// Crear detalles de venta y actualizar stock
@@ -261,6 +273,8 @@ export function initNuevaVenta() {
 		clienteTelefono.value = ''
 		clienteEmail.value = ''
 		clienteDireccion.value = ''
+		descuentoInput.value = ''
+		motivoDescuentoInput.value = ''
 		numeroFactura.value = ''
 		observaciones.value = ''
 	})
