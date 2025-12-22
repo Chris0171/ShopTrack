@@ -66,7 +66,7 @@
   <div class="mt-8 p-6 rounded-3xl myThead">
     <h2 class="text-xl font-bold mb-4">Resumen de la Venta</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div>
         <label class="font-semibold">Subtotal:</label>
         <input id="subtotalVenta" type="number" readonly class="w-full p-2 pl-4 rounded-2xl border bg-gray-200">
@@ -75,6 +75,18 @@
       <div>
         <label class="font-semibold">Impuestos:</label>
         <input id="impuestosVenta" type="number" readonly class="w-full p-2 pl-4 rounded-2xl border bg-gray-200">
+      </div>
+
+      <div>
+        <label class="font-semibold">Descuento ($):</label>
+        <input id="descuentoVenta" type="number" min="0" step="0.01"
+          class="w-full p-2 pl-4 rounded-2xl border bg-gray-200">
+      </div>
+
+      <div>
+        <label class="font-semibold">Motivo Descuento:</label>
+        <input id="motivoDescuento" type="text" placeholder="Ej: Promoción, cliente frecuente..."
+          class="w-full p-2 pl-4 rounded-2xl border bg-gray-200">
       </div>
 
       <div>
