@@ -16,7 +16,17 @@ module.exports = {
 	},
 
 	// 🔹 Crear venta
-	create: function ({ idCliente, subtotal, impuestos, total }, callback) {
+	create: function (
+		{
+			idCliente,
+			subtotal,
+			impuestos,
+			total,
+			descuento = 0,
+			motivoDescuento = '',
+		},
+		callback
+	) {
 		if (!idCliente || subtotal == null || impuestos == null || total == null) {
 			return callback(
 				new Error('idCliente, subtotal, impuestos y total son obligatorios')
@@ -24,29 +34,43 @@ module.exports = {
 		}
 
 		const sql = `
-            INSERT INTO Venta (idCliente, subtotal, impuestos, total)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento, motivoDescuento)
+            VALUES (?, ?, ?, ?, ?, ?)
         `
 		const stmt = db.prepare(sql)
-		stmt.run([idCliente, subtotal, impuestos, total], function (err) {
-			if (err) return callback(err)
-			callback(null, { id: this.lastID })
-		})
+		stmt.run(
+			[idCliente, subtotal, impuestos, total, descuento, motivoDescuento],
+			function (err) {
+				if (err) return callback(err)
+				callback(null, { id: this.lastID })
+			}
+		)
 		stmt.finalize()
 	},
 
 	// 🔹 Actualizar venta
 	update: function (id, data, callback) {
-		const { idCliente, subtotal, impuestos, total } = data
+		const {
+			idCliente,
+			subtotal,
+			impuestos,
+			total,
+			descuento = 0,
+			motivoDescuento = '',
+		} = data
 		const sql = `
             UPDATE Venta
-            SET idCliente = ?, subtotal = ?, impuestos = ?, total = ?
+            SET idCliente = ?, subtotal = ?, impuestos = ?, total = ?, descuento = ?, motivoDescuento = ?
             WHERE id = ?
         `
-		db.run(sql, [idCliente, subtotal, impuestos, total, id], function (err) {
-			if (err) return callback(err)
-			callback(null, { success: true, changes: this.changes })
-		})
+		db.run(
+			sql,
+			[idCliente, subtotal, impuestos, total, descuento, motivoDescuento, id],
+			function (err) {
+				if (err) return callback(err)
+				callback(null, { success: true, changes: this.changes })
+			}
+		)
 	},
 
 	// 🔹 Eliminar venta
