@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^7.1.0",
 		"echarts": "^6.0.0",
+		"pdfkit": "^0.17.2",
 		"sqlite3": "^5.1.7"
 	}
 }
