@@ -1,6 +1,7 @@
 export function initNuevaVenta() {
 	// Lista temporal de productos agregados a la venta
 	let productosVenta = []
+	let ventaActual = null // Almacenar datos de la venta actual
 
 	const buscarInput = document.getElementById('buscarInput')
 	const tablaVenta = document.getElementById('tablaVenta')
@@ -22,6 +23,7 @@ export function initNuevaVenta() {
 	const observaciones = document.getElementById('observaciones')
 
 	const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
+	const btnDescargarPDF = document.getElementById('btnDescargarPDF')
 
 	// CARGAR CLIENTES EXISTENTES
 	async function cargarClientes() {
@@ -247,7 +249,7 @@ export function initNuevaVenta() {
 		}
 
 		// Crear factura
-		await window.api.factura.create({
+		const facturaRes = await window.api.factura.create({
 			idVenta: idVenta.id,
 			numeroFactura: numeroFactura.value.trim(),
 			subtotal,
@@ -257,14 +259,44 @@ export function initNuevaVenta() {
 			observaciones: observaciones.value.trim(),
 		})
 
+		// Almacenar datos de la venta actual para generar PDF
+		ventaActual = {
+			factura: {
+				numeroFactura: numeroFactura.value.trim(),
+				fechaEmision: new Date().toISOString(),
+				subtotal,
+				impuestos,
+				descuento,
+				total,
+				metodoPago: metodoPago.value,
+				observaciones: observaciones.value.trim(),
+			},
+			cliente: {
+				nombre: clienteNombre.value,
+				telefono: clienteTelefono.value,
+				email: clienteEmail.value,
+				direccion: clienteDireccion.value,
+			},
+			detalles: productosVenta.map((p) => ({
+				nroParte: p.NroParte,
+				descripcion: p.Descripcion,
+				cantidad: p.cantidad,
+				precioUnitario: p.precio,
+				tasaAplicada: p.tasa,
+			})),
+		}
+
 		console.log(idCliente, ' ', idVenta)
 		showFieldError(
 			'errorVenta',
-			'Venta y factura registradas correctamente.',
+			'Venta y factura registradas correctamente. Ya puedes descargar el PDF.',
 			'btnVenta'
 		)
 
-		// Limpiar pantalla para nueva venta
+		// Mostrar botón de descargar PDF
+		btnDescargarPDF.classList.remove('hidden')
+
+		// Limpiar pantalla para nueva venta (excepto factura)
 		productosVenta = []
 		renderTabla()
 		actualizarTotales()
@@ -299,6 +331,42 @@ export function initNuevaVenta() {
 			clienteTelefono.value = c.telefono || ''
 			clienteEmail.value = c.email || ''
 			clienteDireccion.value = c.direccion || ''
+		}
+	})
+
+	// ** Descargar PDF de factura
+	btnDescargarPDF.addEventListener('click', async () => {
+		if (!ventaActual) {
+			showFieldError('errorVenta', 'No hay factura para descargar.', 'btnVenta')
+			return
+		}
+
+		btnDescargarPDF.disabled = true
+		btnDescargarPDF.textContent = '⏳ Generando PDF...'
+
+		try {
+			const resultado = await window.api.factura.generarPDF(ventaActual)
+
+			if (resultado.ok) {
+				showFieldError(
+					'errorVenta',
+					'✅ PDF generado exitosamente.',
+					'btnVenta'
+				)
+				// Abrir archivo en explorador
+				await window.api.general.abrirArchivo(resultado.ruta)
+			} else {
+				showFieldError('errorVenta', `❌ Error: ${resultado.error}`, 'btnVenta')
+			}
+		} catch (error) {
+			showFieldError(
+				'errorVenta',
+				`❌ Error al generar PDF: ${error.message}`,
+				'btnVenta'
+			)
+		} finally {
+			btnDescargarPDF.disabled = false
+			btnDescargarPDF.textContent = '📄 Descargar Factura PDF'
 		}
 	})
 }
