@@ -62,5 +62,10 @@ contextBridge.exposeInMainWorld('api', {
 		getById: (id) => ipcRenderer.invoke('factura:getById', id),
 		getByVentaId: (idVenta) =>
 			ipcRenderer.invoke('factura:getByVentaId', idVenta),
+		generarPDF: (datos) => ipcRenderer.invoke('factura:generarPDF', datos),
+	},
+
+	general: {
+		abrirArchivo: (ruta) => ipcRenderer.invoke('abrirArchivo', ruta),
 	},
 })
