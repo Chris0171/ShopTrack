@@ -98,11 +98,12 @@ class PDFService {
 				const headers = [
 					'Nro Parte',
 					'Descripción',
+					'Precio Unit.',
 					'Cantidad',
 					'Tasas',
 					'Total',
 				]
-				const columnWidths = [120, 210, 60, 60, 65]
+				const columnWidths = [110, 170, 75, 60, 50, 50]
 				const tableX = 40
 				const tableY = posY
 				const tableWidth = 515
@@ -118,6 +119,7 @@ class PDFService {
 					return {
 						nroParte: d.nroParte,
 						descripcion: d.descripcion,
+						precioUnit: `$${Number(d.precioUnitario || 0).toFixed(2)}`,
 						cantidad: d.cantidad.toString(),
 						tasa: `${tasaPorcentaje}%`,
 						total: `$${totalLinea}`,
@@ -134,6 +136,12 @@ class PDFService {
 						columnWidths[1] +
 						columnWidths[2] +
 						columnWidths[3],
+					tableX +
+						columnWidths[0] +
+						columnWidths[1] +
+						columnWidths[2] +
+						columnWidths[3] +
+						columnWidths[4],
 				]
 				// Header con gradiente y solo esquinas superiores redondeadas
 				const radius = 6
@@ -177,9 +185,10 @@ class PDFService {
 
 				doc.text(headers[0], colX[0] + 6, headerTextY)
 				doc.text(headers[1], colX[1] + 6, headerTextY)
-				doc.text(headers[2], colX[2] + 15, headerTextY)
-				doc.text(headers[3], colX[3] + 20, headerTextY)
-				doc.text(headers[4], colX[4] + 20, headerTextY)
+				doc.text(headers[2], colX[2] + 10, headerTextY)
+				doc.text(headers[3], colX[3] + 10, headerTextY)
+				doc.text(headers[4], colX[4] + 10, headerTextY)
+				doc.text(headers[5], colX[5] + 10, headerTextY)
 
 				// Contorno completo de la tabla
 				doc
@@ -203,18 +212,23 @@ class PDFService {
 						ellipsis: true,
 					})
 
-					doc.text(row.cantidad, colX[2] - 5, rowTextY, {
-						width: columnWidths[2] - 12,
+					doc.text(row.precioUnit, colX[2] - 2, rowTextY, {
+						width: columnWidths[2] - 8,
 						align: 'right',
 					})
 
-					doc.text(row.tasa, colX[3] - 3, rowTextY, {
-						width: columnWidths[3] - 12,
+					doc.text(row.cantidad, colX[3] - 4, rowTextY, {
+						width: columnWidths[3] - 8,
 						align: 'right',
 					})
 
-					doc.text(row.total, colX[4] - 2, rowTextY, {
-						width: columnWidths[4] - 12,
+					doc.text(row.tasa, colX[4] - 2, rowTextY, {
+						width: columnWidths[4] - 6,
+						align: 'right',
+					})
+
+					doc.text(row.total, colX[5] - 2, rowTextY, {
+						width: columnWidths[5] - 6,
 						align: 'right',
 					})
 
