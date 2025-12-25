@@ -158,19 +158,19 @@ button:active {
 
 /* Variantes de color del modal */
 #appModalHeader.variant-info {
-	@apply bg-gradient-to-r from-blue-600 to-blue-500;
+	@apply bg-linear-to-r from-blue-600 to-blue-500;
 }
 #appModalHeader.variant-success {
-	@apply bg-gradient-to-r from-green-600 to-green-500;
+	@apply bg-linear-to-r from-green-600 to-green-500;
 }
 #appModalHeader.variant-warning {
-	@apply bg-gradient-to-r from-yellow-600 to-yellow-500;
+	@apply bg-linear-to-r from-yellow-600 to-yellow-500;
 }
 #appModalHeader.variant-error {
-	@apply bg-gradient-to-r from-red-600 to-red-500;
+	@apply bg-linear-to-r from-red-600 to-red-500;
 }
 #appModalHeader.variant-confirm {
-	@apply bg-gradient-to-r from-indigo-600 to-indigo-500;
+	@apply bg-linear-to-r from-indigo-600 to-indigo-500;
 }
 
 /* Botones con variantes y transiciones suaves */
