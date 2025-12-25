@@ -23,6 +23,21 @@ select,
 textarea {
 	@apply text-xl border-3 border-indigo-900;
 }
+
+/* Estilo global para todos los botones con sombra y hover mejorado */
+button {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+button:hover {
+	box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
 .menu-item {
 	position: relative;
 	padding: 0.7rem 1rem;
@@ -114,4 +129,99 @@ textarea {
 .tarjetas {
 	backdrop-filter: blur(10px);
 	@apply bg-white/60 rounded-2xl shadow;
+}
+
+/* Modal base */
+#appModal {
+	display: none;
+}
+#appModal.show {
+	display: flex;
+}
+
+/* Contenedor del modal con hover profesional */
+#appModal .relative {
+	transition: all 0.3s ease;
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+		0 10px 10px -5px rgba(0, 0, 0, 0.1);
+	border: 1px solid #ffffff;
+}
+
+#appModal .relative:hover {
+	box-shadow: 0 50px 120px -20px rgba(255, 255, 255, 0.5),
+		0 30px 50px -15px rgba(255, 255, 255, 0.5),
+		0 0 0 10px rgba(99, 101, 241, 0.144);
+	border-color: rgba(126, 128, 255, 0.358);
+}
+
+/* Variantes de color del modal */
+#appModalHeader.variant-info {
+	@apply bg-gradient-to-r from-blue-600 to-blue-500;
+}
+#appModalHeader.variant-success {
+	@apply bg-gradient-to-r from-green-600 to-green-500;
+}
+#appModalHeader.variant-warning {
+	@apply bg-gradient-to-r from-yellow-600 to-yellow-500;
+}
+#appModalHeader.variant-error {
+	@apply bg-gradient-to-r from-red-600 to-red-500;
+}
+#appModalHeader.variant-confirm {
+	@apply bg-gradient-to-r from-indigo-600 to-indigo-500;
+}
+
+/* Botones con variantes y transiciones suaves */
+#appModalOk {
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#appModalOk:hover {
+	transform: scale(1.08);
+}
+
+#appModalOk:active {
+	transform: scale(0.98);
+}
+
+#appModalOk.variant-success {
+	@apply bg-green-600;
+}
+#appModalOk.variant-success:hover {
+	@apply bg-green-700;
+}
+
+#appModalOk.variant-error {
+	@apply bg-red-600;
+}
+#appModalOk.variant-error:hover {
+	@apply bg-red-700;
+}
+
+#appModalOk.variant-warning {
+	@apply bg-yellow-600;
+}
+#appModalOk.variant-warning:hover {
+	@apply bg-yellow-700;
+}
+
+#appModalOk.variant-confirm {
+	@apply bg-indigo-600;
+}
+#appModalOk.variant-confirm:hover {
+	@apply bg-indigo-700;
+}
+
+/* Botón Cancelar con transición suave */
+#appModalCancel {
+	transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#appModalCancel:hover {
+	transform: scale(1.05);
+	@apply bg-gray-100 border-gray-400;
+}
+
+#appModalCancel:active {
+	transform: scale(0.98);
 }
