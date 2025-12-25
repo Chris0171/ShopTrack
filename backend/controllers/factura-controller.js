@@ -26,6 +26,7 @@ module.exports = {
 			metodoPago = 'efectivo',
 			observaciones = '',
 			estado = 'emitida',
+			rutaPDF = null,
 		},
 		callback
 	) {
@@ -45,8 +46,8 @@ module.exports = {
 
 		const sql = `
             INSERT INTO Factura 
-            (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado, rutaPDF)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
 		const stmt = db.prepare(sql)
 		stmt.run(
@@ -59,6 +60,7 @@ module.exports = {
 				metodoPago,
 				observaciones,
 				estado,
+				rutaPDF,
 			],
 			function (err) {
 				if (err) return callback(err)
@@ -78,10 +80,11 @@ module.exports = {
 			metodoPago,
 			observaciones,
 			estado,
+			rutaPDF,
 		} = data
 		const sql = `
             UPDATE Factura
-            SET numeroFactura = ?, subtotal = ?, impuestos = ?, total = ?, metodoPago = ?, observaciones = ?, estado = ?
+            SET numeroFactura = ?, subtotal = ?, impuestos = ?, total = ?, metodoPago = ?, observaciones = ?, estado = ?, rutaPDF = ?
             WHERE id = ?
         `
 		db.run(
@@ -94,6 +97,7 @@ module.exports = {
 				metodoPago,
 				observaciones,
 				estado,
+				rutaPDF,
 				id,
 			],
 			function (err) {
@@ -132,6 +136,15 @@ module.exports = {
 		db.all(sql, [idVenta], (err, rows) => {
 			if (err) return callback(err)
 			callback(null, rows)
+		})
+	},
+
+	// 🔹 Actualizar solo la ruta del PDF
+	updateRutaPDF: function (idVenta, rutaPDF, callback) {
+		const sql = `UPDATE Factura SET rutaPDF = ? WHERE idVenta = ?`
+		db.run(sql, [rutaPDF, idVenta], function (err) {
+			if (err) return callback(err)
+			callback(null, { success: true, changes: this.changes })
 		})
 	},
 }
