@@ -141,3 +141,26 @@
     </div>
   </div>
 </div>
+
+<!-- Modal reutilizable para alertas/confirmaciones -->
+<div id="appModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="relative w-[90%] max-w-xl bg-white rounded-2xl shadow-2xl border border-indigo-200 overflow-hidden">
+    <!-- Encabezado con variantes de color -->
+    <div id="appModalHeader" class="px-6 py-4 rounded-t-2xl myClientThead flex items-center gap-4">
+      <i id="appModalIcon" class="fas fa-info-circle text-white text-2xl"></i>
+      <h3 id="appModalTitle" class="text-white text-xl font-bold">Aviso</h3>
+    </div>
+    <!-- Contenido del mensaje -->
+    <div class="px-6 py-5">
+      <p id="appModalMessage" class="text-lg text-gray-800 leading-relaxed"></p>
+    </div>
+    <!-- Botones de acción -->
+    <div class="px-6 pb-6 pt-2 flex justify-end gap-3">
+      <button id="appModalCancel"
+        class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition hidden">Cancelar</button>
+      <button id="appModalOk"
+        class="px-5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition">Aceptar</button>
+    </div>
+  </div>
+</div>
