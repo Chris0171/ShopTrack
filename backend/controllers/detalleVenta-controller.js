@@ -93,7 +93,7 @@ module.exports = {
 	// 🔹 Obtener todos los detalles de una venta
 	getByVentaId: function (idVenta, callback) {
 		const sql = `
-            SELECT dv.*, p.Descripcion AS productoDescripcion
+            SELECT dv.*, p.Descripcion AS productoDescripcion, p.NroParte AS nroParte, p.Descripcion AS descripcion
             FROM DetalleVenta dv
             JOIN Producto p ON dv.idProducto = p.id
             WHERE dv.idVenta = ?
