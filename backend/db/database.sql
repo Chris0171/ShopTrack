@@ -58,6 +58,7 @@ total REAL NOT NULL,
 metodoPago TEXT NOT NULL DEFAULT 'efectivo',
 observaciones TEXT,
 estado TEXT NOT NULL DEFAULT 'emitida',
+rutaPDF TEXT,
 
 FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
@@ -100,11 +101,11 @@ INSERT INTO Clientes (nombre, telefono, email, direccion) VALUES
 
 
 INSERT INTO Venta (idCliente, fecha, subtotal, impuestos, total) VALUES
-(1, datetime('now','-10 days'), 120.00, 25.20, 145.20),
-(3, datetime('now','-8 days'), 75.00, 15.75, 90.75),
-(5, datetime('now','-5 days'), 240.00, 50.40, 290.40),
-(7, datetime('now','-3 days'), 45.00, 9.45, 54.45),
-(10, datetime('now','-1 day'), 180.00, 37.80, 217.80);
+(1, datetime('now','-10 days'), 100.57, 19.25, 119.82),
+(3, datetime('now','-8 days'), 175.50, 36.09, 211.59),
+(5, datetime('now','-5 days'), 199.98, 42.00, 241.98),
+(7, datetime('now','-3 days'), 26.50, 3.81, 30.31),
+(10, datetime('now','-1 day'), 101.95, 19.91, 121.86);
 
 
 -- Venta 1
@@ -135,8 +136,12 @@ INSERT INTO DetalleVenta (idVenta, idProducto, cantidad, precioUnitario, tasaApl
 
 INSERT INTO Factura (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado)
 VALUES
-(1, 'F-0001', 120.00, 25.20, 145.20, 'tarjeta', 'Pago completado sin incidencias', 'emitida'),
-(2, 'F-0002', 75.00, 15.75, 90.75, 'efectivo', NULL, 'emitida'),
-(3, 'F-0003', 240.00, 50.40, 290.40, 'transferencia', 'Cliente habitual', 'emitida'),
-(4, 'F-0004', 45.00, 9.45, 54.45, 'tarjeta', NULL, 'emitida'),
-(5, 'F-0005', 180.00, 37.80, 217.80, 'efectivo', 'Entregado con embalaje especial', 'emitida');
+(1, 'F-0001', 100.57, 19.25, 119.82, 'tarjeta', 'Pago completado sin incidencias', 'emitida'),
+(2, 'F-0002', 175.50, 36.09, 211.59, 'efectivo', NULL, 'emitida'),
+(3, 'F-0003', 199.98, 42.00, 241.98, 'transferencia', 'Cliente habitual', 'emitida'),
+(4, 'F-0004', 26.50, 3.81, 30.31, 'tarjeta', NULL, 'emitida'),
+(5, 'F-0005', 101.95, 19.91, 121.86, 'efectivo', 'Entregado con embalaje especial', 'emitida');
+
+-- Migración: Agregar columna rutaPDF si no existe (para bases de datos existentes)
+-- Esta línea es segura ejecutar múltiples veces porque SQLite ignora si la columna ya existe
+ALTER TABLE Factura ADD COLUMN rutaPDF TEXT;
