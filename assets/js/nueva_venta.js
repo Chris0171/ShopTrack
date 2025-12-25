@@ -25,6 +25,94 @@ export function initNuevaVenta() {
 	const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
 	const btnDescargarPDF = document.getElementById('btnDescargarPDF')
 
+	// Referencias del modal reutilizable
+	const modal = document.getElementById('appModal')
+	const modalTitle = document.getElementById('appModalTitle')
+	const modalMsg = document.getElementById('appModalMessage')
+	const modalOk = document.getElementById('appModalOk')
+	const modalCancel = document.getElementById('appModalCancel')
+	const modalHeader = document.getElementById('appModalHeader')
+	const modalIcon = document.getElementById('appModalIcon')
+
+	const MODAL_VARIANTS = {
+		info: { icon: 'fas fa-info-circle', colorClass: 'variant-info' },
+		success: { icon: 'fas fa-check-circle', colorClass: 'variant-success' },
+		warning: {
+			icon: 'fas fa-exclamation-circle',
+			colorClass: 'variant-warning',
+		},
+		error: { icon: 'fas fa-times-circle', colorClass: 'variant-error' },
+		confirm: { icon: 'fas fa-question-circle', colorClass: 'variant-confirm' },
+	}
+
+	function applyModalVariant(variant = 'info') {
+		const config = MODAL_VARIANTS[variant] || MODAL_VARIANTS.info
+		Object.values(MODAL_VARIANTS).forEach((v) => {
+			modalHeader.classList.remove(v.colorClass)
+			modalOk.classList.remove(v.colorClass)
+		})
+		modalHeader.classList.add(config.colorClass)
+		modalOk.classList.add(config.colorClass)
+		modalIcon.className = config.icon + ' text-white text-2xl'
+	}
+
+	function openModal({
+		title = 'Aviso',
+		message = '',
+		showCancel = false,
+		okText = 'Aceptar',
+		cancelText = 'Cancelar',
+		variant = 'info',
+	} = {}) {
+		return new Promise((resolve) => {
+			modalTitle.textContent = title
+			modalMsg.textContent = message
+			modalOk.textContent = okText
+			applyModalVariant(variant)
+			if (showCancel) {
+				modalCancel.classList.remove('hidden')
+				modalCancel.textContent = cancelText
+			} else {
+				modalCancel.classList.add('hidden')
+			}
+			const onOk = () => {
+				cleanup()
+				resolve(true)
+			}
+			const onCancel = () => {
+				cleanup()
+				resolve(false)
+			}
+			function cleanup() {
+				modalOk.removeEventListener('click', onOk)
+				modalCancel.removeEventListener('click', onCancel)
+				modal.classList.remove('show')
+			}
+			modalOk.addEventListener('click', onOk)
+			modalCancel.addEventListener('click', onCancel)
+			modal.classList.add('show')
+		})
+	}
+
+	async function showModalInfo(message, title = 'Aviso', variant = 'info') {
+		await openModal({ title, message, showCancel: false, variant })
+	}
+
+	async function showModalConfirm(
+		message,
+		title = 'Confirmar',
+		variant = 'confirm'
+	) {
+		return await openModal({
+			title,
+			message,
+			showCancel: true,
+			okText: 'Sí',
+			cancelText: 'No',
+			variant,
+		})
+	}
+
 	// CARGAR CLIENTES EXISTENTES
 	async function cargarClientes() {
 		const clientes = await window.api.cliente.getAll()
@@ -36,30 +124,15 @@ export function initNuevaVenta() {
 			clienteSelect.appendChild(opt)
 		})
 	}
-	// ** Mensaje de error
-	function showFieldError(id, msg, elem) {
-		const div = document.getElementById(id)
-		if (!div) return
-
-		div.textContent = msg
-		div.classList.remove('opacity-0')
-
-		// Ocultar automáticamente
-		setTimeout(() => {
-			div.classList.add('opacity-0')
-			setTimeout(() => {
-				div.textContent = ''
-				div.classList.remove('opacity-0')
-			}, 300)
-		}, 2500)
-
-		// Esperar a que el DOM renderice los cambios antes de hacer scroll
-		requestAnimationFrame(() => {
-			document.getElementById(elem).scrollIntoView({
-				behavior: 'smooth',
-				block: 'start',
-			})
-		})
+	// Adaptador: reemplaza alertas en div por modal
+	async function showFieldError(_id, msg, elem) {
+		await showModalInfo(msg, 'Aviso')
+		if (elem) {
+			const el = document.getElementById(elem)
+			if (el) {
+				el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+			}
+		}
 	}
 
 	async function cargarTodo() {
@@ -87,7 +160,7 @@ export function initNuevaVenta() {
 			const producto = await window.api.producto.buscarProducto(nroParte)
 
 			if (!producto) {
-				showFieldError('mensajeError', 'Producto no encontrado', 'buscador')
+				await showModalInfo('Producto no encontrado', 'Aviso')
 				buscarInput.focus()
 				return
 			}
@@ -183,7 +256,7 @@ export function initNuevaVenta() {
 	// FINALIZAR VENTA
 	btnFinalizarVenta.addEventListener('click', async () => {
 		if (productosVenta.length === 0) {
-			showFieldError('errorVenta', 'Agregue productos a la venta.', 'btnVenta')
+			await showModalInfo('Agregue productos a la venta.', 'Aviso')
 			return
 		}
 
@@ -200,22 +273,21 @@ export function initNuevaVenta() {
 		}
 
 		if (!idCliente) {
-			showFieldError(
-				'errorCliente',
-				'Debe seleccionar o crear un cliente.',
-				'clienteForm'
-			)
+			await showModalInfo('Debe seleccionar o crear un cliente.', 'Aviso')
 			return
 		}
 
 		if (!numeroFactura.value.trim()) {
-			showFieldError(
-				'errorFactura',
-				'Debe ingresar un número de factura.',
-				'facturaForm'
-			)
+			await showModalInfo('Debe ingresar un número de factura.', 'Aviso')
 			return
 		}
+
+		// Confirmación antes de generar factura
+		const confirmar = await showModalConfirm(
+			'¿Deseas generar la factura con los datos ingresados?',
+			'Confirmar acción'
+		)
+		if (!confirmar) return
 
 		// Crear venta
 		const subtotal = parseFloat(subtotalInput.value)
@@ -287,10 +359,10 @@ export function initNuevaVenta() {
 		}
 
 		console.log(idCliente, ' ', idVenta)
-		showFieldError(
-			'errorVenta',
+		await showModalInfo(
 			'Venta y factura registradas correctamente. Ya puedes descargar el PDF.',
-			'btnVenta'
+			'Éxito',
+			'success'
 		)
 
 		// Mostrar botón de descargar PDF
@@ -337,7 +409,7 @@ export function initNuevaVenta() {
 	// ** Descargar PDF de factura
 	btnDescargarPDF.addEventListener('click', async () => {
 		if (!ventaActual) {
-			showFieldError('errorVenta', 'No hay factura para descargar.', 'btnVenta')
+			await showModalInfo('No hay factura para descargar.', 'Aviso')
 			return
 		}
 
@@ -348,21 +420,17 @@ export function initNuevaVenta() {
 			const resultado = await window.api.factura.generarPDF(ventaActual)
 
 			if (resultado.ok) {
-				showFieldError(
-					'errorVenta',
-					'✅ PDF generado exitosamente.',
-					'btnVenta'
-				)
+				await showModalInfo('PDF generado exitosamente.', 'Éxito', 'success')
 				// Abrir archivo en explorador
 				await window.api.general.abrirArchivo(resultado.ruta)
 			} else {
-				showFieldError('errorVenta', `❌ Error: ${resultado.error}`, 'btnVenta')
+				await showModalInfo(`Error: ${resultado.error}`, 'Error', 'error')
 			}
 		} catch (error) {
-			showFieldError(
-				'errorVenta',
-				`❌ Error al generar PDF: ${error.message}`,
-				'btnVenta'
+			await showModalInfo(
+				`Error al generar PDF: ${error.message}`,
+				'Error',
+				'error'
 			)
 		} finally {
 			btnDescargarPDF.disabled = false
