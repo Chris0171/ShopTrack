@@ -1,4 +1,4 @@
-const PDFDocument = require('pdfkit')
+const PDFDocument = require('pdfkit-table')
 const fs = require('fs')
 const path = require('path')
 
@@ -27,121 +27,289 @@ class PDFService {
 				const stream = fs.createWriteStream(rutaArchivo)
 				doc.pipe(stream)
 
+				// Paleta de colores Tailwind
+				const COLORS = {
+					indigo700: '#4338CA',
+					indigo800: '#3730A3',
+					cyan600: '#0891B2',
+					white: '#FFFFFF',
+					black: '#000000',
+				}
+
 				// Encabezado - Logo/Nombre empresa
 				doc
 					.fontSize(20)
 					.font('Helvetica-Bold')
-					.text('ShopTrack', { align: 'center' })
-				doc
-					.fontSize(10)
-					.font('Helvetica')
-					.text('Tu tienda online profesional', { align: 'center' })
-					.text('Email: info@shoptrack.com | Tel: +34 123 456 789', {
-						align: 'center',
-					})
+					.fillColor(COLORS.indigo700)
+					.text('Core transport lLC', { align: 'center' })
+				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
 
-				doc.moveTo(40, 110).lineTo(555, 110).stroke()
+				// Layout cabecera correcto: FACTURA, luego fecha y número
+				let posY = 110
 
-				// Número y fecha de factura
+				// Estilo de línea divisoria
+				doc.lineWidth(1.2).strokeColor(COLORS.indigo700).stroke()
+
+				// Título FACTURA en indigo-700
 				doc
 					.fontSize(14)
 					.font('Helvetica-Bold')
-					.text('FACTURA', { align: 'left' })
+					.fillColor(COLORS.indigo700)
+					.text('FACTURA', 40, posY)
 				doc.fontSize(10).font('Helvetica')
-				doc.text(`Número: ${datos.numeroFactura}`, 40, 140)
-				doc.text(`Fecha: ${this.formatearFecha(datos.fechaEmision)}`, 40, 160)
 
-				// Datos del cliente
+				posY += 15
+
+				// Línea divisoria 1
+				doc.moveTo(40, posY).lineTo(555, posY).stroke()
+
+				posY += 10
+
+				doc
+					.fillColor(COLORS.black)
+					.text(
+						`Fecha de factura: ${this.formatearFecha(datos.fechaEmision)}`,
+						40,
+						posY
+					)
+				doc.text(`Número de factura: ${datos.numeroFactura}`, 40, posY + 18)
+
+				// Nombre del cliente con menos margen antes de la siguiente línea
+				posY += 70
 				doc
 					.fontSize(12)
 					.font('Helvetica-Bold')
-					.text('DATOS DEL CLIENTE', 40, 200)
-				doc.fontSize(10).font('Helvetica')
-				doc.text(`Nombre: ${datos.cliente.nombre}`, 40, 225)
-				doc.text(`Teléfono: ${datos.cliente.telefono || 'N/A'}`, 40, 245)
-				doc.text(`Email: ${datos.cliente.email || 'N/A'}`, 40, 265)
-				doc.text(`Dirección: ${datos.cliente.direccion || 'N/A'}`, 40, 285)
+					.fillColor(COLORS.indigo700)
+					.text(`${datos.cliente.nombre}`, 40, posY)
 
-				// Tabla de productos
-				const topTabla = 330
-				const alturaFila = 25
-				const colAncho = [80, 150, 60, 80, 80]
-				const posiciones = [40, 120, 270, 330, 430]
-
-				// Encabezados tabla
-				doc
-					.fontSize(10)
-					.font('Helvetica-Bold')
-					.fillColor('white')
-					.rect(40, topTabla, 515, 25)
-					.fill('#6d3aef')
-					.text('Nro Parte', posiciones[0], topTabla + 5)
-					.text('Descripción', posiciones[1], topTabla + 5)
-					.text('Cantidad', posiciones[2], topTabla + 5)
-					.text('Precio Unit.', posiciones[3], topTabla + 5)
-					.text('Total', posiciones[4], topTabla + 5)
-
-				// Datos productos
-				doc.font('Helvetica').fillColor('black')
-				let posY = topTabla + alturaFila
-
-				datos.detalles.forEach((detalle) => {
-					const totalLinea = (
-						detalle.precioUnitario *
-						detalle.cantidad *
-						(1 + detalle.tasaAplicada)
-					).toFixed(2)
-
-					doc.text(detalle.nroParte, posiciones[0], posY)
-					doc.text(detalle.descripcion, posiciones[1], posY)
-					doc.text(detalle.cantidad.toString(), posiciones[2], posY)
-					doc.text(`$${detalle.precioUnitario.toFixed(2)}`, posiciones[3], posY)
-					doc.text(`$${totalLinea}`, posiciones[4], posY)
-
-					posY += alturaFila
-				})
-
-				// Línea divisoria
-				posY += 10
+				// Línea divisoria 2 más cercana
+				posY += 15
+				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
 				doc.moveTo(40, posY).lineTo(555, posY).stroke()
 
-				// Totales
-				posY += 20
-				doc.fontSize(11).font('Helvetica')
-				doc.text(`Subtotal:`, 330, posY)
-				doc.text(`$${datos.subtotal.toFixed(2)}`, 430, posY)
+				// Datos del cliente debajo de la línea 2
+				posY += 10
+				doc.text(`Dirección: ${datos.cliente.direccion || 'N/A'}`, 40, posY)
+				doc.text(`Teléfono: ${datos.cliente.telefono || 'N/A'}`, 40, posY + 18)
+				doc.text(`Email: ${datos.cliente.email || 'N/A'}`, 40, posY + 36)
 
-				posY += 25
-				doc.text(`Impuestos (IVA):`, 330, posY)
-				doc.text(`$${datos.impuestos.toFixed(2)}`, 430, posY)
+				// Tabla manual estilizada con gradiente y bordes redondeados
+				posY += 95
+				const headers = [
+					'Nro Parte',
+					'Descripción',
+					'Cantidad',
+					'Tasas',
+					'Total',
+				]
+				const columnWidths = [120, 210, 60, 60, 65]
+				const tableX = 40
+				const tableY = posY
+				const tableWidth = 515
+				const headerHeight = 30
+				const rowHeight = 25
+				const rows = datos.detalles.map((d) => {
+					const totalLinea = (
+						d.precioUnitario *
+						d.cantidad *
+						(1 + d.tasaAplicada)
+					).toFixed(2)
+					const tasaPorcentaje = (d.tasaAplicada * 100).toFixed(0)
+					return {
+						nroParte: d.nroParte,
+						descripcion: d.descripcion,
+						cantidad: d.cantidad.toString(),
+						tasa: `${tasaPorcentaje}%`,
+						total: `$${totalLinea}`,
+					}
+				})
+				const tableHeight = headerHeight + rows.length * rowHeight
+				const colX = [
+					tableX,
+					tableX + columnWidths[0],
+					tableX + columnWidths[0] + columnWidths[1],
+					tableX + columnWidths[0] + columnWidths[1] + columnWidths[2],
+					tableX +
+						columnWidths[0] +
+						columnWidths[1] +
+						columnWidths[2] +
+						columnWidths[3],
+				]
+				// Header con gradiente y solo esquinas superiores redondeadas
+				const radius = 6
 
-				if (datos.descuento && datos.descuento > 0) {
-					posY += 25
-					doc.fillColor('red')
-					doc.text(`Descuento:`, 330, posY)
-					doc.text(`-$${datos.descuento.toFixed(2)}`, 430, posY)
-					doc.fillColor('black')
+				// Crear el gradiente
+				const gradient = doc
+					.linearGradient(tableX, tableY, tableX + tableWidth, tableY)
+					.stop(0, COLORS.indigo800)
+					.stop(1, COLORS.cyan600)
+
+				// Guardar estado
+				doc.save()
+
+				doc
+					.moveTo(tableX, tableY + headerHeight) // Esquina inferior izquierda
+					.lineTo(tableX, tableY + radius) // Subir hasta antes del radio
+					.quadraticCurveTo(tableX, tableY, tableX + radius, tableY) // Esquina sup. izquierda
+					.lineTo(tableX + tableWidth - radius, tableY) // Línea superior
+					.quadraticCurveTo(
+						tableX + tableWidth,
+						tableY,
+						tableX + tableWidth,
+						tableY + radius
+					) // Esquina sup. derecha
+					.lineTo(tableX + tableWidth, tableY + headerHeight) // Bajar
+					.lineTo(tableX, tableY + headerHeight) // Cerrar figura
+					.clip()
+
+				// Rellenar área recortada con gradiente
+				doc.rect(tableX, tableY, tableWidth, headerHeight).fill(gradient)
+
+				// Restaurar estado
+				doc.restore()
+
+				// Texto del encabezado
+				doc.fontSize(10).font('Helvetica-Bold').fillColor(COLORS.white)
+
+				// Calcular altura del texto para centrar verticalmente
+				let textHeight = doc.currentLineHeight()
+				const headerTextY = tableY + (headerHeight - textHeight) / 2
+
+				doc.text(headers[0], colX[0] + 6, headerTextY)
+				doc.text(headers[1], colX[1] + 6, headerTextY)
+				doc.text(headers[2], colX[2] + 15, headerTextY)
+				doc.text(headers[3], colX[3] + 20, headerTextY)
+				doc.text(headers[4], colX[4] + 20, headerTextY)
+
+				// Contorno completo de la tabla
+				doc
+					.lineWidth(1)
+					.strokeColor(COLORS.indigo700)
+					.roundedRect(tableX, tableY, tableWidth, tableHeight, 6)
+					.stroke()
+
+				// Filas
+				doc.font('Helvetica').fontSize(9).fillColor(COLORS.black)
+				let rowY = tableY + headerHeight
+				textHeight = doc.currentLineHeight()
+
+				rows.forEach((row) => {
+					const rowTextY = rowY + (rowHeight - textHeight) / 2
+
+					doc.text(row.nroParte, colX[0] + 6, rowTextY)
+
+					doc.text(row.descripcion, colX[1] + 6, rowTextY, {
+						width: columnWidths[1] - 12,
+						ellipsis: true,
+					})
+
+					doc.text(row.cantidad, colX[2] - 5, rowTextY, {
+						width: columnWidths[2] - 12,
+						align: 'right',
+					})
+
+					doc.text(row.tasa, colX[3] - 3, rowTextY, {
+						width: columnWidths[3] - 12,
+						align: 'right',
+					})
+
+					doc.text(row.total, colX[4] - 2, rowTextY, {
+						width: columnWidths[4] - 12,
+						align: 'right',
+					})
+
+					rowY += rowHeight
+				})
+
+				// Separadores horizontales entre filas
+				doc.lineWidth(0.5).strokeColor(COLORS.indigo700)
+				for (let i = 1; i <= rows.length; i++) {
+					const yLine = tableY + headerHeight + i * rowHeight
+					if (rows.length !== i) {
+						doc
+							.moveTo(tableX, yLine)
+							.lineTo(tableX + tableWidth, yLine)
+							.stroke()
+					}
 				}
 
-				// Total final
+				posY = tableY + tableHeight + 20
+				// Línea divisoria posterior a la tabla
+				doc.moveTo(40, posY).lineTo(555, posY).stroke()
+
+				// Detalles de precios
+				posY += 20
+				doc.fontSize(11).font('Helvetica')
+
+				// Calcular precio base (sin tasas)
+				const precioBase = datos.detalles.reduce(
+					(sum, d) => sum + d.precioUnitario * d.cantidad,
+					0
+				)
+
+				// Dinero por tasas (impuestos)
+				const dineroTasas = datos.impuestos
+
+				// Total descontado
+				const descuentoMostrado =
+					datos.descuento && datos.descuento > 0 ? datos.descuento : 0
+
+				// Mostrar detalles (más separación entre etiqueta y monto)
+				doc.fontSize(11).font('Helvetica-Bold')
+				doc.text(`Precio Base:`, 250, posY, {
+					width: 100,
+					align: 'right',
+				})
+				doc.text(`$${precioBase.toFixed(2)}`, 450, posY, {
+					width: 100,
+					align: 'right',
+				})
+
+				posY += 25
+				doc.text(`Dinero por Tasas:`, 250, posY, {
+					width: 100,
+					align: 'right',
+				})
+				doc.text(`$${dineroTasas.toFixed(2)}`, 450, posY, {
+					width: 100,
+					align: 'right',
+				})
+
+				posY += 25
+				doc.text(`Total Descontado:`, 250, posY, {
+					width: 100,
+					align: 'right',
+				})
+				if (descuentoMostrado > 0) {
+					doc.fillColor('red')
+				}
+				doc.text(`-$${descuentoMostrado.toFixed(2)}`, 450, posY, {
+					width: 100,
+					align: 'right',
+				})
+				doc.fillColor(COLORS.black)
+
 				posY += 30
 				doc
-					.fontSize(14)
+					.fontSize(13)
 					.font('Helvetica-Bold')
-					.fillColor('#6d3aef')
-					.text(`TOTAL:`, 330, posY)
-					.text(`$${datos.total.toFixed(2)}`, 430, posY)
+					.fillColor('#2ecc71') // Verde para el total
+					.text(`TOTAL A PAGAR:`, 150, posY, {
+						width: 200,
+						align: 'right',
+					})
+				doc.text(`$${datos.total.toFixed(2)}`, 450, posY, {
+					width: 100,
+					align: 'right',
+				})
 
 				// Método de pago y observaciones
-				doc.fillColor('black')
-				doc
-					.fontSize(10)
-					.font('Helvetica')
-					.text(
-						`Método de pago: ${datos.metodoPago.toUpperCase()}`,
-						40,
-						posY + 50
-					)
+				doc.fillColor(COLORS.black).fontSize(10).font('Helvetica')
+				doc.text(
+					`Método de pago: ${datos.metodoPago.toUpperCase()}`,
+					40,
+					posY + 50
+				)
 
 				if (datos.observaciones) {
 					doc.text(`Observaciones: ${datos.observaciones}`, 40, posY + 70, {
