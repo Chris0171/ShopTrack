@@ -1,46 +1,50 @@
 <div class="p-4">
 
-  <h1 class="text-2xl font-bold mb-4">Historial de Ventas</h1>
+  <h1 class="text-3xl font-bold text-white mb-6">
+    📊 Historial de Ventas
+  </h1>
 
   <!-- Filtros -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-    <input id="filtroFactura" type="text" placeholder="Buscar por Nº factura"
-      class="border px-3 py-2 rounded-lg w-full" />
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <input id="filtroFactura" type="text" placeholder="🔍 Buscar por Nº factura"
+      class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
 
-    <input id="filtroCliente" type="text" placeholder="Buscar por cliente" class="border px-3 py-2 rounded-lg w-full" />
+    <input id="filtroCliente" type="text" placeholder="🔍 Buscar por cliente"
+      class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
 
-    <select id="filtroMetodo" class="border px-3 py-2 rounded-lg w-full">
-      <option value="">Filtrar por método de pago</option>
-      <option value="efectivo">Efectivo</option>
-      <option value="tarjeta">Tarjeta</option>
-      <option value="transferencia">Transferencia</option>
-      <option value="bizum">Bizum</option>
+    <select id="filtroMetodo"
+      class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+      <option value="">🏦 Filtrar por método de pago</option>
+      <option value="efectivo">💵 Efectivo</option>
+      <option value="tarjeta">💳 Tarjeta</option>
+      <option value="transferencia">🏧 Transferencia</option>
+      <option value="bizum">📱 Bizum</option>
     </select>
   </div>
 
   <!-- Tabla -->
-  <div class="overflow-x-auto shadow rounded-lg bg-white">
-    <table class="min-w-full">
-      <thead class="bg-gray-100 border-b">
+  <div class="overflow-x-auto shadow-lg rounded-xl bg-white">
+    <table class="w-full bg-other">
+      <thead class="myClientThead rounded-3xl">
         <tr>
-          <th class="px-4 py-2 text-left">Nº Factura</th>
-          <th class="px-4 py-2 text-left">Cliente</th>
-          <th class="px-4 py-2 text-left">Método Pago</th>
-          <th class="px-4 py-2 text-left">Subtotal</th>
-          <th class="px-4 py-2 text-left">Impuestos</th>
-          <th class="px-4 py-2 text-left">Total</th>
-          <th class="px-4 py-2 text-left">Fecha</th>
-          <th class="px-4 py-2 text-left">Detalles</th>
-          <th class="px-4 py-2 text-left">Factura</th>
+          <th class="myTh text-left">📄 Nº Factura</th>
+          <th class="myTh text-left">👤 Cliente</th>
+          <th class="myTh text-left">💰 Subtotal</th>
+          <th class="myTh text-left">📊 Impuestos</th>
+          <th class="myTh text-left">🏷️ Descuento</th>
+          <th class="myTh text-left">💵 Total</th>
+          <th class="myTh text-left">📅 Fecha</th>
+          <th class="myTh text-center">👁️ Detalles</th>
+          <th class="myTh text-center">📥 Factura</th>
         </tr>
       </thead>
 
-      <tbody id="tablaVentasBody"></tbody>
+      <tbody id="tablaVentasBody" class="divide-y divide-gray-200"></tbody>
     </table>
   </div>
 
   <div id="loading" class="text-center py-4 hidden text-gray-600">
-    Cargando más ventas...
+    ⏳ Cargando más ventas...
   </div>
 
 </div>
