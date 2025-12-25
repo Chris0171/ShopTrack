@@ -57,28 +57,51 @@ export function initHistorialVenta() {
 				continue
 
 			const tr = document.createElement('tr')
-			tr.className = 'border-b hover:bg-gray-50 transition'
+			tr.className = 'hover:bg-gray-100 transition'
+
+			const descuento = v.descuento || 0
+			const subtotal = parseFloat(v.subtotal) || 0
+			const impuestos = parseFloat(v.impuestos) || 0
+			const total = subtotal + impuestos - descuento
+
+			// Formatear fecha a MM/DD/YYYY
+			const fechaObj = new Date(v.fecha)
+			const fechaFormato = fechaObj.toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit',
+			})
 
 			tr.innerHTML = `
-				<td class="px-4 py-2 font-semibold">${v.numeroFactura || '—'}</td>
-				<td class="px-4 py-2">${v.clienteNombre}</td>
-				<td class="px-4 py-2">${v.metodoPago || '—'}</td>
-				<td class="px-4 py-2">${v.subtotal} €</td>
-				<td class="px-4 py-2">${v.impuestos} €</td>
-				<td class="px-4 py-2 font-bold">${v.total} €</td>
-				<td class="px-4 py-2">${v.fecha}</td>
-				<td class="px-4 py-2">
-					<button class="px-3 py-1 bg-blue-600 text-white rounded detail-btn"
-							data-id="${v.idVenta}" data-fact="${v.numeroFactura}">
-						Ver
-					</button>
-				</td>
-				<td class="px-4 py-2">
-					<button class="px-3 py-1 bg-gray-700 text-white rounded">
-						Descargar
-					</button>
-				</td>
-			`
+			<td class="px-8 py-3 font-bold text-indigo-700">${v.numeroFactura || '—'}</td>
+			<td class="px-4 py-3">${v.clienteNombre}</td>
+			<td class="text-right pr-15">$${subtotal.toFixed(2)}</td>
+			<td class="text-right pr-20">$${impuestos.toFixed(2)}</td>
+			<td class="text-right pr-20">${
+				descuento > 0
+					? `<span class="text-red-600 font-medium">-$${descuento.toFixed(
+							2
+					  )}</span>`
+					: '—'
+			}</td>
+			<td class="text-right pr-8 font-bold text-green-600">$${total.toFixed(2)}</td>
+			<td class="px-4 py-3 text-gray-600">${fechaFormato}</td>
+			<td class="px-4 py-3 text-center">
+				<button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm detail-btn"
+						data-id="${v.idVenta}" data-fact="${v.numeroFactura}" data-metodo="${
+				v.metodoPago || 'N/A'
+			}" data-desc="${descuento}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
+					<i class="fas fa-eye"></i> Ver
+				</button>
+			</td>
+			<td class="px-4 py-3 text-center">
+				<button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm download-pdf-btn" data-fact="${
+					v.numeroFactura
+				}" data-id="${v.idVenta}">
+					<i class="fas fa-download"></i> PDF
+				</button>
+			</td>
+		`
 
 			tablaBody.appendChild(tr)
 
@@ -86,13 +109,40 @@ export function initHistorialVenta() {
 			tr.querySelector('.detail-btn').addEventListener('click', (e) => {
 				const id = e.target.dataset.id
 				const factura = e.target.dataset.fact || '—'
-				abrirModal(id, factura)
+				const metodo = e.target.dataset.metodo || 'N/A'
+				const descuento = parseFloat(e.target.dataset.desc) || 0
+				const subtotal = parseFloat(e.target.dataset.sub) || 0
+				const impuestos = parseFloat(e.target.dataset.imp) || 0
+				const total = parseFloat(e.target.dataset.tot) || 0
+				abrirModal(id, factura, metodo, descuento, subtotal, impuestos, total)
 			})
+
+			// Evento descargar PDF
+			tr.querySelector('.download-pdf-btn').addEventListener(
+				'click',
+				async (e) => {
+					const numeroFactura = e.currentTarget.dataset.fact
+					const idVenta = e.currentTarget.dataset.id
+					try {
+						await window.api.factura.generatePDF(idVenta)
+					} catch (error) {
+						console.error('Error al descargar PDF:', error)
+					}
+				}
+			)
 		}
 	}
 
 	//  FUNCIÓN → MODAL DE DETALLES
-	async function abrirModal(idVenta, factura) {
+	async function abrirModal(
+		idVenta,
+		factura,
+		metodo,
+		descuento,
+		subtotal,
+		impuestos,
+		total
+	) {
 		const modalContainer = document.getElementById('modalContainer')
 
 		const res = await window.api.detalleVenta.getByVentaId(idVenta)
@@ -104,45 +154,93 @@ export function initHistorialVenta() {
 			'fixed inset-0 bg-black/50 flex items-center justify-center z-50'
 
 		modal.innerHTML = `
-		<div class="bg-white w-full max-w-2xl rounded-xl shadow-xl p-6 relative animate-fade-in">
+		<div class="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
 		
-			<button class="absolute top-3 right-3 text-gray-600 hover:text-black text-xl font-bold closeModal">
-				×
-			</button>
-
-			<h2 class="text-xl font-bold text-gray-800 mb-4">
-				Detalles de venta con factura Nº ${factura}
-			</h2>
-
-			<div class="max-h-96 overflow-y-auto border rounded-lg">
-				<table class="w-full text-left text-gray-700">
-					<thead class="bg-gray-100 border-b sticky top-0 z-10">
-						<tr>
-							<th class="p-2">Producto</th>
-							<th class="p-2">Cantidad</th>
-							<th class="p-2">Precio</th>
-							<th class="p-2 pr-6 text-right">Total</th>
-						</tr>
-					</thead>
-					<tbody>
-						${detalles
-							.map(
-								(d) => `
-								<tr class="border-b">
-									<td class="p-2">${d.productoDescripcion}</td>
-									<td class="p-2 pl-8">${d.cantidad}</td>
-									<td class="p-2">${(Number(d.precioUnitario) || 0).toFixed(2)} €</td>
-									<td class="p-2 text-right">${(Number(d.totalLinea) || 0).toFixed(2)} €</td>
-								</tr>
-							`
-							)
-							.join('')}
-					</tbody>
-				</table>
+			<!-- Modal Header -->
+			<div class="bg-linear-to-r from-cyan-700 to-indigo-800 px-6 py-4 flex items-center justify-between">
+				<h2 class="text-lg font-bold text-white flex items-center gap-2">
+					<i class="fas fa-receipt"></i> Factura Nº <span class="text-cyan-300">${factura}</span>
+				</h2>
+				<button class="text-white hover:text-cyan-200 transition text-2xl closeModal">
+					×
+				</button>
 			</div>
 
-			<div class="flex justify-end mt-5">
-				<button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 closeModal">
+			<!-- Modal Body -->
+			<div class="p-6">
+				<!-- Detalles Table -->
+				<div class="mb-6">
+					<h3 class="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2">
+						<i class="fas fa-box text-indigo-600"></i> Productos Detallados
+					</h3>
+					<div class="max-h-64 overflow-y-auto border border-gray-200 rounded-xl shadow-sm">
+						<table class="w-full text-sm">
+							<thead>
+								<tr class="bg-linear-to-r from-slate-800 via-gray-800 to-gray-900 text-white sticky top-0 z-10">
+									<th class="px-4 py-3 text-left font-semibold">Producto</th>
+									<th class="px-4 py-3 text-center font-semibold w-20">Cantidad</th>
+									<th class="px-4 py-3 text-right font-semibold w-24">Precio Unit.</th>
+									<th class="px-4 py-3 text-right font-semibold w-24">Total</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-gray-100">
+								${detalles
+									.map(
+										(d) => `
+									<tr class="hover:bg-gray-50 transition">
+										<td class="px-4 py-3 text-gray-800">${d.productoDescripcion}</td>
+										<td class="px-4 py-3 text-center text-gray-700">${d.cantidad}</td>
+										<td class="px-4 py-3 text-right text-gray-700">$${(
+											Number(d.precioUnitario) || 0
+										).toFixed(2)}</td>
+										<td class="px-4 py-3 text-right font-semibold text-green-600">$${(
+											Number(d.totalLinea) || 0
+										).toFixed(2)}</td>
+									</tr>
+									`
+									)
+									.join('')}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<!-- Footer: Resumen -->
+				<div class="grid grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+					<div class="space-y-2">
+						<p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+							<i class="fas fa-credit-card text-indigo-600 mr-2"></i>Método de Pago
+						</p>
+						<p class="text-lg font-bold text-gray-800 capitalize">${metodo}</p>
+					</div>
+					<div class="space-y-2 text-right">
+						<div class="flex justify-end gap-4 text-sm">
+							<span class="text-gray-600">Subtotal:</span>
+							<span class="font-semibold text-gray-800 w-20">$${subtotal.toFixed(2)}</span>
+						</div>
+						<div class="flex justify-end gap-4 text-sm">
+							<span class="text-gray-600">Impuestos:</span>
+							<span class="font-semibold text-gray-800 w-20">$${impuestos.toFixed(2)}</span>
+						</div>
+						${
+							descuento > 0
+								? `<div class="flex justify-end gap-4 text-sm">
+									<span class="text-gray-600">Descuento:</span>
+									<span class="font-semibold text-red-600 w-20">-$${descuento.toFixed(2)}</span>
+								</div>`
+								: ''
+						}
+						<div class="flex justify-end gap-4 text-sm pt-2 border-t border-gray-300">
+							<span class="text-gray-800 font-bold">Total:</span>
+							<span class="font-bold text-green-600 text-lg w-20">$${total.toFixed(2)}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal Footer -->
+			<div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+				<button class="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-900 text-white font-semibold transition transform hover:scale-105 closeModal">
 					Cerrar
 				</button>
 			</div>
