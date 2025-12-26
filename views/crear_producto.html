@@ -1,55 +1,126 @@
-<div class="pt-8 pb-8 pl-12 pr-12 mt-16 bg-white/75 rounded-xl max-w-3xl mx-auto">
-  <h2 class="text-3xl font-bold mb-4">Crear Producto</h2>
+<div class="p-4">
 
-  <form id="form-crear-producto" class="space-y-4">
 
+
+  <form id="form-crear-producto" class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto space-y-4">
+    <h1 class="text-3xl font-bold pl-2 text-indigo-800 mb-4">
+      📦 Crear Nuevo Producto
+    </h1>
+    <hr class="mb-6 border-2 border-indigo-700 rounded-2xl">
+    <!-- Número de Parte y Descripción -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Número de Parte *</label>
+        <input id="NroParte"
+          class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition"
+          type="text" placeholder="P-001" required />
+      </div>
+
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Descripción *</label>
+        <input id="Descripcion"
+          class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition"
+          type="text" placeholder="Descripción del producto" required />
+      </div>
+    </div>
+
+    <!-- Cantidad, Precio Venta, Precio Costo -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Cantidad *</label>
+        <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
+          <input id="Cantidad" class="w-full p-2 text-right outline-none" type="number" min="0" placeholder="0"
+            required />
+          <span class="px-3 font-semibold text-gray-600">u</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Precio Venta *</label>
+        <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
+          <input id="Precio" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
+            placeholder="0.00" required />
+          <span class="px-3 font-semibold text-gray-600">$</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Precio Costo</label>
+        <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
+          <input id="PrecioCosto" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
+            placeholder="0.00" />
+          <span class="px-3 font-semibold text-gray-600">$</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasa de Impuesto -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="md:col-span-2">
+        <label class="block font-bold text-gray-700 mb-2">Tasa de Impuesto/IVA</label>
+        <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
+          <input id="Tasas" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
+            placeholder="0.21" />
+          <span class="px-3 font-semibold text-gray-600">%</span>
+        </div>
+      </div>
+
+      <!-- Original/Copia -->
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Tipo</label>
+        <select id="EsOriginal"
+          class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 outline-none transition">
+          <option value="1">Original</option>
+          <option value="0">Copia</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Imagen -->
     <div>
-      <label class="block font-semibold">Número de Parte</label>
-      <input id="NroParte" class="border p-2 rounded-xl w-full" type="text" required />
-    </div>
-
-    <div class="md:col-span-2">
-      <label class="block font-semibold">Descripción</label>
-      <textarea id="Descripcion" class="border p-2 rounded-xl w-full" required></textarea>
-    </div>
-
-    <div class="grid grid-cols-3 gap-26">
-      <div>
-        <label class="block font-semibold">Cantidad</label>
-        <div class="flex">
-          <input id="Cantidad" class="text-right border p-2 rounded-xl w-full" type="number" min="0" placeholder="0" />
-          <span class="pt-1.5 pl-1 text-2xl">u</span>
-        </div>
+      <label class="block font-bold text-gray-700 mb-2">Imagen del Producto</label>
+      <div class="flex items-center gap-4">
+        <input id="NombreImagen"
+          class="flex-1 border-2 border-gray-300 p-2 rounded-lg focus:border-indigo-600 outline-none transition text-gray-600"
+          type="text" placeholder="nombre-imagen.jpg" />
+        <button type="button" id="btn-examinar"
+          class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition">
+          📂 Examinar
+        </button>
       </div>
-
-      <div>
-        <label class="block font-semibold">Precio</label>
-        <div class="flex">
-          <input id="Precio" class="text-right border p-2 rounded-xl w-full" type="number" min="0.00" step="0.01"
-            placeholder="0.00" />
-          <span class="pt-1.5 pl-1 text-2xl">$</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="block font-semibold">Tasa</label>
-        <div class="flex">
-          <input id="Tasas" class="text-right border p-2 rounded-xl w-full" type="number" min="0.00" step="0.01"
-            placeholder="0.00" />
-          <span class="pt-1.5 pl-1 text-2xl">%</span>
-        </div>
-      </div>
+      <p class="text-sm text-gray-500 mt-2">Se guardará en <code
+          class="bg-gray-100 px-2 py-1 rounded">assets/images/productos/</code></p>
     </div>
 
   </form>
 
-  <div class="mt-6">
-    <button id="btn-guardar" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 font-bold rounded-xl">
-      Crear Producto
+  <!-- Botones de Acción -->
+  <div class="mt-6 flex gap-4 justify-center max-w-4xl mx-auto">
+    <button id="btn-guardar"
+      class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 font-bold rounded-lg shadow-lg transition transform hover:scale(1.05)">
+      ✅ Crear Producto
+    </button>
+    <button id="btn-limpiar"
+      class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 font-bold rounded-lg shadow-lg transition transform hover:scale(1.05)">
+      🔄 Limpiar Formulario
     </button>
   </div>
 
-  <div class="mt-6">
-    <p id="mensaje" class="font-bold"></p>
+  <!-- Mensaje de feedback (modal) -->
+  <div id="appModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md p-8 space-y-4">
+      <div class="text-center">
+        <div id="modalIcon" class="text-5xl mb-4"></div>
+        <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+        <p id="modalMessage" class="text-gray-600 text-center"></p>
+      </div>
+      <div class="flex gap-3 justify-center">
+        <button id="btn-modal-ok"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale(1.08)">
+          OK
+        </button>
+      </div>
+    </div>
   </div>
+
 </div>
