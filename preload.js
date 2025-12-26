@@ -20,6 +20,9 @@ contextBridge.exposeInMainWorld('api', {
 			),
 		getPaginated: (filtros) =>
 			ipcRenderer.invoke('producto:getPaginated', filtros),
+		seleccionarImagen: () => ipcRenderer.invoke('producto:seleccionar-imagen'),
+		copiarImagen: (payload) =>
+			ipcRenderer.invoke('producto:copiar-imagen', payload),
 	},
 
 	cliente: {
