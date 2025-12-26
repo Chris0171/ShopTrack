@@ -6,7 +6,10 @@ Descripcion TEXT NOT NULL,
 Cantidad INTEGER NOT NULL DEFAULT 0,
 Precio REAL NOT NULL,
 Tasas REAL NOT NULL DEFAULT 0,
-activo INTEGER NOT NULL DEFAULT 1   -- <---- AGREGADO PARA SOFT DELETE
+activo INTEGER NOT NULL DEFAULT 1,   -- <---- AGREGADO PARA SOFT DELETE
+esOriginal INTEGER NOT NULL DEFAULT 1,   -- 1 = Original, 0 = Copia
+nombreImagen TEXT,                        -- Nombre del archivo de imagen
+precioCosto REAL DEFAULT 0.00             -- Precio de costo (antes de venta)
 );
 
 -- TABLA: Clientes
@@ -142,6 +145,9 @@ VALUES
 (4, 'F-0004', 26.50, 3.81, 30.31, 'tarjeta', NULL, 'emitida'),
 (5, 'F-0005', 101.95, 19.91, 121.86, 'efectivo', 'Entregado con embalaje especial', 'emitida');
 
--- Migración: Agregar columna rutaPDF si no existe (para bases de datos existentes)
+-- Migración: Agregar columnas nuevas si no existen (para bases de datos existentes)
+ALTER TABLE Producto ADD COLUMN esOriginal INTEGER DEFAULT 1;
+ALTER TABLE Producto ADD COLUMN nombreImagen TEXT;
+ALTER TABLE Producto ADD COLUMN precioCosto REAL DEFAULT 0.00;
 -- Esta línea es segura ejecutar múltiples veces porque SQLite ignora si la columna ya existe
 ALTER TABLE Factura ADD COLUMN rutaPDF TEXT;
