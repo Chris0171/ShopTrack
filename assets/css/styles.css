@@ -227,3 +227,26 @@ button:active {
 #appModalCancel:active {
 	transform: scale(0.98);
 }
+/* Indicadores visuales para ordenamiento de columnas */
+th.sortable {
+	position: relative;
+	cursor: pointer;
+	user-select: none;
+	transition: background-color 0.2s ease;
+}
+
+th.sortable:hover {
+	background-color: rgba(99, 102, 241, 0.1);
+}
+
+th.sort-asc::after {
+	content: ' ↑';
+	color: #fff;
+	font-weight: bold;
+}
+
+th.sort-desc::after {
+	content: ' ↓';
+	color: #fff;
+	font-weight: bold;
+}
