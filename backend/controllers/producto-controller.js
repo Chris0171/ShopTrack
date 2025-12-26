@@ -11,9 +11,18 @@ module.exports = {
 		})
 	},
 
-	// Crear producto (incluye Descripcion)
+	// Crear producto (incluye Descripcion y nuevos campos)
 	create: function (
-		{ NroParte, Descripcion, Cantidad = 0, Precio = 0, Tasas = 0 },
+		{
+			NroParte,
+			Descripcion,
+			Cantidad = 0,
+			Precio = 0,
+			Tasas = 0,
+			precioCosto = 0,
+			esOriginal = 1,
+			nombreImagen = null,
+		},
 		callback
 	) {
 		if (!NroParte || !Descripcion) {
@@ -21,13 +30,22 @@ module.exports = {
 		}
 
 		const sql = `
-			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas)
-			VALUES (?, ?, ?, ?, ?)
+			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, esOriginal, nombreImagen)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 		`
 
 		db.run(
 			sql,
-			[NroParte, Descripcion, Cantidad, Precio, Tasas],
+			[
+				NroParte,
+				Descripcion,
+				Cantidad,
+				Precio,
+				Tasas,
+				precioCosto,
+				esOriginal,
+				nombreImagen,
+			],
 			function (err) {
 				if (err) return callback(err)
 				callback(null, { id: this.lastID })
@@ -35,19 +53,38 @@ module.exports = {
 		)
 	},
 
-	// Actualizar producto (incluye Descripcion)
+	// Actualizar producto (incluye Descripcion y nuevos campos)
 	update: function (id, data, callback) {
-		const { NroParte, Descripcion, Cantidad, Precio, Tasas } = data
+		const {
+			NroParte,
+			Descripcion,
+			Cantidad,
+			Precio,
+			Tasas,
+			precioCosto,
+			esOriginal,
+			nombreImagen,
+		} = data
 
 		const sql = `
 			UPDATE Producto 
-			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?
+			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, esOriginal = ?, nombreImagen = ?
 			WHERE id = ?
 		`
 
 		db.run(
 			sql,
-			[NroParte, Descripcion, Cantidad, Precio, Tasas, id],
+			[
+				NroParte,
+				Descripcion,
+				Cantidad,
+				Precio,
+				Tasas,
+				precioCosto,
+				esOriginal,
+				nombreImagen,
+				id,
+			],
 			function (err) {
 				if (err) return callback(err)
 				callback(null)
