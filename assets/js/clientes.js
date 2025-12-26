@@ -55,8 +55,8 @@ export function initClientsList() {
 			// Mapear índice visible (solo sortables) a propiedad
 			const prop = columnasSortable[idx]
 
-				// Ordenar array de datos
-				clientesActuales.sort((a, b) => {
+			// Ordenar array de datos
+			clientesActuales.sort((a, b) => {
 				let A = a[prop]
 				let B = b[prop]
 
@@ -65,7 +65,9 @@ export function initClientsList() {
 				if (B === null || B === undefined) B = 0
 
 				// Columnas numéricas: id, totalVentas, totalArticulos, totalGastado
-				if (['id', 'totalVentas', 'totalArticulos', 'totalGastado'].includes(prop)) {
+				if (
+					['id', 'totalVentas', 'totalArticulos', 'totalGastado'].includes(prop)
+				) {
 					const numA = toNumber(A)
 					const numB = toNumber(B)
 					return asc ? numA - numB : numB - numA
@@ -79,7 +81,9 @@ export function initClientsList() {
 				}
 
 				// Ordenar alfabéticamente si es string
-				return asc ? String(A).localeCompare(String(B)) : String(B).localeCompare(String(A))
+				return asc
+					? String(A).localeCompare(String(B))
+					: String(B).localeCompare(String(A))
 			})
 
 			asc = !asc
@@ -113,7 +117,9 @@ function renderizarTabla(clientes) {
 	const filtro = document.getElementById('searchInput').value.toLowerCase()
 
 	// Filtrar clientes según búsqueda
-	const clientesFiltrados = clientes.filter((c) => c.nombre.toLowerCase().includes(filtro))
+	const clientesFiltrados = clientes.filter((c) =>
+		c.nombre.toLowerCase().includes(filtro)
+	)
 
 	if (clientesFiltrados.length === 0) {
 		tbody.innerHTML = `
@@ -129,15 +135,21 @@ function renderizarTabla(clientes) {
 		.map(
 			(c) => `
 			<tr class="hover:bg-gray-100 transition">
-				<td class="px-4 py-3 font-bold text-indigo-700">${c.id}</td>
-				<td class="px-4 py-3 font-semibold text-gray-800">${c.nombre}</td>
-				<td class="px-4 py-3 text-gray-600">${c.telefono || '—'}</td>
-				<td class="px-4 py-3 text-gray-600">${c.email || '—'}</td>
-				<td class="px-4 py-3 text-gray-600">${c.direccion || '—'}</td>
-				<td class="px-4 py-3 text-right font-medium text-gray-700">${c.totalVentas}</td>
-				<td class="px-4 py-3 text-right font-medium text-gray-700">${c.totalArticulos}</td>
-				<td class="px-4 py-3 text-right font-bold text-green-600">$${c.totalGastado.toFixed(2)}</td>
-				<td class="px-4 py-3 text-gray-600">${formatoFecha(c.ultimaCompra)}</td>
+				<td class="pl-8 py-3 font-bold text-indigo-700">${c.id}</td>
+				<td class="pl-6 py-3 font-semibold text-gray-800">${c.nombre}</td>
+				<td class="pl-6 py-3 text-gray-600">${c.telefono || '—'}</td>
+				<td class="pl-6 py-3 text-gray-600">${c.email || '—'}</td>
+				<td class="pl-6 py-3 text-gray-600">${c.direccion || '—'}</td>
+				<td class="pr-12 py-3 text-right font-medium text-gray-700">${
+					c.totalVentas
+				}</td>
+				<td class="pr-12 py-3 text-right font-medium text-gray-700">${
+					c.totalArticulos
+				}</td>
+				<td class="pr-10 py-3 text-right font-bold text-green-600">$${c.totalGastado.toFixed(
+					2
+				)}</td>
+				<td class="pl-10 py-3 text-gray-600">${formatoFecha(c.ultimaCompra)}</td>
 			</tr>
 		`
 		)
