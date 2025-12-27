@@ -72,5 +72,7 @@ contextBridge.exposeInMainWorld('api', {
 
 	general: {
 		abrirArchivo: (ruta) => ipcRenderer.invoke('abrirArchivo', ruta),
+		abrirImagenProducto: (nombreImagen) =>
+			ipcRenderer.invoke('producto:abrir-imagen', nombreImagen),
 	},
 })
