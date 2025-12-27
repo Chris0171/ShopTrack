@@ -86,11 +86,11 @@ export function initNuevaVenta() {
 			function cleanup() {
 				modalOk.removeEventListener('click', onOk)
 				modalCancel.removeEventListener('click', onCancel)
-				modal.classList.remove('show')
+				modal.style.display = 'none'
 			}
 			modalOk.addEventListener('click', onOk)
 			modalCancel.addEventListener('click', onCancel)
-			modal.classList.add('show')
+			modal.style.display = 'flex'
 		})
 	}
 
@@ -165,16 +165,35 @@ export function initNuevaVenta() {
 				return
 			}
 
-			agregarProducto(producto)
+			await agregarProducto(producto)
 			buscarInput.value = ''
 		}
 	})
 
 	// AGREGAR PRODUCTO A LISTA
-	function agregarProducto(producto) {
+	async function agregarProducto(producto) {
+		// Validar que haya stock disponible
+		if (producto.Cantidad <= 0) {
+			await showModalInfo(
+				`El producto "${producto.NroParte}" no tiene stock disponible.`,
+				'Sin stock',
+				'warning'
+			)
+			return
+		}
+
 		const existente = productosVenta.find((p) => p.id === producto.id)
 
 		if (existente) {
+			// Validar que no exceda el stock
+			if (existente.cantidad >= producto.Cantidad) {
+				await showModalInfo(
+					`Stock insuficiente. Solo hay ${producto.Cantidad} unidades disponibles.`,
+					'Stock insuficiente',
+					'warning'
+				)
+				return
+			}
 			existente.cantidad++
 		} else {
 			productosVenta.push({
@@ -196,27 +215,41 @@ export function initNuevaVenta() {
 	function renderTabla() {
 		tablaVenta.innerHTML = ''
 
+		if (productosVenta.length === 0) {
+			tablaVenta.innerHTML = `
+				<tr>
+					<td colspan="7" class="text-center py-8 text-gray-500 font-semibold">
+						🛒 No hay productos agregados. Busca y agrega productos a la venta.
+					</td>
+				</tr>`
+			return
+		}
+
 		productosVenta.forEach((p, index) => {
 			const tr = document.createElement('tr')
+			tr.className = 'hover:bg-gray-50'
 			const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
 
 			tr.innerHTML = `
-            <td class="p-1 pl-6">${p.NroParte}</td>
-            <td class="p-1 pl-6">${p.Descripcion}</td>
-            <td class="p-1 pl-6">
-                <input type="number" min="1" value="${
-									p.cantidad
-								}" class="w-16 p-1 pl-6 cantidad-input rounded-xl">
-            </td>
-            <td class="p-1 pl-6">${(p.tasa * 100).toFixed(0)}%</td>
-            <td class="p-1 pl-6">${p.precio.toFixed(2)} €</td>
-            <td class="p-1 pl-6 font-semibold">${total} €</td>
-            <td class="p-1 pl-6 text-center">
-                <button class="btn-eliminar bg-red-600 text-white px-3
-								py-2 rounded-lg hover:bg-red-700 hover:scale-110
-								active:scale-100 transition duration-300 ease-in-out"><i class="fas fa-trash"></i><b>ELIMINAR</b></button>
-            </td>
-        `
+				<td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
+				<td class="py-3 px-4 text-right">
+					<input type="number" min="1" value="${p.cantidad}" 
+						class="cantidad-input w-20 p-2 text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-600 outline-none font-semibold">
+				</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${(p.tasa * 100).toFixed(
+					0
+				)}%</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">$${p.precio.toFixed(
+					2
+				)}</td>
+				<td class="py-3 px-4 text-sm text-right font-bold text-indigo-700">$${total}</td>
+				<td class="py-3 px-4 text-center">
+					<button class="btn-eliminar bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow transition transform hover:scale-105">
+						🗑️ Eliminar
+					</button>
+				</td>
+			`
 
 			// Event listeners seguros
 			tr.querySelector('.btn-eliminar').addEventListener('click', () => {
@@ -225,11 +258,24 @@ export function initNuevaVenta() {
 				actualizarTotales()
 			})
 
-			tr.querySelector('.cantidad-input').addEventListener('change', (e) => {
-				productosVenta[index].cantidad = parseInt(e.target.value)
-				renderTabla()
-				actualizarTotales()
-			})
+			tr.querySelector('.cantidad-input').addEventListener(
+				'change',
+				async (e) => {
+					const nuevaCantidad = parseInt(e.target.value)
+					if (nuevaCantidad > p.stockActual) {
+						await showModalInfo(
+							`Stock insuficiente. Solo hay ${p.stockActual} unidades disponibles.`,
+							'Stock insuficiente',
+							'warning'
+						)
+						renderTabla()
+						return
+					}
+					productosVenta[index].cantidad = nuevaCantidad
+					renderTabla()
+					actualizarTotales()
+				}
+			)
 
 			tablaVenta.appendChild(tr)
 		})
@@ -262,14 +308,15 @@ export function initNuevaVenta() {
 
 		let idCliente = clienteSelect.value
 
-		// Crear cliente si es nuevo
+		// Crear cliente solo si NO hay uno seleccionado Y hay datos de nuevo cliente
 		if (!idCliente && clienteNombre.value.trim()) {
-			idCliente = await window.api.cliente.create({
+			const nuevoCliente = await window.api.cliente.create({
 				nombre: clienteNombre.value.trim(),
 				telefono: clienteTelefono.value.trim(),
 				email: clienteEmail.value.trim(),
 				direccion: clienteDireccion.value.trim(),
 			})
+			idCliente = nuevoCliente.id || nuevoCliente
 		}
 
 		if (!idCliente) {
@@ -288,6 +335,10 @@ export function initNuevaVenta() {
 			'Confirmar acción'
 		)
 		if (!confirmar) return
+
+		// Deshabilitar botón para evitar doble clic
+		btnFinalizarVenta.disabled = true
+		btnFinalizarVenta.textContent = '⏳ Procesando...'
 
 		// Crear venta
 		const subtotal = parseFloat(subtotalInput.value)
@@ -331,6 +382,17 @@ export function initNuevaVenta() {
 			observaciones: observaciones.value.trim(),
 		})
 
+		// Obtener datos reales del cliente del backend
+		const clienteRes = await window.api.cliente.getById(idCliente)
+		const clienteData = clienteRes.ok
+			? clienteRes.cliente
+			: {
+					nombre: clienteNombre.value.trim(),
+					telefono: clienteTelefono.value.trim(),
+					email: clienteEmail.value.trim(),
+					direccion: clienteDireccion.value.trim(),
+			  }
+
 		// Almacenar datos de la venta actual para generar PDF
 		ventaActual = {
 			factura: {
@@ -343,12 +405,7 @@ export function initNuevaVenta() {
 				metodoPago: metodoPago.value,
 				observaciones: observaciones.value.trim(),
 			},
-			cliente: {
-				nombre: clienteNombre.value,
-				telefono: clienteTelefono.value,
-				email: clienteEmail.value,
-				direccion: clienteDireccion.value,
-			},
+			cliente: clienteData,
 			detalles: productosVenta.map((p) => ({
 				nroParte: p.NroParte,
 				descripcion: p.Descripcion,
@@ -381,6 +438,10 @@ export function initNuevaVenta() {
 		motivoDescuentoInput.value = ''
 		numeroFactura.value = ''
 		observaciones.value = ''
+
+		// Rehabilitar botón
+		btnFinalizarVenta.disabled = false
+		btnFinalizarVenta.textContent = 'Generar Factura'
 	})
 
 	// ** Agregar evento change al serector
