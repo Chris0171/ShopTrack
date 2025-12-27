@@ -1,35 +1,82 @@
-<h1 class="text-2xl font-bold mb-4">Listado de Productos</h1>
+<div class="p-4">
+  <h1 class="text-3xl font-bold text-white mb-6">Listado de Productos</h1>
 
-<!-- Filtros -->
-<div class="flex gap-4 mb-4">
-  <input id="filtroNroParte" type="text" placeholder="Filtrar por NroParte" class="border rounded p-2 w-1/4">
-  <input id="filtroDescripcion" type="text" placeholder="Filtrar por Descripción" class="border rounded p-2 w-1/4">
-  <button id="btnFiltrar" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filtrar</button>
-</div>
+  <!-- Filtros -->
+  <div class="bg-white rounded-xl shadow-lg p-5 mb-6 flex flex-wrap gap-4 items-end">
+    <div class="flex-1 min-w-[220px]">
+      <label class="block font-bold text-gray-700 mb-2">Nro de Parte</label>
+      <input id="filtroNroParte" type="text" placeholder="Filtrar por NroParte"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+    </div>
+    <div class="flex-1 min-w-[220px]">
+      <label class="block font-bold text-gray-700 mb-2">Descripción</label>
+      <input id="filtroDescripcion" type="text" placeholder="Filtrar por Descripción"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+    </div>
+    <div class="flex gap-3">
+      <button id="btnFiltrar"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold shadow transition transform hover:scale-105">Filtrar</button>
+      <button id="btnLimpiarFiltros"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105">Limpiar</button>
+    </div>
+  </div>
 
-<!-- Tabla -->
-<div class="overflow-x-auto">
-  <table class="min-w-full bg-white rounded shadow">
-    <thead>
-      <tr class="bg-gray-200 text-gray-700">
-        <th class="py-2 px-4 border">NroParte</th>
-        <th class="py-2 px-4 border">Descripción</th>
-        <th class="py-2 px-4 border">Cantidad</th>
-        <th class="py-2 px-4 border">Precio</th>
-        <th class="py-2 px-4 border">Tasas</th>
-        <th class="py-2 px-4 border">Actualizar</th>
-        <th class="py-2 px-4 border">Eliminar</th>
-      </tr>
-    </thead>
-    <tbody id="tablaProductosBody">
-      <!-- Filas generadas dinámicamente -->
-    </tbody>
-  </table>
-</div>
+  <!-- Tabla -->
+  <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+    <table class="min-w-full">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-4 text-left sortable" data-field="NroParte">NroParte</th>
+          <th class="py-3 px-4 text-left">Descripción</th>
+          <th class="py-3 px-4 text-right sortable" data-field="Cantidad">Cantidad</th>
+          <th class="py-3 px-4 text-right sortable" data-field="Precio">Precio Venta</th>
+          <th class="py-3 px-4 text-right sortable" data-field="precioCosto">Precio Costo</th>
+          <th class="py-3 px-4 text-right sortable" data-field="Tasas">IVA/Tasa</th>
+          <th class="py-3 px-4 text-center">Tipo</th>
+          <th class="py-3 px-4 text-left">Imagen</th>
+          <th class="py-3 px-4 text-center sortable" data-field="activo">Estado</th>
+          <th class="py-3 px-4 text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaProductosBody" class="divide-y divide-gray-200">
+        <!-- Filas generadas dinámicamente -->
+      </tbody>
+    </table>
+  </div>
 
-<!-- Paginación -->
-<div class="flex justify-between items-center mt-4">
-  <button id="prevPage" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Anterior</button>
-  <span id="paginaActual" class="font-semibold"></span>
-  <button id="nextPage" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Siguiente</button>
+  <!-- Paginación -->
+  <div class="flex justify-between items-center mt-4 bg-white rounded-xl shadow p-4">
+    <button id="prevPage"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition">Anterior</button>
+    <span id="paginaActual" class="font-bold text-gray-700"></span>
+    <button id="nextPage"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition">Siguiente</button>
+  </div>
+
+  <!-- Modal de feedback/confirmación -->
+  <div id="appModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md p-8 space-y-4">
+      <div class="text-center">
+        <div id="modalIcon" class="text-5xl mb-4"></div>
+        <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+        <p id="modalMessage" class="text-gray-600 text-center"></p>
+      </div>
+      <div class="flex gap-3 justify-center">
+        <button id="btn-modal-ok"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">OK</button>
+        <button id="btn-modal-cancel"
+          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Imagen -->
+  <div id="imageModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" style="display: none;">
+    <div class="relative max-w-4xl max-h-screen p-4">
+      <button id="closeImageModal"
+        class="absolute top-2 right-2 bg-white hover:bg-gray-200 text-gray-800 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl shadow-lg z-10">×</button>
+      <img id="modalImage" src="" alt="Imagen del producto" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl" />
+    </div>
+  </div>
+
 </div>
