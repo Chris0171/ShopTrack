@@ -76,7 +76,8 @@ export function initConfiguracion() {
 		formatoFechaSelect.value = config.formatoFecha || 'DD/MM/YYYY'
 
 		// Idioma de factura (si no está definido, usar el idioma general por defecto)
-		idiomaFacturaSelect.value = config.idiomaFactura || idiomaSelect.value || 'es'
+		idiomaFacturaSelect.value =
+			config.idiomaFactura || idiomaSelect.value || 'es'
 
 		// Facturas
 		prefijoFactura.value = config.prefijoFactura || 'F-'
