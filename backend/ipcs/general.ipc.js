@@ -17,6 +17,25 @@ module.exports = function registerGeneralIPC(ipcMain) {
 		}
 	})
 
+	// Abrir imagen de producto por nombre (ubicada en assets/images/productos)
+	ipcMain.handle('producto:abrir-imagen', async (event, nombreImagen) => {
+		try {
+			if (!nombreImagen) return { ok: false, error: 'Nombre de imagen vacío' }
+			const assetsPath = path.join(
+				__dirname,
+				'../../assets/images/productos',
+				nombreImagen
+			)
+			if (!fs.existsSync(assetsPath)) {
+				return { ok: false, error: 'Archivo no encontrado' }
+			}
+			await shell.openPath(assetsPath)
+			return { ok: true, path: assetsPath }
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
 	// Seleccionar imagen desde el sistema de archivos
 	ipcMain.handle('producto:seleccionar-imagen', async () => {
 		const result = await dialog.showOpenDialog({
