@@ -34,6 +34,11 @@ export function initNuevaVenta() {
 	const modalHeader = document.getElementById('appModalHeader')
 	const modalIcon = document.getElementById('appModalIcon')
 
+	// Modal de imagen
+	const imageModal = document.getElementById('imageModal')
+	const modalImage = document.getElementById('modalImage')
+	const closeImageModal = document.getElementById('closeImageModal')
+
 	const MODAL_VARIANTS = {
 		info: { icon: 'fas fa-info-circle', colorClass: 'variant-info' },
 		success: { icon: 'fas fa-check-circle', colorClass: 'variant-success' },
@@ -93,6 +98,22 @@ export function initNuevaVenta() {
 			modal.style.display = 'flex'
 		})
 	}
+
+	function showImageModal(nombreImagen) {
+		if (!nombreImagen) return
+		modalImage.src = `./assets/images/productos/${nombreImagen}`
+		imageModal.style.display = 'flex'
+	}
+
+	function hideImageModal() {
+		imageModal.style.display = 'none'
+		modalImage.src = ''
+	}
+
+	closeImageModal.onclick = hideImageModal
+	imageModal.addEventListener('click', (e) => {
+		if (e.target === imageModal) hideImageModal()
+	})
 
 	async function showModalInfo(message, title = 'Aviso', variant = 'info') {
 		await openModal({ title, message, showCancel: false, variant })
@@ -204,6 +225,7 @@ export function initNuevaVenta() {
 				tasa: producto.Tasas,
 				cantidad: 1,
 				stockActual: producto.Cantidad,
+				nombreImagen: producto.nombreImagen || null,
 			})
 		}
 
@@ -218,7 +240,7 @@ export function initNuevaVenta() {
 		if (productosVenta.length === 0) {
 			tablaVenta.innerHTML = `
 				<tr>
-					<td colspan="7" class="text-center py-8 text-gray-500 font-semibold">
+					<td colspan="8" class="text-center py-8 text-gray-500 font-semibold">
 						🛒 No hay productos agregados. Busca y agrega productos a la venta.
 					</td>
 				</tr>`
@@ -230,7 +252,17 @@ export function initNuevaVenta() {
 			tr.className = 'hover:bg-gray-50'
 			const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
 
+			const imagePath = p.nombreImagen
+				? `./assets/images/productos/${p.nombreImagen}`
+				: null
+			const imagenHtml = imagePath
+				? `<img id="venta_img_${p.id}" src="${imagePath}" alt="${p.NroParte}" class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
+				: '<span class="text-gray-400 text-xs">Sin imagen</span>'
+
 			tr.innerHTML = `
+				<td class="py-3 px-4 text-center">
+					<div class="flex items-center justify-center">${imagenHtml}</div>
+				</td>
 				<td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
 				<td class="py-3 px-4 text-right">
@@ -250,6 +282,13 @@ export function initNuevaVenta() {
 					</button>
 				</td>
 			`
+
+			const thumbImg = tr.querySelector(`#venta_img_${p.id}`)
+			if (thumbImg && p.nombreImagen) {
+				thumbImg.addEventListener('click', () => {
+					showImageModal(p.nombreImagen)
+				})
+			}
 
 			// Event listeners seguros
 			tr.querySelector('.btn-eliminar').addEventListener('click', () => {
