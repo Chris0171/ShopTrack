@@ -4,6 +4,7 @@ export function initConfiguracion() {
 	const monedaSelect = document.getElementById('monedaSelect')
 	const zonaHorariaSelect = document.getElementById('zonaHorariaSelect')
 	const formatoFechaSelect = document.getElementById('formatoFechaSelect')
+	const idiomaFacturaSelect = document.getElementById('idiomaFacturaSelect')
 
 	const prefijoFactura = document.getElementById('prefijoFactura')
 	const numeroInicial = document.getElementById('numeroInicial')
@@ -74,6 +75,9 @@ export function initConfiguracion() {
 		zonaHorariaSelect.value = config.zonaHoraria || 'America/New_York'
 		formatoFechaSelect.value = config.formatoFecha || 'DD/MM/YYYY'
 
+		// Idioma de factura (si no está definido, usar el idioma general por defecto)
+		idiomaFacturaSelect.value = config.idiomaFactura || idiomaSelect.value || 'es'
+
 		// Facturas
 		prefijoFactura.value = config.prefijoFactura || 'F-'
 		numeroInicial.value = config.numeroInicial || 1
@@ -92,6 +96,7 @@ export function initConfiguracion() {
 	btnGuardar.addEventListener('click', async () => {
 		const config = {
 			idioma: idiomaSelect.value,
+			idiomaFactura: idiomaFacturaSelect.value,
 			moneda: monedaSelect.value,
 			zonaHoraria: zonaHorariaSelect.value,
 			formatoFecha: formatoFechaSelect.value,

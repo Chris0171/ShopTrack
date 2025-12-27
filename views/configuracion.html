@@ -60,6 +60,18 @@
     <h2 class="text-xl font-bold text-indigo-800 mb-4">📄 Configuración de Facturas</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Idioma de la Factura -->
+      <div>
+        <label class="block font-bold text-gray-700 mb-2">Idioma de la Factura</label>
+        <select id="idiomaFacturaSelect"
+          class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+          <option value="es">🇪🇸 Español</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="pt">🇧🇷 Português</option>
+        </select>
+        <p class="text-sm text-gray-500 mt-1">Define el idioma de generación del PDF de factura.</p>
+      </div>
+
       <!-- Prefijo de Factura -->
       <div>
         <label class="block font-bold text-gray-700 mb-2">Prefijo de Factura</label>
