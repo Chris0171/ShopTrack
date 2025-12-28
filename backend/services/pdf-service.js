@@ -1,12 +1,54 @@
 const PDFDocument = require('pdfkit-table')
 const fs = require('fs')
 const path = require('path')
+const configService = require('./config-service')
 
+// Cargar localizaciones (caché)
+let locales = {}
+
+function loadLocale(language = 'es') {
+	if (!locales[language]) {
+		try {
+			const localePath = path.join(
+				__dirname,
+				`../../assets/locales/${language}.json`
+			)
+			const content = fs.readFileSync(localePath, 'utf-8')
+			locales[language] = JSON.parse(content)
+			console.log(`✓ Locale ${language} cargado en pdf-service`)
+		} catch (error) {
+			console.error(`Error cargando locale ${language}:`, error.message)
+			// Fallback a español
+			return loadLocale('es')
+		}
+	}
+	return locales[language]
+}
+
+// Función auxiliar para obtener traducción
+function t(locale, key) {
+	const keys = key.split('.')
+	let value = locale
+	for (const k of keys) {
+		value = value?.[k]
+	}
+	return value || key
+}
+
+// Clase contenedora del servicio PDF
 class PDFService {
-	// Generar PDF de factura
+	// Generar PDF de factura con soporte i18n
 	static generarFacturaPDF(datos) {
 		return new Promise((resolve, reject) => {
 			try {
+				// Obtener configuración para idioma de factura
+				const config = configService.getConfig()
+				const idiomaFactura = config.idiomaFactura || 'es'
+				const locale = loadLocale(idiomaFactura)
+
+				// Función auxiliar dentro del contexto
+				const getText = (key) => t(locale, key)
+
 				// Crear directorio de facturas si no existe
 				const dirFacturas = path.join(__dirname, '../../facturas')
 				if (!fs.existsSync(dirFacturas)) {
@@ -41,7 +83,7 @@ class PDFService {
 					.fontSize(20)
 					.font('Helvetica-Bold')
 					.fillColor(COLORS.indigo700)
-					.text('Core transport lLC', { align: 'center' })
+					.text(config.nombre || 'Core transport lLC', { align: 'center' })
 				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
 
 				// Layout cabecera correcto: FACTURA, luego fecha y número
@@ -55,7 +97,7 @@ class PDFService {
 					.fontSize(14)
 					.font('Helvetica-Bold')
 					.fillColor(COLORS.indigo700)
-					.text('FACTURA', 40, posY)
+					.text(getText('invoice.title'), 40, posY)
 				doc.fontSize(10).font('Helvetica')
 
 				posY += 15
@@ -68,11 +110,17 @@ class PDFService {
 				doc
 					.fillColor(COLORS.black)
 					.text(
-						`Fecha de factura: ${this.formatearFecha(datos.fechaEmision)}`,
+						`${getText('invoice.date')}: ${this.formatearFecha(
+							datos.fechaEmision
+						)}`,
 						40,
 						posY
 					)
-				doc.text(`Número de factura: ${datos.numeroFactura}`, 40, posY + 18)
+				doc.text(
+					`${getText('invoice.invoiceNumber')}: ${datos.numeroFactura}`,
+					40,
+					posY + 18
+				)
 
 				// Nombre del cliente con menos margen antes de la siguiente línea
 				posY += 70
@@ -89,19 +137,36 @@ class PDFService {
 
 				// Datos del cliente debajo de la línea 2
 				posY += 10
-				doc.text(`Dirección: ${datos.cliente.direccion || 'N/A'}`, 40, posY)
-				doc.text(`Teléfono: ${datos.cliente.telefono || 'N/A'}`, 40, posY + 18)
-				doc.text(`Email: ${datos.cliente.email || 'N/A'}`, 40, posY + 36)
+				doc.text(
+					`${getText('invoice.customer')}: ${datos.cliente.nombre}`,
+					40,
+					posY
+				)
+				doc.text(
+					`${getText('common.address')}: ${datos.cliente.direccion || 'N/A'}`,
+					40,
+					posY + 18
+				)
+				doc.text(
+					`${getText('common.phone')}: ${datos.cliente.telefono || 'N/A'}`,
+					40,
+					posY + 36
+				)
+				doc.text(
+					`${getText('common.email')}: ${datos.cliente.email || 'N/A'}`,
+					40,
+					posY + 54
+				)
 
 				// Tabla manual estilizada con gradiente y bordes redondeados
-				posY += 95
+				posY += 115
 				const headers = [
-					'Nro Parte',
-					'Descripción',
-					'Precio Unit.',
-					'Cantidad',
-					'Tasas',
-					'Total',
+					getText('products.list.nroParte'),
+					getText('products.list.description'),
+					getText('invoice.unitPrice'),
+					getText('invoice.quantity'),
+					getText('invoice.rate'),
+					getText('invoice.total'),
 				]
 				const columnWidths = [110, 170, 75, 60, 50, 50]
 				const tableX = 40
@@ -270,7 +335,7 @@ class PDFService {
 
 				// Mostrar detalles (más separación entre etiqueta y monto)
 				doc.fontSize(11).font('Helvetica-Bold')
-				doc.text(`Precio Base:`, 250, posY, {
+				doc.text(`${getText('invoice.subtotal')}:`, 250, posY, {
 					width: 100,
 					align: 'right',
 				})
@@ -280,7 +345,7 @@ class PDFService {
 				})
 
 				posY += 25
-				doc.text(`Dinero por Tasas:`, 250, posY, {
+				doc.text(`${getText('invoice.taxes')}:`, 250, posY, {
 					width: 100,
 					align: 'right',
 				})
@@ -290,7 +355,7 @@ class PDFService {
 				})
 
 				posY += 25
-				doc.text(`Total Descontado:`, 250, posY, {
+				doc.text(`${getText('invoice.discount')}:`, 250, posY, {
 					width: 100,
 					align: 'right',
 				})
@@ -308,7 +373,7 @@ class PDFService {
 					.fontSize(13)
 					.font('Helvetica-Bold')
 					.fillColor('#2ecc71') // Verde para el total
-					.text(`TOTAL A PAGAR:`, 150, posY, {
+					.text(`${getText('invoice.total').toUpperCase()}:`, 150, posY, {
 						width: 200,
 						align: 'right',
 					})
@@ -320,28 +385,30 @@ class PDFService {
 				// Método de pago y observaciones
 				doc.fillColor(COLORS.black).fontSize(10).font('Helvetica')
 				doc.text(
-					`Método de pago: ${datos.metodoPago.toUpperCase()}`,
+					`${getText(
+						'sales.new.invoice.paymentMethod'
+					)}: ${datos.metodoPago.toUpperCase()}`,
 					40,
 					posY + 50
 				)
 
 				if (datos.observaciones) {
-					doc.text(`Observaciones: ${datos.observaciones}`, 40, posY + 70, {
-						width: 515,
-					})
+					doc.text(
+						`${getText('sales.new.invoice.observations')}: ${
+							datos.observaciones
+						}`,
+						40,
+						posY + 70,
+						{
+							width: 515,
+						}
+					)
 				}
 
 				// Pie de página
-				doc
-					.fontSize(8)
-					.text(
-						'Gracias por su compra. Este documento es una factura válida.',
-						40,
-						750,
-						{
-							align: 'center',
-						}
-					)
+				doc.fontSize(8).text(getText('invoice.thankYou'), 40, 750, {
+					align: 'center',
+				})
 
 				// Finalizar PDF
 				doc.end()
