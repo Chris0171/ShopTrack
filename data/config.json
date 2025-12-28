@@ -1,0 +1,16 @@
+{
+  "idioma": "es",
+  "idiomaFactura": "es",
+  "moneda": "USD",
+  "zonaHoraria": "America/Mexico_City",
+  "formatoFecha": "DD/MM/YYYY",
+  "prefijoFactura": "FAC",
+  "numeroInicial": 1000,
+  "ivaPredeterminado": 0.21,
+  "incluirLogo": true,
+  "nombre": "Core transport lLC",
+  "rfc": "",
+  "telefono": "",
+  "email": "",
+  "direccion": ""
+}
