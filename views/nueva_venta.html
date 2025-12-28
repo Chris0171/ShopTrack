@@ -1,32 +1,33 @@
 <div class="p-4">
-  <h1 class="text-3xl font-bold text-white mb-6">💰 Nueva Venta</h1>
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="sales.new.title">💰 Nueva Venta</h1>
 
   <!-- ** BUSCADOR ** -->
   <div class="bg-white rounded-xl shadow-lg p-5 mb-6">
-    <label class="block font-bold text-gray-700 mb-2">🔍 Buscar producto por Número de Parte</label>
-    <input id="buscarInput" type="text" placeholder="Ej: P-001"
+    <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.searchProduct">🔍 Buscar producto por Número
+      de Parte</label>
+    <input id="buscarInput" type="text" placeholder="Ej: P-001" data-i18n="[placeholder]sales.new.searchPlaceholder"
       class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-    <p class="text-sm text-gray-500 mt-2">Presiona <kbd
+    <p class="text-sm text-gray-500 mt-2" data-i18n="sales.new.enterKey">Presiona <kbd
         class="px-2 py-1 bg-gray-100 border border-gray-300 rounded">Enter</kbd> para agregar</p>
   </div>
 
   <!-- ** TABLA DE PRODUCTOS ** -->
   <div class="bg-white rounded-xl shadow-lg mb-6 overflow-hidden">
-    <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-4">
-      <h2 class="text-xl font-bold text-white">📋 Productos de la Venta</h2>
+    <div class="bg-linear-to-r from-indigo-600 to-indigo-700 px-6 py-4">
+      <h2 class="text-xl font-bold text-white" data-i18n="sales.new.tableTitle">📋 Productos de la Venta</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-gray-800 text-white">
           <tr>
-            <th class="py-3 px-4 text-center">Imagen</th>
-            <th class="py-3 px-4 text-left">Nro de Parte</th>
-            <th class="py-3 px-4 text-left">Descripción</th>
-            <th class="py-3 px-4 text-right">Cantidad</th>
-            <th class="py-3 px-4 text-right">IVA</th>
-            <th class="py-3 px-4 text-right">Precio Unit.</th>
-            <th class="py-3 px-4 text-right">Total</th>
-            <th class="py-3 px-4 text-center">Acciones</th>
+            <th class="py-3 px-4 text-center" data-i18n="sales.new.table.image">Imagen</th>
+            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.nroParte">Nro de Parte</th>
+            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.description">Descripción</th>
+            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.quantity">Cantidad</th>
+            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.iva">IVA</th>
+            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.unitPrice">Precio Unit.</th>
+            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.total">Total</th>
+            <th class="py-3 px-4 text-center" data-i18n="sales.new.table.actions">Acciones</th>
           </tr>
         </thead>
         <tbody id="tablaVenta" class="divide-y divide-gray-200">
@@ -38,43 +39,49 @@
 
   <!-- ** SECCIÓN: DATOS DEL CLIENTE ** -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">👤 Datos del Cliente</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.customer.title">👤 Datos del Cliente</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Cliente existente</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.existing">Cliente
+          existente</label>
         <select id="clienteSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="">-- Selecciona un cliente --</option>
+          <option value="" data-i18n="sales.new.customer.selectClient">-- Selecciona un cliente --</option>
         </select>
       </div>
 
       <div class="md:col-span-2">
         <hr class="my-4 border-gray-300">
-        <p class="text-sm text-gray-600 mb-3">O ingresa datos de un nuevo cliente:</p>
+        <p class="text-sm text-gray-600 mb-3" data-i18n="sales.new.customer.newClient">O ingresa datos de un nuevo
+          cliente:</p>
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Nombre</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.name">Nombre</label>
         <input id="clienteNombre" type="text" placeholder="Nombre completo"
+          data-i18n="[placeholder]sales.new.customer.placeholderName"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Teléfono</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.phone">Teléfono</label>
         <input id="clienteTelefono" type="text" placeholder="Ej: +1234567890"
+          data-i18n="[placeholder]sales.new.customer.placeholderPhone"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Email</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.email">Email</label>
         <input id="clienteEmail" type="email" placeholder="correo@ejemplo.com"
+          data-i18n="[placeholder]sales.new.customer.placeholderEmail"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Dirección</label>
-        <textarea id="clienteDireccion" placeholder="Dirección completa" rows="2"
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.address">Dirección</label>
+        <textarea id="clienteDireccion" placeholder="Dirección completa"
+          data-i18n="[placeholder]sales.new.customer.placeholderAddress" rows="2"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-none"></textarea>
       </div>
     </div>
@@ -82,11 +89,11 @@
 
   <!-- ** SECCIÓN: RESUMEN ECONÓMICO ** -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">💵 Resumen de la Venta</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.summary.title">💵 Resumen de la Venta</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Subtotal</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.subtotal">Subtotal</label>
         <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
           <span class="px-3 font-semibold text-gray-600">$</span>
           <input id="subtotalVenta" type="number" readonly
@@ -95,7 +102,7 @@
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Impuestos (IVA)</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.taxes">Impuestos (IVA)</label>
         <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
           <span class="px-3 font-semibold text-gray-600">$</span>
           <input id="impuestosVenta" type="number" readonly
@@ -104,22 +111,25 @@
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Descuento</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.discount">Descuento</label>
         <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
           <span class="px-3 font-semibold text-gray-600">$</span>
           <input id="descuentoVenta" type="number" min="0" step="0.01" placeholder="0.00"
+            data-i18n="[placeholder]sales.new.summary.placeholderDiscount"
             class="w-full p-3 text-right outline-none focus:border-indigo-600">
         </div>
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Motivo del Descuento</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.discountReason">Motivo del
+          Descuento</label>
         <input id="motivoDescuento" type="text" placeholder="Ej: Promoción, cliente frecuente..."
+          data-i18n="[placeholder]sales.new.summary.placeholderDiscountReason"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Total Final</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.total">Total Final</label>
         <div class="flex items-center border-4 border-green-500 rounded-lg overflow-hidden bg-green-50">
           <span class="px-4 font-bold text-green-700 text-lg">$</span>
           <input id="totalVenta" type="number" readonly
@@ -131,29 +141,34 @@
 
   <!-- ** SECCIÓN: PAGO Y FACTURA ** -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">📄 Datos de Factura</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.invoice.title">📄 Datos de Factura</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Método de Pago</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.invoice.paymentMethod">Método de
+          Pago</label>
         <select id="metodoPago"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="efectivo">💵 Efectivo</option>
-          <option value="tarjeta">💳 Tarjeta</option>
-          <option value="transferencia">🏦 Transferencia</option>
-          <option value="bizum">📱 Bizum</option>
+          <option value="efectivo" data-i18n="sales.new.invoice.cash">💵 Efectivo</option>
+          <option value="tarjeta" data-i18n="sales.new.invoice.card">💳 Tarjeta</option>
+          <option value="transferencia" data-i18n="sales.new.invoice.transfer">🏦 Transferencia</option>
+          <option value="bizum" data-i18n="sales.new.invoice.bizum">📱 Bizum</option>
         </select>
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Número de Factura *</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.invoice.invoiceNumber">Número de Factura
+          *</label>
         <input id="numeroFactura" type="text" placeholder="Ej: F-2025-001"
+          data-i18n="[placeholder]sales.new.invoice.placeholderInvoiceNumber"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Observaciones</label>
+        <label class="block font-bold text-gray-700 mb-2"
+          data-i18n="sales.new.invoice.observations">Observaciones</label>
         <textarea id="observaciones" rows="3" placeholder="Notas adicionales para la factura..."
+          data-i18n="[placeholder]sales.new.invoice.placeholderObservations"
           class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-none"></textarea>
       </div>
     </div>
@@ -163,11 +178,11 @@
   <div class="flex justify-end gap-4">
     <button id="btnDescargarPDF"
       class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105 hidden">
-      📄 Descargar PDF
+      <span data-i18n="sales.new.invoice.downloadPDF">📄 Descargar PDF</span>
     </button>
     <button id="btnFinalizarVenta"
       class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105">
-      ✅ Generar Factura
+      <span data-i18n="sales.new.invoice.generate">✅ Generar Factura</span>
     </button>
   </div>
 </div>
@@ -188,9 +203,10 @@
     <!-- Botones de acción -->
     <div class="px-6 pb-6 pt-2 flex justify-end gap-3">
       <button id="appModalCancel"
-        class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition hidden">Cancelar</button>
-      <button id="appModalOk"
-        class="px-5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition">Aceptar</button>
+        class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition hidden"
+        data-i18n="common.cancel">Cancelar</button>
+      <button id="appModalOk" class="px-5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition"
+        data-i18n="common.accept">Aceptar</button>
     </div>
   </div>
 </div>
@@ -199,7 +215,8 @@
 <div id="imageModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50" style="display: none;">
   <div class="relative max-w-4xl max-h-screen p-4">
     <button id="closeImageModal"
-      class="absolute top-2 right-2 bg-white hover:bg-gray-200 text-gray-800 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl shadow-lg z-10">×</button>
+      class="absolute top-2 right-2 bg-white hover:bg-gray-200 text-gray-800 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl shadow-lg z-10"
+      data-i18n="common.close">×</button>
     <img id="modalImage" src="" alt="Imagen del producto" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl" />
   </div>
 </div>

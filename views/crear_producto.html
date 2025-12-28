@@ -3,52 +3,53 @@
 
 
   <form id="form-crear-producto" class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto space-y-4">
-    <h1 class="text-3xl font-bold pl-2 text-indigo-800 mb-4">
+    <h1 class="text-3xl font-bold pl-2 text-indigo-800 mb-4" data-i18n="products.create.title">
       📦 Crear Nuevo Producto
     </h1>
     <hr class="mb-3 border-2 border-indigo-700 rounded-2xl">
     <!-- Número de Parte y Descripción -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Número de Parte *</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.nroParte">Número de Parte *</label>
         <input id="NroParte"
           class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition"
-          type="text" placeholder="P-001" required />
+          type="text" placeholder="P-001" data-i18n="[placeholder]products.create.placeholderNroParte" required />
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Descripción *</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.description">Descripción *</label>
         <input id="Descripcion"
           class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition"
-          type="text" placeholder="Descripción del producto" required />
+          type="text" placeholder="Descripción del producto"
+          data-i18n="[placeholder]products.create.placeholderDescription" required />
       </div>
     </div>
 
     <!-- Cantidad, Precio Venta, Precio Costo -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Cantidad *</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.quantity">Cantidad *</label>
         <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
           <input id="Cantidad" class="w-full p-2 text-right outline-none" type="number" min="0" placeholder="0"
-            required />
+            data-i18n="[placeholder]products.create.placeholderQuantity" required />
           <span class="px-3 font-semibold text-gray-600">u</span>
         </div>
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Precio Venta *</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.price">Precio Venta *</label>
         <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
           <input id="Precio" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
-            placeholder="0.00" required />
+            placeholder="0.00" data-i18n="[placeholder]products.create.placeholderPrice" required />
           <span class="px-3 font-semibold text-gray-600">$</span>
         </div>
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Precio Costo</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.precioCosto">Precio Costo</label>
         <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
           <input id="PrecioCosto" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
-            placeholder="0.00" />
+            placeholder="0.00" data-i18n="[placeholder]products.create.placeholderCostPrice" />
           <span class="px-3 font-semibold text-gray-600">$</span>
         </div>
       </div>
@@ -57,17 +58,17 @@
     <!-- Tasa de Impuesto -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Tasa de Impuesto/IVA</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.iva">Tasa de Impuesto/IVA</label>
         <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
           <input id="Tasas" class="w-full p-2 text-right outline-none" type="number" min="0.00" step="0.01"
-            placeholder="0.21" />
+            placeholder="0.21" data-i18n="[placeholder]products.create.placeholderIva" />
           <span class="px-3 font-semibold text-gray-600">%</span>
         </div>
       </div>
 
       <!-- Original/Copia -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Tipo</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.type">Tipo</label>
         <select id="EsOriginal"
           class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 outline-none transition">
           <option value="1">Original</option>
@@ -78,14 +79,14 @@
 
     <!-- Imagen -->
     <div>
-      <label class="block font-bold text-gray-700 mb-2">Imagen del Producto</label>
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.image">Imagen del Producto</label>
       <div class="flex items-center gap-4">
         <input id="NombreImagen"
           class="flex-1 border-2 border-gray-300 p-2 rounded-lg focus:border-indigo-600 outline-none transition text-gray-600"
-          type="text" placeholder="nombre-imagen.jpg" />
+          type="text" placeholder="nombre-imagen.jpg" data-i18n="[placeholder]products.create.placeholderImage" />
         <button type="button" id="btn-examinar"
           class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition">
-          📂 Examinar
+          <span data-i18n="products.create.browse">📂 Examinar</span>
         </button>
       </div>
       <p class="text-sm text-gray-500 mt-2">Se guardará en <code
@@ -98,11 +99,11 @@
   <div class="mt-6 flex gap-4 justify-center max-w-4xl mx-auto">
     <button id="btn-guardar"
       class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 font-bold rounded-lg shadow-lg transition transform hover:scale(1.05)">
-      ✅ Crear Producto
+      <span data-i18n="products.create.save">✅ Crear Producto</span>
     </button>
     <button id="btn-limpiar"
       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 font-bold rounded-lg shadow-lg transition transform hover:scale(1.05)">
-      🔄 Limpiar Formulario
+      <span data-i18n="common.clear">🔄 Limpiar Formulario</span>
     </button>
   </div>
 
@@ -116,8 +117,9 @@
       </div>
       <div class="flex gap-3 justify-center">
         <button id="btn-modal-ok"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale(1.08)">
-          OK
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale(1.08)"
+          data-i18n="common.accept">
+          Aceptar
         </button>
       </div>
     </div>

@@ -1,24 +1,26 @@
 <div class="p-4">
 
-  <h1 class="text-3xl font-bold text-white mb-6">
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="sales.history.title">
     📊 Historial de Ventas
   </h1>
 
   <!-- Filtros -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
     <input id="filtroFactura" type="text" placeholder="🔍 Buscar por Nº factura"
+      data-i18n="[placeholder]sales.history.searchPlaceholderInvoice"
       class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
 
     <input id="filtroCliente" type="text" placeholder="🔍 Buscar por cliente"
+      data-i18n="[placeholder]sales.history.searchPlaceholderClient"
       class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
 
     <select id="filtroMetodo"
       class="border border-indigo-900 px-4 py-2 rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-      <option value="">🏦 Filtrar por método de pago</option>
-      <option value="efectivo">💵 Efectivo</option>
-      <option value="tarjeta">💳 Tarjeta</option>
-      <option value="transferencia">🏧 Transferencia</option>
-      <option value="bizum">📱 Bizum</option>
+      <option value="" data-i18n="sales.history.filterByMethod">🏦 Filtrar por método de pago</option>
+      <option value="efectivo" data-i18n="sales.new.invoice.cash">💵 Efectivo</option>
+      <option value="tarjeta" data-i18n="sales.new.invoice.card">💳 Tarjeta</option>
+      <option value="transferencia" data-i18n="sales.new.invoice.transfer">🏧 Transferencia</option>
+      <option value="bizum" data-i18n="sales.new.invoice.bizum">📱 Bizum</option>
     </select>
   </div>
 
@@ -27,15 +29,15 @@
     <table class="w-full bg-other">
       <thead class="myClientThead rounded-3xl">
         <tr>
-          <th class="myTh text-left">📄 Nº Factura</th>
-          <th class="myTh text-left">👤 Cliente</th>
-          <th class="myTh text-left">💰 Subtotal</th>
-          <th class="myTh text-left">📊 Impuestos</th>
-          <th class="myTh text-left">🏷️ Descuento</th>
-          <th class="myTh text-left">💵 Total</th>
-          <th class="myTh text-left">📅 Fecha</th>
-          <th class="myTh text-center">👁️ Detalles</th>
-          <th class="myTh text-center">📥 Factura</th>
+          <th class="myTh text-left" data-i18n="sales.history.invoiceNumber">📄 Nº Factura</th>
+          <th class="myTh text-left" data-i18n="sales.history.customer">👤 Cliente</th>
+          <th class="myTh text-left" data-i18n="sales.history.subtotal">💰 Subtotal</th>
+          <th class="myTh text-left" data-i18n="sales.history.taxes">📊 Impuestos</th>
+          <th class="myTh text-left" data-i18n="sales.history.discount">🏷️ Descuento</th>
+          <th class="myTh text-left" data-i18n="sales.history.total">💵 Total</th>
+          <th class="myTh text-left" data-i18n="sales.history.date">📅 Fecha</th>
+          <th class="myTh text-center" data-i18n="sales.history.details">👁️ Detalles</th>
+          <th class="myTh text-center" data-i18n="sales.history.invoice">📥 Factura</th>
         </tr>
       </thead>
 
@@ -43,7 +45,7 @@
     </table>
   </div>
 
-  <div id="loading" class="text-center py-4 hidden text-gray-600">
+  <div id="loading" class="text-center py-4 hidden text-gray-600" data-i18n="sales.history.loading">
     ⏳ Cargando más ventas...
   </div>
 

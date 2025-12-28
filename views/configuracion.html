@@ -1,14 +1,14 @@
 <div class="p-4">
-  <h1 class="text-3xl font-bold text-white mb-6">⚙️ Configuración</h1>
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="config.title">⚙️ Configuración</h1>
 
   <!-- Configuración General -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">🌐 Configuración General</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="config.general">🌐 Configuración General</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Idioma -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Idioma / Language</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.language">Idioma / Language</label>
         <select id="idiomaSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
           <option value="es">🇪🇸 Español</option>
@@ -19,37 +19,37 @@
 
       <!-- Moneda -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Moneda</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.currency">Moneda</label>
         <select id="monedaSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="USD">$ USD (Dólar)</option>
-          <option value="EUR">€ EUR (Euro)</option>
-          <option value="MXN">$ MXN (Peso Mexicano)</option>
-          <option value="ARS">$ ARS (Peso Argentino)</option>
+          <option value="USD" data-i18n="config.currencyUSD">$ USD (Dólar)</option>
+          <option value="EUR" data-i18n="config.currencyEUR">€ EUR (Euro)</option>
+          <option value="MXN" data-i18n="config.currencyMXN">$ MXN (Peso Mexicano)</option>
+          <option value="ARS" data-i18n="config.currencyARS">$ ARS (Peso Argentino)</option>
         </select>
       </div>
 
       <!-- Zona Horaria -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Zona Horaria</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.timezone">Zona Horaria</label>
         <select id="zonaHorariaSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="America/New_York">EST - Nueva York</option>
-          <option value="America/Mexico_City">CST - Ciudad de México</option>
-          <option value="America/Los_Angeles">PST - Los Ángeles</option>
-          <option value="Europe/Madrid">CET - Madrid</option>
-          <option value="America/Buenos_Aires">ART - Buenos Aires</option>
+          <option value="America/New_York" data-i18n="config.timezoneNY">EST - Nueva York</option>
+          <option value="America/Mexico_City" data-i18n="config.timezoneCity">CST - Ciudad de México</option>
+          <option value="America/Los_Angeles" data-i18n="config.timezoneLa">PST - Los Ángeles</option>
+          <option value="Europe/Madrid" data-i18n="config.timezoneMadrid">CET - Madrid</option>
+          <option value="America/Buenos_Aires" data-i18n="config.timezoneBsAs">ART - Buenos Aires</option>
         </select>
       </div>
 
       <!-- Formato de Fecha -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Formato de Fecha</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.dateFormat">Formato de Fecha</label>
         <select id="formatoFechaSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="DD/MM/YYYY">DD/MM/YYYY (27/12/2025)</option>
-          <option value="MM/DD/YYYY">MM/DD/YYYY (12/27/2025)</option>
-          <option value="YYYY-MM-DD">YYYY-MM-DD (2025-12-27)</option>
+          <option value="DD/MM/YYYY" data-i18n="config.dateFormatDMY">DD/MM/YYYY (27/12/2025)</option>
+          <option value="MM/DD/YYYY" data-i18n="config.dateFormatMDY">MM/DD/YYYY (12/27/2025)</option>
+          <option value="YYYY-MM-DD" data-i18n="config.dateFormatISO">YYYY-MM-DD (2025-12-27)</option>
         </select>
       </div>
     </div>
@@ -57,39 +57,41 @@
 
   <!-- Configuración de Facturas -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">📄 Configuración de Facturas</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="config.invoice">📄 Configuración de Facturas</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Idioma de la Factura -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Idioma de la Factura</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.invoiceLanguage">Idioma de la
+          Factura</label>
         <select id="idiomaFacturaSelect"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
           <option value="es">🇪🇸 Español</option>
           <option value="en">🇺🇸 English</option>
           <option value="pt">🇧🇷 Português</option>
         </select>
-        <p class="text-sm text-gray-500 mt-1">Define el idioma de generación del PDF de factura.</p>
+        <p class="text-sm text-gray-500 mt-1" data-i18n="config.invoiceLanguageDesc">Define el idioma de generación del
+          PDF de factura.</p>
       </div>
 
       <!-- Prefijo de Factura -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Prefijo de Factura</label>
-        <input id="prefijoFactura" type="text" placeholder="F-"
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.invoicePrefix">Prefijo de Factura</label>
+        <input id="prefijoFactura" type="text" placeholder="F-" data-i18n="[placeholder]config.placeholderInvoicePrefix"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-        <p class="text-sm text-gray-500 mt-1">Ejemplo: F-2025-001</p>
+        <p class="text-sm text-gray-500 mt-1" data-i18n="config.invoicePrefixExample">Ejemplo: F-2025-001</p>
       </div>
 
       <!-- Número Inicial -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Número Inicial</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.initialNumber">Número Inicial</label>
         <input id="numeroInicial" type="number" min="1" value="1"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <!-- IVA Predeterminado -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2">IVA Predeterminado (%)</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.defaultIVA">IVA Predeterminado (%)</label>
         <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
           <input id="ivaPredeterminado" type="number" min="0" max="100" step="0.01" value="21"
             class="w-full p-3 text-right outline-none">
@@ -101,43 +103,49 @@
       <div class="flex items-center pt-8">
         <input id="incluirLogo" type="checkbox" checked
           class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-        <label for="incluirLogo" class="ml-2 font-bold text-gray-700">Incluir logo en PDF de factura</label>
+        <label for="incluirLogo" class="ml-2 font-bold text-gray-700" data-i18n="config.includeLogo">Incluir logo en PDF
+          de factura</label>
       </div>
     </div>
   </div>
 
   <!-- Información de la Empresa -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">🏢 Información de la Empresa</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="config.company">🏢 Información de la Empresa</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Nombre de la Empresa</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.companyName">Nombre de la Empresa</label>
         <input id="nombreEmpresa" type="text" placeholder="Mi Empresa S.A."
+          data-i18n="[placeholder]config.placeholderCompanyName"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">RFC / NIT / CUIT</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.rfc">RFC / NIT / CUIT</label>
         <input id="rfcEmpresa" type="text" placeholder="ABC123456XYZ"
+          data-i18n="[placeholder]config.placeholderCompanyRFC"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Teléfono</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.phone">Teléfono</label>
         <input id="telefonoEmpresa" type="text" placeholder="+1 234 567 890"
+          data-i18n="[placeholder]config.placeholderCompanyPhone"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div>
-        <label class="block font-bold text-gray-700 mb-2">Email</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.email">Email</label>
         <input id="emailEmpresa" type="email" placeholder="contacto@empresa.com"
+          data-i18n="[placeholder]config.placeholderCompanyEmail"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
       </div>
 
       <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2">Dirección</label>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="config.address">Dirección</label>
         <textarea id="direccionEmpresa" rows="2" placeholder="Calle Principal #123, Colonia, Ciudad, CP 12345"
+          data-i18n="[placeholder]config.placeholderCompanyAddress"
           class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-none"></textarea>
       </div>
     </div>
@@ -145,39 +153,39 @@
 
   <!-- Base de Datos -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4">💾 Base de Datos</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="config.database">💾 Base de Datos</h2>
 
     <div class="space-y-4">
       <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
         <div>
-          <p class="font-bold text-gray-700">Hacer copia de seguridad</p>
-          <p class="text-sm text-gray-500">Exportar toda la base de datos</p>
+          <p class="font-bold text-gray-700" data-i18n="config.backup">Hacer copia de seguridad</p>
+          <p class="text-sm text-gray-500" data-i18n="config.backupDesc">Exportar toda la base de datos</p>
         </div>
         <button id="btnBackup"
           class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105">
-          📦 Backup
+          📦 <span data-i18n="common.backup">Backup</span>
         </button>
       </div>
 
       <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
         <div>
-          <p class="font-bold text-gray-700">Restaurar base de datos</p>
-          <p class="text-sm text-gray-500">Importar desde archivo de respaldo</p>
+          <p class="font-bold text-gray-700" data-i18n="config.restore">Restaurar base de datos</p>
+          <p class="text-sm text-gray-500" data-i18n="config.restoreDesc">Importar desde archivo de respaldo</p>
         </div>
         <button id="btnRestore"
           class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105">
-          ♻️ Restaurar
+          ♻️ <span data-i18n="common.restore">Restaurar</span>
         </button>
       </div>
 
       <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
         <div>
-          <p class="font-bold text-red-700">Reiniciar base de datos</p>
-          <p class="text-sm text-red-500">⚠️ ADVERTENCIA: Eliminará todos los datos</p>
+          <p class="font-bold text-red-700" data-i18n="config.reset">Reiniciar base de datos</p>
+          <p class="text-sm text-red-500" data-i18n="config.resetDesc">⚠️ ADVERTENCIA: Eliminará todos los datos</p>
         </div>
         <button id="btnReset"
           class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105">
-          🗑️ Reiniciar
+          🗑️ <span data-i18n="common.reset">Reiniciar</span>
         </button>
       </div>
     </div>
@@ -187,11 +195,11 @@
   <div class="flex justify-end gap-4">
     <button id="btnCancelar"
       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105">
-      Cancelar
+      <span data-i18n="common.cancel">Cancelar</span>
     </button>
     <button id="btnGuardar"
       class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105">
-      ✅ Guardar Configuración
+      ✅ <span data-i18n="config.saved">Configuración Guardada</span>
     </button>
   </div>
 
@@ -205,9 +213,11 @@
       </div>
       <div class="flex gap-3 justify-center">
         <button id="btn-modal-ok"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">OK</button>
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.accept">Aceptar</button>
         <button id="btn-modal-cancel"
-          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">Cancelar</button>
+          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.cancel">Cancelar</button>
       </div>
     </div>
   </div>

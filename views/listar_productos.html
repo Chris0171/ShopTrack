@@ -1,23 +1,27 @@
 <div class="p-4">
-  <h1 class="text-3xl font-bold text-white mb-6">Listado de Productos</h1>
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="products.list.title">Listado de Productos</h1>
 
   <!-- Filtros -->
   <div class="bg-white rounded-xl shadow-lg p-5 mb-6 flex flex-wrap gap-4 items-end">
     <div class="flex-1 min-w-[220px]">
-      <label class="block font-bold text-gray-700 mb-2">Nro de Parte</label>
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="products.list.nroParte">Nro de Parte</label>
       <input id="filtroNroParte" type="text" placeholder="Filtrar por NroParte"
+        data-i18n="[placeholder]products.list.filterByNroParte"
         class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
     </div>
     <div class="flex-1 min-w-[220px]">
-      <label class="block font-bold text-gray-700 mb-2">Descripción</label>
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="products.list.description">Descripción</label>
       <input id="filtroDescripcion" type="text" placeholder="Filtrar por Descripción"
+        data-i18n="[placeholder]products.list.filterByDescription"
         class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
     </div>
     <div class="flex gap-3">
       <button id="btnFiltrar"
-        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold shadow transition transform hover:scale-105">Filtrar</button>
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold shadow transition transform hover:scale-105"
+        data-i18n="products.list.filter">Filtrar</button>
       <button id="btnLimpiarFiltros"
-        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105">Limpiar</button>
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105"
+        data-i18n="products.list.clearFilters">Limpiar</button>
     </div>
   </div>
 
@@ -26,16 +30,20 @@
     <table class="min-w-full">
       <thead class="bg-gray-800 text-white">
         <tr>
-          <th class="py-3 px-4 text-left sortable" data-field="NroParte">NroParte</th>
-          <th class="py-3 px-4 text-left">Descripción</th>
-          <th class="py-3 px-4 text-right sortable" data-field="Cantidad">Cantidad</th>
-          <th class="py-3 px-4 text-right sortable" data-field="Precio">Precio Venta</th>
-          <th class="py-3 px-4 text-right sortable" data-field="precioCosto">Precio Costo</th>
-          <th class="py-3 px-4 text-right sortable" data-field="Tasas">IVA/Tasa</th>
-          <th class="py-3 px-4 text-center">Tipo</th>
-          <th class="py-3 px-4 text-left">Imagen</th>
-          <th class="py-3 px-4 text-center sortable" data-field="activo">Estado</th>
-          <th class="py-3 px-4 text-center">Acciones</th>
+          <th class="py-3 px-4 text-left sortable" data-field="NroParte" data-i18n="products.list.nroParte">NroParte
+          </th>
+          <th class="py-3 px-4 text-left" data-i18n="products.list.description">Descripción</th>
+          <th class="py-3 px-4 text-right sortable" data-field="Cantidad" data-i18n="products.list.quantity">Cantidad
+          </th>
+          <th class="py-3 px-4 text-right sortable" data-field="Precio" data-i18n="products.list.priceVenta">Precio
+            Venta</th>
+          <th class="py-3 px-4 text-right sortable" data-field="precioCosto" data-i18n="products.list.precioCosto">
+            Precio Costo</th>
+          <th class="py-3 px-4 text-right sortable" data-field="Tasas" data-i18n="products.list.iva">IVA/Tasa</th>
+          <th class="py-3 px-4 text-center" data-i18n="products.list.type">Tipo</th>
+          <th class="py-3 px-4 text-left" data-i18n="products.list.image">Imagen</th>
+          <th class="py-3 px-4 text-center sortable" data-field="activo" data-i18n="products.list.status">Estado</th>
+          <th class="py-3 px-4 text-center" data-i18n="products.list.actions">Acciones</th>
         </tr>
       </thead>
       <tbody id="tablaProductosBody" class="divide-y divide-gray-200">
@@ -47,10 +55,12 @@
   <!-- Paginación -->
   <div class="flex justify-between items-center mt-4 bg-white rounded-xl shadow p-4">
     <button id="prevPage"
-      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition">Anterior</button>
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition"
+      data-i18n="products.list.previous">Anterior</button>
     <span id="paginaActual" class="font-bold text-gray-700"></span>
     <button id="nextPage"
-      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition">Siguiente</button>
+      class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition"
+      data-i18n="products.list.next">Siguiente</button>
   </div>
 
   <!-- Modal de feedback/confirmación -->
@@ -63,9 +73,11 @@
       </div>
       <div class="flex gap-3 justify-center">
         <button id="btn-modal-ok"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">OK</button>
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.accept">Aceptar</button>
         <button id="btn-modal-cancel"
-          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105">Cancelar</button>
+          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.cancel">Cancelar</button>
       </div>
     </div>
   </div>

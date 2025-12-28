@@ -7,9 +7,9 @@
         <div id="chartIngresos" class="chart-box w-full"></div>
         <div class="flex flex-col gap-4 w-full lg:w-auto justify-start">
           <div class="flex flex-col gap-2 lg:gap-4">
-            <button id="btn7Dias" class="btn-periodo active">Últimos 7 días</button>
-            <button id="btn15Dias" class="btn-periodo">Últimos 15 días</button>
-            <button id="btn30Dias" class="btn-periodo">Últimos 30 días</button>
+            <button id="btn7Dias" class="btn-periodo active" data-i18n="dashboard.last7Days">Últimos 7 días</button>
+            <button id="btn15Dias" class="btn-periodo" data-i18n="dashboard.last15Days">Últimos 15 días</button>
+            <button id="btn30Dias" class="btn-periodo" data-i18n="dashboard.last30Days">Últimos 30 días</button>
           </div>
         </div>
       </div>
@@ -19,54 +19,59 @@
     <div class="flex flex-col gap-4 lg:gap-6 w-full lg:w-80">
       <!-- Tarjeta 1: Día con mayor venta -->
       <div class="tarjetas p-4 md:p-5">
-        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4">Día con Mayor Venta</h3>
+        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4" data-i18n="dashboard.bestDay">Día con Mayor
+          Venta</h3>
         <div class="grid grid-cols-3 gap-2 md:gap-4 lg:gap-3">
           <div>
-            <p class="text-gray-700 font-semibold text-xs md:text-sm">Fecha</p>
+            <p class="text-gray-700 font-semibold text-xs md:text-sm" data-i18n="dashboard.bestDayDate">Fecha</p>
             <p id="maxSaleDate" class="text-sm md:text-base font-bold text-indigo-800 truncate">--</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs md:text-sm">Total</p>
+            <p class="text-gray-700 font-semibold text-xs md:text-sm" data-i18n="dashboard.bestDayTotal">Total</p>
             <p id="maxSaleAmount" class="text-sm md:text-base font-bold text-indigo-800 truncate">$0.00</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs text-center md:text-sm">Productos</p>
+            <p class="text-gray-700 font-semibold text-xs text-center md:text-sm" data-i18n="dashboard.bestDayProducts">
+              Productos</p>
             <p id="maxSaleProducts" class="text-sm md:text-base text-center font-bold text-indigo-800">0</p>
           </div>
         </div>
       </div>
       <!-- Tarjeta 2: Cliente con más compras -->
       <div class="tarjetas p-4 md:p-5">
-        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4">Cliente Top</h3>
+        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4" data-i18n="dashboard.topClient">Cliente Top
+        </h3>
         <div class="space-y-3">
           <div>
-            <p class="text-gray-700 font-semibold text-xs md:text-sm">Cliente</p>
+            <p class="text-gray-700 font-semibold text-xs md:text-sm" data-i18n="dashboard.topClientName">Cliente</p>
             <p id="topClientName" class="text-sm md:text-base font-bold text-indigo-800 truncate">--</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs md:text-sm">Total Gastado</p>
+            <p class="text-gray-700 font-semibold text-xs md:text-sm" data-i18n="dashboard.topClientSpent">Total Gastado
+            </p>
             <p id="topClientAmount" class="text-lg md:text-xl font-bold text-indigo-700">$0.00</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs md:text-sm">Compras</p>
+            <p class="text-gray-700 font-semibold text-xs md:text-sm" data-i18n="dashboard.topClientOrders">Compras</p>
             <p id="topClientCount" class="text-lg md:text-xl font-bold text-indigo-700">0</p>
           </div>
         </div>
       </div>
       <!-- Tarjeta 3: Promedio de ventas -->
       <div class="tarjetas p-4 md:p-5">
-        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4">Promedio de Ventas</h3>
+        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4" data-i18n="dashboard.avgSales">Promedio de
+          Ventas</h3>
         <div class="grid grid-cols-3 gap-2 md:gap-4 lg:gap-3">
           <div>
-            <p class="text-gray-700 font-semibold text-xs">Diario</p>
+            <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgDaily">Diario</p>
             <p id="avgDaily" class="text-base md:text-lg font-bold text-green-700">$0.00</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs">Semanal</p>
+            <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgWeekly">Semanal</p>
             <p id="avgWeekly" class="text-base md:text-lg font-bold text-blue-700">$0.00</p>
           </div>
           <div>
-            <p class="text-gray-700 font-semibold text-xs">Mensual</p>
+            <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgMonthly">Mensual</p>
             <p id="avgMonthly" class="text-base md:text-lg font-bold text-purple-700">$0.00</p>
           </div>
         </div>
@@ -78,39 +83,40 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 p-0">
     <!-- Tarjeta 1: Ventas del día -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
-      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4">Ventas del día</h3>
+      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.todaySales">Ventas del día</h3>
       <div class="grid grid-cols-3 text-center gap-2 md:gap-4">
         <div class="border-r-2 border-gray-200 pr-2">
-          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1">Órdenes</p>
+          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.orders">Órdenes</p>
           <p class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
         </div>
         <div class="border-r-2 border-gray-200 pr-2">
-          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1">Productos</p>
+          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.products">Productos</p>
           <p class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
         </div>
         <div>
-          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1">Ingreso</p>
+          <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.income">Ingreso</p>
           <p class="text-2xl md:text-3xl font-bold text-gray-900">$0</p>
         </div>
       </div>
     </div>
     <!-- Tarjeta 2: Productos con stock bajo -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
-      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4">Stock Bajo</h3>
+      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.lowStock">Stock Bajo</h3>
       <p class="text-3xl md:text-4xl font-bold text-red-600">--</p>
-      <p class="text-gray-500 text-xs md:text-sm mt-2">productos críticos</p>
+      <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.critical">productos críticos</p>
     </div>
     <!-- Tarjeta 3: Ingresos del período -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
-      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4">Ingresos del Período</h3>
+      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.periodIncome">Ingresos del
+        Período</h3>
       <p class="text-3xl md:text-4xl font-bold text-green-600">$0.00</p>
-      <p class="text-gray-500 text-xs md:text-sm mt-2">total ventas</p>
+      <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.totalSales">total ventas</p>
     </div>
     <!-- Tarjeta 4: Total productos -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
-      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4">Inventario</h3>
+      <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.inventory">Inventario</h3>
       <p class="text-3xl md:text-4xl font-bold text-blue-600">--</p>
-      <p class="text-gray-500 text-xs md:text-sm mt-2">productos disponibles</p>
+      <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.available">productos disponibles</p>
     </div>
   </div>
 </div>
