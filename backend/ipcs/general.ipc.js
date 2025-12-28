@@ -1,8 +1,13 @@
 const path = require('path')
 const fs = require('fs')
-const { shell, dialog } = require('electron')
+const { shell, dialog, ipcMain: ipcMainModule } = require('electron')
+const configService = require('../services/config-service')
 
-module.exports = function registerGeneralIPC(ipcMain) {
+// Variable global para almacenar el BrowserWindow y poder hacer emit
+let mainWindow = null
+
+module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
+	mainWindow = mainWindowRef
 	ipcMain.handle('load-view', (event, viewName) => {
 		const viewPath = path.join(__dirname, '../../views', viewName)
 		return fs.readFileSync(viewPath, 'utf8')
@@ -92,4 +97,47 @@ module.exports = function registerGeneralIPC(ipcMain) {
 			}
 		}
 	)
+
+	// ==================== CONFIG HANDLERS ====================
+
+	ipcMain.handle('config:get', async () => {
+		try {
+			const config = configService.getConfig()
+			console.log('✓ Config enviada al renderer')
+			return { ok: true, data: config }
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	ipcMain.handle('config:set', async (event, updates) => {
+		try {
+			const config = configService.updateConfig(updates)
+
+			// Notificar a todos los renderers
+			if (mainWindow) {
+				mainWindow.webContents.send('config:changed', config)
+			}
+
+			console.log('✓ Configuración actualizada')
+			return { ok: true, data: config }
+		} catch (error) {
+			console.error('Error al actualizar config:', error)
+			return { ok: false, error: error.message }
+		}
+	})
+
+	ipcMain.handle('config:reset', async () => {
+		try {
+			const config = configService.resetConfig()
+
+			if (mainWindow) {
+				mainWindow.webContents.send('config:changed', config)
+			}
+
+			return { ok: true, data: config }
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
 }
