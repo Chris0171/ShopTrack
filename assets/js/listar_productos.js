@@ -2,6 +2,7 @@ import { initUpdateProducto } from './actualizar_producto.js'
 import { loadView } from '../../renderer.js'
 
 export function initProductList() {
+	const { t = (k) => k } = window.i18n || {}
 	const tablaBody = document.getElementById('tablaProductosBody')
 	const filtroNroParte = document.getElementById('filtroNroParte')
 	const filtroDescripcion = document.getElementById('filtroDescripcion')
@@ -47,28 +48,43 @@ export function initProductList() {
 		return `${safeNum.toFixed(2)}%`
 	}
 
+	function formatPageLabel(page, total) {
+		const label = t('products.list.pageLabel') || 'Página {page} de {total}'
+		return label.replace('{page}', page).replace('{total}', total)
+	}
+
 	function renderTipo(esOriginal) {
 		return esOriginal
-			? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Original</span>'
-			: '<span class="px-2 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">Copia</span>'
+			? `<span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">${t(
+					'products.list.original'
+			  )}</span>`
+			: `<span class="px-2 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">${t(
+					'products.list.copy'
+			  )}</span>`
 	}
 
 	function renderEstado(activo) {
 		return activo
-			? '<span class="px-2 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">Activo</span>'
-			: '<span class="px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Inactivo</span>'
+			? `<span class="px-2 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">${t(
+					'products.list.active'
+			  )}</span>`
+			: `<span class="px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">${t(
+					'products.list.inactive'
+			  )}</span>`
 	}
 
 	function renderImagen(nombreImagen, id) {
 		if (!nombreImagen) {
-			return '<div class="flex items-center justify-center"><span class="text-gray-400 text-sm">Sin imagen</span></div>'
+			return `<div class="flex items-center justify-center"><span class="text-gray-400 text-sm">${t(
+				'products.list.noImage'
+			)}</span></div>`
 		}
 		const imagePath = `./assets/images/productos/${nombreImagen}`
 		return `
 			<div class="flex items-center justify-center">
 				<img id="thumb_${id}" src="${imagePath}" alt="${nombreImagen}" 
 					   class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" 
-					   title="Click para ver en tamaño completo" />
+					   title="${t('products.list.zoomImage')}" />
 			</div>
 		`
 	}
@@ -126,7 +142,7 @@ export function initProductList() {
 				})
 				.catch((err) => {
 					console.error(err)
-					showModal('❌', 'Error', 'No se pudo eliminar el producto')
+					showModal('❌', 'Error', t('products.list.deleteError'))
 				})
 		} else {
 			hideModal()
@@ -168,9 +184,11 @@ export function initProductList() {
 		if (!listaOrdenada || listaOrdenada.length === 0) {
 			tablaBody.innerHTML = `
 			<tr>
-				<td colspan="10" class="text-center py-6 text-gray-500 font-semibold">No hay productos para mostrar</td>
+				<td colspan="10" class="text-center py-6 text-gray-500 font-semibold">${t(
+					'products.list.noProducts'
+				)}</td>
 			</tr>`
-			paginaActualSpan.textContent = `Página ${pagina} de ${totalPaginas}`
+			paginaActualSpan.textContent = formatPageLabel(pagina, totalPaginas)
 			prevPageBtn.style.display = pagina > 1 ? 'inline-block' : 'none'
 			nextPageBtn.style.display =
 				pagina < totalPaginas ? 'inline-block' : 'none'
@@ -216,6 +234,7 @@ export function initProductList() {
 
 			const btnUpdate = document.getElementById(`btn_upd_${p.id}`)
 			if (btnUpdate) {
+				btnUpdate.textContent = t('common.edit')
 				btnUpdate.addEventListener('click', async () => {
 					await loadView('actualizar_producto.html')
 					initUpdateProducto(p.id)
@@ -231,12 +250,13 @@ export function initProductList() {
 
 			const btnDelete = document.getElementById(`btn_del_${p.id}`)
 			if (btnDelete) {
+				btnDelete.textContent = t('common.delete')
 				btnDelete.addEventListener('click', async () => {
 					selectedDeleteId = p.id
 					showModal(
 						'⚠️',
-						'Confirmar eliminación',
-						'¿Deseas eliminar este producto?',
+						t('products.list.deleteConfirmTitle'),
+						t('products.list.deleteConfirmMessage'),
 						{
 							confirm: true,
 						}
@@ -246,7 +266,7 @@ export function initProductList() {
 		})
 
 		// Actualizar número de página
-		paginaActualSpan.textContent = `Página ${pagina} de ${totalPaginas}`
+		paginaActualSpan.textContent = formatPageLabel(pagina, totalPaginas)
 
 		// Mostrar u ocultar botones de paginación
 		prevPageBtn.style.display = pagina > 1 ? 'inline-block' : 'none'

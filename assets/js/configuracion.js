@@ -65,14 +65,33 @@ export function initConfiguracion() {
 		}
 	})
 
-	// Cargar configuración desde localStorage
-	function cargarConfiguracion() {
-		const config = JSON.parse(localStorage.getItem('appConfig') || '{}')
+	// Cargar configuración desde backend IPC o localStorage
+	async function cargarConfiguracion() {
+		let config = {}
+
+		// Intentar cargar del backend primero
+		if (window.api?.config?.get) {
+			try {
+				const res = await window.api.config.get()
+				if (res.ok) {
+					config = res.data
+					console.log('✓ Configuración cargada del backend')
+				}
+			} catch (error) {
+				console.warn(
+					'No se pudo cargar config del backend, usando localStorage:',
+					error
+				)
+				config = JSON.parse(localStorage.getItem('appConfig') || '{}')
+			}
+		} else {
+			config = JSON.parse(localStorage.getItem('appConfig') || '{}')
+		}
 
 		// General
 		idiomaSelect.value = config.idioma || 'es'
-		monedaSelect.value = config.moneda || 'USD'
-		zonaHorariaSelect.value = config.zonaHoraria || 'America/New_York'
+		monedaSelect.value = config.moneda || '$'
+		zonaHorariaSelect.value = config.zonaHoraria || 'America/Mexico_City'
 		formatoFechaSelect.value = config.formatoFecha || 'DD/MM/YYYY'
 
 		// Idioma de factura (si no está definido, usar el idioma general por defecto)
@@ -80,20 +99,20 @@ export function initConfiguracion() {
 			config.idiomaFactura || idiomaSelect.value || 'es'
 
 		// Facturas
-		prefijoFactura.value = config.prefijoFactura || 'F-'
-		numeroInicial.value = config.numeroInicial || 1
-		ivaPredeterminado.value = config.ivaPredeterminado || 21
+		prefijoFactura.value = config.prefijoFactura || 'FAC'
+		numeroInicial.value = config.numeroInicial || 1000
+		ivaPredeterminado.value = (config.ivaPredeterminado * 100).toFixed(0) || 21
 		incluirLogo.checked = config.incluirLogo !== false
 
 		// Empresa
-		nombreEmpresa.value = config.nombreEmpresa || ''
-		rfcEmpresa.value = config.rfcEmpresa || ''
-		telefonoEmpresa.value = config.telefonoEmpresa || ''
-		emailEmpresa.value = config.emailEmpresa || ''
-		direccionEmpresa.value = config.direccionEmpresa || ''
+		nombreEmpresa.value = config.nombre || ''
+		rfcEmpresa.value = config.rfc || ''
+		telefonoEmpresa.value = config.telefono || ''
+		emailEmpresa.value = config.email || ''
+		direccionEmpresa.value = config.direccion || ''
 	}
 
-	// Guardar configuración
+	// Guardar configuración en backend e i18n
 	btnGuardar.addEventListener('click', async () => {
 		const config = {
 			idioma: idiomaSelect.value,
@@ -102,21 +121,42 @@ export function initConfiguracion() {
 			zonaHoraria: zonaHorariaSelect.value,
 			formatoFecha: formatoFechaSelect.value,
 			prefijoFactura: prefijoFactura.value.trim(),
-			numeroInicial: parseInt(numeroInicial.value) || 1,
-			ivaPredeterminado: parseFloat(ivaPredeterminado.value) || 21,
+			numeroInicial: parseInt(numeroInicial.value) || 1000,
+			ivaPredeterminado: parseFloat(ivaPredeterminado.value) / 100 || 0.21,
 			incluirLogo: incluirLogo.checked,
-			nombreEmpresa: nombreEmpresa.value.trim(),
-			rfcEmpresa: rfcEmpresa.value.trim(),
-			telefonoEmpresa: telefonoEmpresa.value.trim(),
-			emailEmpresa: emailEmpresa.value.trim(),
-			direccionEmpresa: direccionEmpresa.value.trim(),
+			nombre: nombreEmpresa.value.trim(),
+			rfc: rfcEmpresa.value.trim(),
+			telefono: telefonoEmpresa.value.trim(),
+			email: emailEmpresa.value.trim(),
+			direccion: direccionEmpresa.value.trim(),
 		}
 
+		// Guardar en localStorage como fallback
 		localStorage.setItem('appConfig', JSON.stringify(config))
+
+		// Intentar guardar en backend
+		if (window.api?.config?.set) {
+			try {
+				const res = await window.api.config.set(config)
+				if (res.ok) {
+					console.log('✓ Configuración guardada en backend')
+				} else {
+					console.error('Error al guardar en backend:', res.error)
+				}
+			} catch (error) {
+				console.error('Error IPC al guardar config:', error)
+			}
+		}
+
+		// Cambiar idioma si fue modificado
+		if (config.idioma !== window.i18n.getCurrentLanguage()) {
+			await window.i18n.setLanguage(config.idioma)
+		}
+
 		await showModal(
 			'✅',
-			'Configuración Guardada',
-			'La configuración se ha guardado correctamente.'
+			window.i18n.t('config.saved'),
+			window.i18n.t('config.savedMsg')
 		)
 	})
 
@@ -129,8 +169,8 @@ export function initConfiguracion() {
 	btnBackup.addEventListener('click', async () => {
 		const confirmar = await showModal(
 			'📦',
-			'Crear Backup',
-			'¿Deseas crear una copia de seguridad de la base de datos?',
+			window.i18n.t('config.backupTitle'),
+			window.i18n.t('config.backupMsg'),
 			{ confirm: true }
 		)
 
@@ -138,8 +178,8 @@ export function initConfiguracion() {
 			// TODO: Implementar lógica de backup
 			await showModal(
 				'✅',
-				'Backup Creado',
-				'La copia de seguridad se creó exitosamente.'
+				window.i18n.t('config.backupSuccess'),
+				window.i18n.t('config.backupSuccessMsg')
 			)
 		}
 	})
@@ -148,8 +188,8 @@ export function initConfiguracion() {
 	btnRestore.addEventListener('click', async () => {
 		const confirmar = await showModal(
 			'♻️',
-			'Restaurar Base de Datos',
-			'¿Deseas restaurar la base de datos desde un archivo de respaldo? Esta acción sobrescribirá los datos actuales.',
+			window.i18n.t('config.restoreTitle'),
+			window.i18n.t('config.restoreMsg'),
 			{ confirm: true }
 		)
 
@@ -157,8 +197,8 @@ export function initConfiguracion() {
 			// TODO: Implementar lógica de restore
 			await showModal(
 				'✅',
-				'Base de Datos Restaurada',
-				'La base de datos se restauró exitosamente.'
+				window.i18n.t('config.restoreSuccess'),
+				window.i18n.t('config.restoreSuccessMsg')
 			)
 		}
 	})
@@ -167,16 +207,16 @@ export function initConfiguracion() {
 	btnReset.addEventListener('click', async () => {
 		const confirmar = await showModal(
 			'⚠️',
-			'¡ADVERTENCIA!',
-			'Esta acción eliminará TODOS los datos de la aplicación y no se puede deshacer. ¿Estás seguro?',
+			window.i18n.t('config.resetTitle'),
+			window.i18n.t('config.resetMsg'),
 			{ confirm: true }
 		)
 
 		if (confirmar) {
 			const confirmar2 = await showModal(
 				'🚨',
-				'Confirmación Final',
-				'¿Realmente deseas eliminar toda la información? Esta es tu última oportunidad para cancelar.',
+				window.i18n.t('config.resetConfirm'),
+				window.i18n.t('config.resetConfirmMsg'),
 				{ confirm: true }
 			)
 
@@ -184,8 +224,8 @@ export function initConfiguracion() {
 				// TODO: Implementar lógica de reset
 				await showModal(
 					'✅',
-					'Base de Datos Reiniciada',
-					'La base de datos se reinició exitosamente.'
+					window.i18n.t('config.resetSuccess'),
+					window.i18n.t('config.resetSuccessMsg')
 				)
 			}
 		}

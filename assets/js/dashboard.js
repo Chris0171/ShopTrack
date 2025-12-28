@@ -1,4 +1,8 @@
 export async function initDashboard() {
+	const {
+		t = (key) => key,
+		formatCurrency = (value) => `$${Number(value || 0).toFixed(2)}`,
+	} = window.i18n || {}
 	// Obtener datos de ingresos de un período específico
 	async function cargarIngresos(días = 30) {
 		try {
@@ -211,15 +215,18 @@ export async function initDashboard() {
 			ingresosChart = echarts.init(document.getElementById('chartIngresos'))
 		}
 
-		const títulos = {
-			7: 'Ingresos (Últimos 7 días)',
-			15: 'Ingresos (Últimos 15 días)',
-			30: 'Ingresos (Últimos 30 días)',
-		}
+		const incomeLabel = t('dashboard.income')
+		const periodoKey =
+			días === 7
+				? 'dashboard.last7Days'
+				: días === 15
+				? 'dashboard.last15Days'
+				: 'dashboard.last30Days'
+		const título = `${incomeLabel} (${t(periodoKey)})`
 
 		ingresosChart.setOption({
 			title: {
-				text: títulos[días],
+				text: título,
 				left: 'center',
 				top: 5,
 				textStyle: {
@@ -238,9 +245,11 @@ export async function initDashboard() {
 				},
 				formatter: (params) => {
 					if (params.value !== 0) {
-						return `${params.name}<br/>Ingresos: $${params.value.toFixed(2)}`
+						return `${params.name}<br/>${incomeLabel}: ${formatCurrency(
+							params.value
+						)}`
 					}
-					return `${params.name}<br/>Sin ventas`
+					return `${params.name}<br/>${t('dashboard.noSales')}`
 				},
 			},
 			xAxis: {
@@ -328,7 +337,7 @@ export async function initDashboard() {
 			},
 			series: [
 				{
-					name: 'Ingresos',
+					name: incomeLabel,
 					type: 'bar',
 					data: ingresos,
 					label: {
