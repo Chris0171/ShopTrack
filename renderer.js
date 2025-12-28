@@ -10,6 +10,10 @@ import { initConfiguracion } from './assets/js/configuracion.js'
 window.addEventListener('DOMContentLoaded', async () => {
 	const content = document.getElementById('mainContent')
 
+	// Inicializar i18n
+	await window.i18n.initI18n()
+	window.i18n.watchLanguageChanges()
+
 	// Cargar vista inicial
 	await loadView('dashboard.html')
 
@@ -29,6 +33,9 @@ async function loadView(viewName) {
 
 	// Esperar a que el DOM se haya actualizado
 	await new Promise((r) => setTimeout(r, 0))
+
+	// Aplicar traducciones a la nueva vista
+	window.i18n.applyTranslations(content)
 
 	loadInitFunctionView(viewName)
 }
