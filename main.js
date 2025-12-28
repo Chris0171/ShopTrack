@@ -12,8 +12,10 @@ const registerGeneralIPC = require('./backend/ipcs/general.ipc')
 
 const db = require('./backend/db/initDatabase') // * Inicializa DB
 
+let mainWindow
+
 function createWindow(width, height) {
-	const mainWindow = new BrowserWindow({
+	mainWindow = new BrowserWindow({
 		minWidth: width,
 		minHeight: height,
 		maxWidth: width,
@@ -27,6 +29,7 @@ function createWindow(width, height) {
 	mainWindow.maximize()
 	mainWindow.setBounds({ x: 0, y: 0, width, height })
 	mainWindow.loadFile('index.html')
+	return mainWindow
 }
 
 // Menu.setApplicationMenu(null)
@@ -52,4 +55,4 @@ registerClienteIPC(ipcMain)
 registerVentaIPC(ipcMain)
 registerDetalleVentaIPC(ipcMain)
 registerFacturaIPC(ipcMain)
-registerGeneralIPC(ipcMain)
+registerGeneralIPC(ipcMain, mainWindow)
