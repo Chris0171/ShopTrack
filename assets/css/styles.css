@@ -53,7 +53,7 @@ button:active {
 }
 .submenu {
 	position: absolute; /* ya debería estar así */
-	z-index: 50; /* suficientemente alto para aparecer sobre todo */
+	z-index: 1000; /* elevar para que quede sobre el contenido */
 }
 
 /* Submenú desplegable */
@@ -66,6 +66,7 @@ button:active {
 	padding: 0.5rem 0;
 	border-radius: 8px;
 	min-width: 250px;
+	z-index: 1000;
 }
 
 .menu-item:hover ul {
