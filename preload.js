@@ -75,4 +75,15 @@ contextBridge.exposeInMainWorld('api', {
 		abrirImagenProducto: (nombreImagen) =>
 			ipcRenderer.invoke('producto:abrir-imagen', nombreImagen),
 	},
+
+	config: {
+		get: () => ipcRenderer.invoke('config:get'),
+		set: (updates) => ipcRenderer.invoke('config:set', updates),
+		reset: () => ipcRenderer.invoke('config:reset'),
+		onChanged: (callback) => {
+			ipcRenderer.on('config:changed', (event, config) => {
+				callback(config)
+			})
+		},
+	},
 })
