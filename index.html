@@ -16,25 +16,27 @@
 
 <body class="bg-radial-[at_50%_75%] from-sky-400 via-blue-200 to-indigo-500 to-90%">
   <header
-    class="flex items-center h-12 bg-linear-to-r from-indigo-950 to-cyan-900 shadow-2xl shadow-gray-600 p-5 pb-7 pt-7 mb-8">
+    class="flex items-center h-12 bg-linear-to-r from-indigo-950 to-cyan-900 shadow-2xl shadow-gray-600 p-5 pb-7 pt-7 mb-8 z-50">
     <nav class="flex gap-4">
-      <div data-view="dashboard.html" class="menu-item text-white cursor-pointer">
+      <div data-view="dashboard.html" class="menu-item text-white cursor-pointer" data-i18n="nav.dashboard">
         Dashboard
       </div>
-      <div class="menu-item text-white">Venta
+      <div class="menu-item text-white">
+        <span data-i18n="nav.sales">Venta</span>
         <ul class="submenu">
-          <li data-view="nueva_venta.html">Nueva venta</li>
-          <li data-view="historial_ventas.html">Historial</li>
+          <li data-view="nueva_venta.html" data-i18n="nav.newSale">Nueva venta</li>
+          <li data-view="historial_ventas.html" data-i18n="nav.history">Historial</li>
           <hr>
-          <li data-view="clientes.html">Clientes</li>
+          <li data-view="clientes.html" data-i18n="nav.customers">Clientes</li>
         </ul>
       </div>
-      <div class="menu-item text-white">Producto
+      <div class="menu-item text-white">
+        <span data-i18n="nav.products">Producto</span>
         <ul class="submenu">
-          <li data-view="crear_producto.html">Nuevo producto</li>
-          <li data-view="actualizar_producto.html">Actualizar</li>
+          <li data-view="crear_producto.html" data-i18n="nav.newProduct">Nuevo producto</li>
+          <li data-view="actualizar_producto.html" data-i18n="nav.updateProduct">Actualizar</li>
           <hr>
-          <li data-view="listar_productos.html">Lista de productos</li>
+          <li data-view="listar_productos.html" data-i18n="nav.listProducts">Lista de productos</li>
         </ul>
       </div>
       <!--  <div class="menu-item text-white">Reportes
@@ -45,8 +47,9 @@
           <li id="RepoProdu">Articulos más vendidos</li>
         </ul>
       </div> -->
-      <div data-view="configuracion.html" class="menu-item text-white cursor-pointer">Configuración</div>
-      <div class="menu-item text-white">Ayuda</div>
+      <div data-view="configuracion.html" class="menu-item text-white cursor-pointer" data-i18n="nav.settings">
+        Configuración</div>
+      <div class="menu-item text-white" data-i18n="nav.help">Ayuda</div>
     </nav>
   </header>
 
@@ -54,6 +57,7 @@
   <main id="mainContent" class="p-4"></main>
 
   <!-- Scripts -->
+  <script src="./assets/js/i18n.js"></script>
   <script type="module" src="./renderer.js"></script>
   <script src="./node_modules/echarts/dist/echarts.min.js"></script>
 
