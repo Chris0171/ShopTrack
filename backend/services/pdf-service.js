@@ -165,32 +165,38 @@ class PDFService {
 					getText('products.list.description'),
 					getText('invoice.unitPrice'),
 					getText('invoice.quantity'),
-					getText('invoice.rate'),
 					getText('invoice.total'),
 				]
-				const columnWidths = [110, 170, 75, 60, 50, 50]
+				const columnWidths = [120, 195, 80, 70, 50]
 				const tableX = 40
 				const tableY = posY
 				const tableWidth = 515
 				const headerHeight = 30
-				const rowHeight = 25
+				const minRowHeight = 25
 				const rows = datos.detalles.map((d) => {
-					const totalLinea = (
-						d.precioUnitario *
-						d.cantidad *
-						(1 + d.tasaAplicada)
-					).toFixed(2)
-					const tasaPorcentaje = (d.tasaAplicada * 100).toFixed(0)
+					// Total de línea SIN tasa: solo precio × cantidad
+					const totalLinea = (d.precioUnitario * d.cantidad).toFixed(2)
 					return {
 						nroParte: d.nroParte,
 						descripcion: d.descripcion,
 						precioUnit: `$${Number(d.precioUnitario || 0).toFixed(2)}`,
 						cantidad: d.cantidad.toString(),
-						tasa: `${tasaPorcentaje}%`,
 						total: `$${totalLinea}`,
 					}
 				})
-				const tableHeight = headerHeight + rows.length * rowHeight
+
+				// Calcular altura de cada fila según el contenido de la descripción
+				doc.font('Helvetica').fontSize(9)
+				const rowHeights = rows.map((row) => {
+					const descHeight = doc.heightOfString(row.descripcion, {
+						width: columnWidths[1] - 12,
+					})
+					// Añadir padding vertical (10px arriba + 10px abajo)
+					return Math.max(minRowHeight, descHeight + 20)
+				})
+
+				const tableHeight =
+					headerHeight + rowHeights.reduce((sum, h) => sum + h, 0)
 				const colX = [
 					tableX,
 					tableX + columnWidths[0],
@@ -201,13 +207,8 @@ class PDFService {
 						columnWidths[1] +
 						columnWidths[2] +
 						columnWidths[3],
-					tableX +
-						columnWidths[0] +
-						columnWidths[1] +
-						columnWidths[2] +
-						columnWidths[3] +
-						columnWidths[4],
 				]
+
 				// Header con gradiente y solo esquinas superiores redondeadas
 				const radius = 6
 
@@ -250,10 +251,18 @@ class PDFService {
 
 				doc.text(headers[0], colX[0] + 6, headerTextY)
 				doc.text(headers[1], colX[1] + 6, headerTextY)
-				doc.text(headers[2], colX[2] + 10, headerTextY)
-				doc.text(headers[3], colX[3] + 10, headerTextY)
-				doc.text(headers[4], colX[4] + 10, headerTextY)
-				doc.text(headers[5], colX[5] + 10, headerTextY)
+				doc.text(headers[2], colX[2] + 6, headerTextY, {
+					width: columnWidths[2] - 16,
+					align: 'right',
+				})
+				doc.text(headers[3], colX[3] + 6, headerTextY, {
+					width: columnWidths[3] - 20,
+					align: 'right',
+				})
+				doc.text(headers[4], colX[4] + 6, headerTextY, {
+					width: columnWidths[4] - 12,
+					align: 'center',
+				})
 
 				// Contorno completo de la tabla
 				doc
@@ -265,49 +274,61 @@ class PDFService {
 				// Filas
 				doc.font('Helvetica').fontSize(9).fillColor(COLORS.black)
 				let rowY = tableY + headerHeight
-				textHeight = doc.currentLineHeight()
 
-				rows.forEach((row) => {
-					const rowTextY = rowY + (rowHeight - textHeight) / 2
+				rows.forEach((row, index) => {
+					const currentRowHeight = rowHeights[index]
 
-					doc.text(row.nroParte, colX[0] + 6, rowTextY)
-
-					doc.text(row.descripcion, colX[1] + 6, rowTextY, {
+					// Calcular altura del texto de descripción para centrado vertical
+					const descHeight = doc.heightOfString(row.descripcion, {
 						width: columnWidths[1] - 12,
-						ellipsis: true,
+					})
+					const textHeight = doc.currentLineHeight()
+
+					// Centrar verticalmente la descripción multilínea
+					const descTextY = rowY + (currentRowHeight - descHeight) / 2
+
+					// Centrar verticalmente el resto de campos (altura simple)
+					const singleLineTextY = rowY + (currentRowHeight - textHeight) / 2
+
+					// Nro Parte
+					doc.text(row.nroParte, colX[0] + 6, singleLineTextY)
+
+					// Descripción (puede ser multilínea)
+					doc.text(row.descripcion, colX[1] + 6, descTextY, {
+						width: columnWidths[1] - 12,
+						lineBreak: true,
 					})
 
-					doc.text(row.precioUnit, colX[2] - 2, rowTextY, {
-						width: columnWidths[2] - 8,
+					// Precio Unitario (alineado a la derecha con padding derecho)
+					doc.text(row.precioUnit, colX[2] + 6, singleLineTextY, {
+						width: columnWidths[2] - 16,
 						align: 'right',
 					})
 
-					doc.text(row.cantidad, colX[3] - 4, rowTextY, {
-						width: columnWidths[3] - 8,
+					// Cantidad (alineado a la derecha con padding derecho)
+					doc.text(row.cantidad, colX[3] + 6, singleLineTextY, {
+						width: columnWidths[3] - 28,
 						align: 'right',
 					})
 
-					doc.text(row.tasa, colX[4] - 2, rowTextY, {
-						width: columnWidths[4] - 6,
+					// Total (alineado a la derecha con padding derecho)
+					doc.text(row.total, colX[4] + 6, singleLineTextY, {
+						width: columnWidths[4] - 12,
 						align: 'right',
 					})
 
-					doc.text(row.total, colX[5] - 2, rowTextY, {
-						width: columnWidths[5] - 6,
-						align: 'right',
-					})
-
-					rowY += rowHeight
+					rowY += currentRowHeight
 				})
 
 				// Separadores horizontales entre filas
 				doc.lineWidth(0.5).strokeColor(COLORS.indigo700)
-				for (let i = 1; i <= rows.length; i++) {
-					const yLine = tableY + headerHeight + i * rowHeight
-					if (rows.length !== i) {
+				let separatorY = tableY + headerHeight
+				for (let i = 0; i < rows.length; i++) {
+					separatorY += rowHeights[i]
+					if (i < rows.length - 1) {
 						doc
-							.moveTo(tableX, yLine)
-							.lineTo(tableX + tableWidth, yLine)
+							.moveTo(tableX, separatorY)
+							.lineTo(tableX + tableWidth, separatorY)
 							.stroke()
 					}
 				}
@@ -345,10 +366,18 @@ class PDFService {
 				})
 
 				posY += 25
-				doc.text(`${getText('invoice.taxes')}:`, 250, posY, {
-					width: 100,
-					align: 'right',
-				})
+				// Obtener IVA predeterminado de configuración para mostrar en porcentaje
+				const ivaPredeterminado = config.ivaPredeterminado || 0.21
+				const ivaPorcentaje = ivaPredeterminado * 100
+				doc.text(
+					`${getText('invoice.taxes')} (${ivaPorcentaje}%):`,
+					250,
+					posY,
+					{
+						width: 100,
+						align: 'right',
+					}
+				)
 				doc.text(`$${dineroTasas.toFixed(2)}`, 450, posY, {
 					width: 100,
 					align: 'right',
