@@ -5,7 +5,8 @@ node_modules/
 dist/
 out/
 release/
-build/
+# No ignorar la carpeta build/ porque contiene recursos para el empaquetado
+# build/ 
 
 # Binarios grandes
 *.exe
