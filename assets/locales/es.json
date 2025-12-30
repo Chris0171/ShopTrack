@@ -191,12 +191,24 @@
 			"date": "Fecha",
 			"details": "Detalles",
 			"invoice": "Factura",
+			"view": "Ver",
 			"searchByInvoice": "Buscar por Nº factura",
 			"searchByClient": "Buscar por cliente",
 			"searchPlaceholderInvoice": "🔍 Buscar por Nº factura",
 			"searchPlaceholderClient": "🔍 Buscar por cliente",
 			"filterByMethod": "Filtrar por método de pago",
-			"loading": "Cargando más ventas..."
+			"loading": "Cargando más ventas...",
+			"modal": {
+				"detailedProducts": "Productos Detallados",
+				"product": "Producto",
+				"quantity": "Cantidad",
+				"unitPrice": "Precio Unit.",
+				"total": "Total",
+				"paymentMethod": "Método de Pago",
+				"subtotal": "Subtotal",
+				"taxes": "Impuestos",
+				"discount": "Descuento"
+			}
 		}
 	},
 	"customers": {

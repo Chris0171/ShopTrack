@@ -191,12 +191,24 @@
 			"date": "Date",
 			"details": "Details",
 			"invoice": "Invoice",
+			"view": "View",
 			"searchByInvoice": "Search by Invoice #",
 			"searchByClient": "Search by client",
 			"searchPlaceholderInvoice": "Search by invoice number",
 			"searchPlaceholderClient": "Search by customer",
 			"filterByMethod": "Filter by payment method",
-			"loading": "Loading more sales..."
+			"loading": "Loading more sales...",
+			"modal": {
+				"detailedProducts": "Detailed Products",
+				"product": "Product",
+				"quantity": "Quantity",
+				"unitPrice": "Unit Price",
+				"total": "Total",
+				"paymentMethod": "Payment Method",
+				"subtotal": "Subtotal",
+				"taxes": "Taxes",
+				"discount": "Discount"
+			}
 		}
 	},
 	"customers": {

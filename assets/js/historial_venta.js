@@ -13,6 +13,18 @@ export function initHistorialVenta() {
 
 	let ventasCache = []
 
+	// Función para traducir métodos de pago
+	function translatePaymentMethod(metodo) {
+		const metodoLower = (metodo || '').toLowerCase()
+		const translations = {
+			efectivo: window.i18n.t('sales.new.invoice.cash'),
+			tarjeta: window.i18n.t('sales.new.invoice.card'),
+			transferencia: window.i18n.t('sales.new.invoice.transfer'),
+			bizum: window.i18n.t('sales.new.invoice.bizum'),
+		}
+		return translations[metodoLower] || metodo
+	}
+
 	cargarVentas()
 
 	//  CARGAR PAGINADO
@@ -91,7 +103,7 @@ export function initHistorialVenta() {
 						data-id="${v.idVenta}" data-fact="${v.numeroFactura}" data-metodo="${
 				v.metodoPago || 'N/A'
 			}" data-desc="${descuento}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
-					<i class="fas fa-eye"></i> Ver
+				<i class="fas fa-eye"></i> ${window.i18n.t('sales.history.view')}
 				</button>
 			</td>
 			<td class="px-4 py-3 text-center">
@@ -159,93 +171,117 @@ export function initHistorialVenta() {
 			<!-- Modal Header -->
 			<div class="bg-linear-to-r from-cyan-700 to-indigo-800 px-6 py-4 flex items-center justify-between">
 				<h2 class="text-lg font-bold text-white flex items-center gap-2">
-					<i class="fas fa-receipt"></i> Factura Nº <span class="text-cyan-300">${factura}</span>
-				</h2>
-				<button class="text-white hover:text-cyan-200 transition text-2xl closeModal">
-					×
-				</button>
-			</div>
+				<i class="fas fa-receipt"></i> ${window.i18n.t(
+					'sales.history.invoiceNumber'
+				)} <span class="text-cyan-300">${factura}</span>
+			</h2>
+			<button class="text-white hover:text-cyan-200 transition text-2xl closeModal">
+				×
+			</button>
+		</div>
 
-			<!-- Modal Body -->
-			<div class="p-6">
-				<!-- Detalles Table -->
-				<div class="mb-6">
-					<h3 class="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2">
-						<i class="fas fa-box text-indigo-600"></i> Productos Detallados
-					</h3>
-					<div class="max-h-64 overflow-y-auto border border-gray-200 rounded-xl shadow-sm">
-						<table class="w-full text-sm">
-							<thead>
-								<tr class="bg-linear-to-r from-slate-800 via-gray-800 to-gray-900 text-white sticky top-0 z-10">
-									<th class="px-4 py-3 text-left font-semibold">Producto</th>
-									<th class="px-4 py-3 text-center font-semibold w-20">Cantidad</th>
-									<th class="px-4 py-3 text-right font-semibold w-24">Precio Unit.</th>
-									<th class="px-4 py-3 text-right font-semibold w-24">Total</th>
+		<!-- Modal Body -->
+		<div class="p-6">
+			<!-- Detalles Table -->
+			<div class="mb-6">
+				<h3 class="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2">
+					<i class="fas fa-box text-indigo-600"></i> ${window.i18n.t(
+						'sales.history.modal.detailedProducts'
+					)}
+				</h3>
+				<div class="max-h-64 overflow-y-auto border border-gray-200 rounded-xl shadow-sm">
+					<table class="w-full text-sm">
+						<thead>
+							<tr class="bg-linear-to-r from-slate-800 via-gray-800 to-gray-900 text-white sticky top-0 z-10">
+								<th class="px-4 py-3 text-left font-semibold">${window.i18n.t(
+									'sales.history.modal.product'
+								)}</th>
+								<th class="px-4 py-3 text-center font-semibold w-20">${window.i18n.t(
+									'sales.history.modal.quantity'
+								)}</th>
+								<th class="px-4 py-3 text-right font-semibold w-24">${window.i18n.t(
+									'sales.history.modal.unitPrice'
+								)}</th>
+								<th class="px-4 py-3 text-right font-semibold w-24">${window.i18n.t(
+									'sales.history.modal.total'
+								)}</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-100">
+							${detalles
+								.map(
+									(d) => `
+								<tr class="hover:bg-gray-50 transition">
+									<td class="px-4 py-3 text-gray-800">${d.productoDescripcion}</td>
+									<td class="px-4 py-3 text-center text-gray-700">${d.cantidad}</td>
+									<td class="px-4 py-3 text-right text-gray-700">$${(
+										Number(d.precioUnitario) || 0
+									).toFixed(2)}</td>
+									<td class="px-4 py-3 text-right font-semibold text-green-600">$${(
+										Number(d.totalLinea) || 0
+									).toFixed(2)}</td>
 								</tr>
-							</thead>
-							<tbody class="divide-y divide-gray-100">
-								${detalles
-									.map(
-										(d) => `
-									<tr class="hover:bg-gray-50 transition">
-										<td class="px-4 py-3 text-gray-800">${d.productoDescripcion}</td>
-										<td class="px-4 py-3 text-center text-gray-700">${d.cantidad}</td>
-										<td class="px-4 py-3 text-right text-gray-700">$${(
-											Number(d.precioUnitario) || 0
-										).toFixed(2)}</td>
-										<td class="px-4 py-3 text-right font-semibold text-green-600">$${(
-											Number(d.totalLinea) || 0
-										).toFixed(2)}</td>
-									</tr>
-									`
-									)
-									.join('')}
-							</tbody>
-						</table>
-					</div>
-				</div>
-
-				<!-- Footer: Resumen -->
-				<div class="grid grid-cols-2 gap-6 pt-4 border-t border-gray-200">
-					<div class="space-y-2">
-						<p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-							<i class="fas fa-credit-card text-indigo-600 mr-2"></i>Método de Pago
-						</p>
-						<p class="text-lg font-bold text-gray-800 capitalize">${metodo}</p>
-					</div>
-					<div class="space-y-2 text-right">
-						<div class="flex justify-end gap-4 text-sm">
-							<span class="text-gray-600">Subtotal:</span>
-							<span class="font-semibold text-gray-800 w-20">$${subtotal.toFixed(2)}</span>
-						</div>
-						<div class="flex justify-end gap-4 text-sm">
-							<span class="text-gray-600">Impuestos:</span>
-							<span class="font-semibold text-gray-800 w-20">$${impuestos.toFixed(2)}</span>
-						</div>
-						${
-							descuento > 0
-								? `<div class="flex justify-end gap-4 text-sm">
-									<span class="text-gray-600">Descuento:</span>
-									<span class="font-semibold text-red-600 w-20">-$${descuento.toFixed(2)}</span>
-								</div>`
-								: ''
-						}
-						<div class="flex justify-end gap-4 text-sm pt-2 border-t border-gray-300">
-							<span class="text-gray-800 font-bold">Total:</span>
-							<span class="font-bold text-green-600 text-lg w-20">$${total.toFixed(2)}</span>
-						</div>
-					</div>
+								`
+								)
+								.join('')}
+						</tbody>
+					</table>
 				</div>
 			</div>
 
-			<!-- Modal Footer -->
-			<div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
-				<button class="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-900 text-white font-semibold transition transform hover:scale-105 closeModal">
-					Cerrar
-				</button>
+			<!-- Footer: Resumen -->
+			<div class="grid grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+				<div class="space-y-2">
+					<p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+						<i class="fas fa-credit-card text-indigo-600 mr-2"></i>${window.i18n.t(
+							'sales.history.modal.paymentMethod'
+						)}
+					</p>
+				<p class="text-lg font-bold text-gray-800 capitalize">${translatePaymentMethod(
+					metodo
+				)}</p>
+				</div>
+				<div class="space-y-2 text-right">
+					<div class="flex justify-end gap-4 text-sm">
+						<span class="text-gray-600">${window.i18n.t(
+							'sales.history.modal.subtotal'
+						)}:</span>
+						<span class="font-semibold text-gray-800 w-20">$${subtotal.toFixed(2)}</span>
+					</div>
+					<div class="flex justify-end gap-4 text-sm">
+						<span class="text-gray-600">${window.i18n.t(
+							'sales.history.modal.taxes'
+						)}:</span>
+						<span class="font-semibold text-gray-800 w-20">$${impuestos.toFixed(2)}</span>
+					</div>
+					${
+						descuento > 0
+							? `<div class="flex justify-end gap-4 text-sm">
+								<span class="text-gray-600">${window.i18n.t(
+									'sales.history.modal.discount'
+								)}:</span>
+								<span class="font-semibold text-red-600 w-20">-$${descuento.toFixed(2)}</span>
+							</div>`
+							: ''
+					}
+					<div class="flex justify-end gap-4 text-sm pt-2 border-t border-gray-300">
+						<span class="text-gray-800 font-bold">${window.i18n.t(
+							'sales.history.modal.total'
+						)}:</span>
+						<span class="font-bold text-green-600 text-lg w-20">$${total.toFixed(2)}</span>
+					</div>
+				</div>
 			</div>
 		</div>
-	`
+
+		<!-- Modal Footer -->
+		<div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200">
+			<button class="px-5 py-2 rounded-xl bg-gray-800 hover:bg-gray-900 text-white font-semibold transition transform hover:scale-105 closeModal">
+				${window.i18n.t('common.close')}
+		</button>
+	</div>
+</div>
+`
 
 		modalContainer.appendChild(modal)
 
