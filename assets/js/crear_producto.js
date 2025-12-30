@@ -4,8 +4,37 @@ export function initCreateProducto() {
 	const btnModalOk = document.getElementById('btn-modal-ok')
 	const btnExaminar = document.getElementById('btn-examinar')
 	const inputNombreImagen = document.getElementById('NombreImagen')
+	const inputTasas = document.getElementById('Tasas')
 
 	let selectedImagePath = null // Ruta real del archivo elegido
+
+	// Cargar IVA predeterminado desde configuración
+	async function cargarIVAPredeterminado() {
+		try {
+			if (window.api?.config?.get) {
+				const res = await window.api.config.get()
+				if (res.ok && res.data.ivaPredeterminado !== undefined) {
+					// Convertir decimal a porcentaje (0.21 -> 21)
+					const ivaPorcentaje = (res.data.ivaPredeterminado * 100).toFixed(2)
+					inputTasas.value = ivaPorcentaje
+					console.log(`✓ IVA predeterminado cargado: ${ivaPorcentaje}%`)
+				}
+			} else {
+				// Fallback: cargar de localStorage
+				const config = JSON.parse(localStorage.getItem('appConfig') || '{}')
+				if (config.ivaPredeterminado !== undefined) {
+					const ivaPorcentaje = (config.ivaPredeterminado * 100).toFixed(2)
+					inputTasas.value = ivaPorcentaje
+				}
+			}
+		} catch (error) {
+			console.warn('No se pudo cargar IVA predeterminado:', error)
+			// Mantener valor por defecto del placeholder (21)
+		}
+	}
+
+	// Cargar IVA al iniciar
+	cargarIVAPredeterminado()
 
 	// Abrir selector de archivos (IPC seguro) al hacer clic en "Examinar"
 	btnExaminar.addEventListener('click', async () => {
@@ -60,7 +89,9 @@ export function initCreateProducto() {
 		const precio = parseFloat(document.getElementById('Precio').value) || 0
 		const precioCosto =
 			parseFloat(document.getElementById('PrecioCosto').value) || 0
-		const tasas = parseFloat(document.getElementById('Tasas').value) || 0.21
+		// Convertir porcentaje a decimal (21 -> 0.21)
+		const tasasInput = parseFloat(document.getElementById('Tasas').value)
+		const tasas = tasasInput ? tasasInput / 100 : 0.21
 		const esOriginal = parseInt(document.getElementById('EsOriginal').value)
 		let nombreImagen =
 			document.getElementById('NombreImagen').value.trim() || null

@@ -21,6 +21,38 @@ export function initUpdateProducto(productId = null) {
 	let currentProductId = productId
 	let selectedImagePath = null
 
+	// Cargar IVA predeterminado desde configuración (solo si no hay producto cargado)
+	async function cargarIVAPredeterminadoSiVacio() {
+		// Solo cargar si el campo está vacío
+		if (Tasas.value) return
+
+		try {
+			if (window.api?.config?.get) {
+				const res = await window.api.config.get()
+				if (res.ok && res.data.ivaPredeterminado !== undefined) {
+					// Convertir decimal a porcentaje (0.21 -> 21)
+					const ivaPorcentaje = (res.data.ivaPredeterminado * 100).toFixed(2)
+					Tasas.value = ivaPorcentaje
+					console.log(`✓ IVA predeterminado cargado: ${ivaPorcentaje}%`)
+				}
+			} else {
+				// Fallback: cargar de localStorage
+				const config = JSON.parse(localStorage.getItem('appConfig') || '{}')
+				if (config.ivaPredeterminado !== undefined) {
+					const ivaPorcentaje = (config.ivaPredeterminado * 100).toFixed(2)
+					Tasas.value = ivaPorcentaje
+				}
+			}
+		} catch (error) {
+			console.warn('No se pudo cargar IVA predeterminado:', error)
+		}
+	}
+
+	// Cargar IVA si no hay producto cargado inicialmente
+	if (!currentProductId) {
+		cargarIVAPredeterminadoSiVacio()
+	}
+
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
 		document.getElementById('modalIcon').textContent = icono
@@ -105,7 +137,9 @@ export function initUpdateProducto(productId = null) {
 		const cantidad = parseInt(Cantidad.value) || 0
 		const precio = parseFloat(Precio.value) || 0
 		const precioCosto = parseFloat(PrecioCosto.value) || 0
-		const tasas = parseFloat(Tasas.value) || 0
+		// Convertir porcentaje a decimal (21 -> 0.21)
+		const tasasInput = parseFloat(Tasas.value)
+		const tasas = tasasInput ? tasasInput / 100 : 0.21
 		const esOriginal = parseInt(EsOriginal.value)
 		let nombreImagen = NombreImagen.value.trim() || null
 
@@ -196,6 +230,8 @@ export function initUpdateProducto(productId = null) {
 	btnLimpiar.addEventListener('click', () => {
 		form.reset()
 		selectedImagePath = null
+		// Recargar IVA predeterminado después de limpiar
+		cargarIVAPredeterminadoSiVacio()
 	})
 
 	// FUNCIONES INTERNAS
@@ -212,7 +248,8 @@ export function initUpdateProducto(productId = null) {
 		Cantidad.value = prod.Cantidad ?? 0
 		Precio.value = prod.Precio ?? 0
 		PrecioCosto.value = prod.precioCosto ?? 0
-		Tasas.value = prod.Tasas ?? 0
+		// Convertir decimal a porcentaje para mostrar (0.21 -> 21)
+		Tasas.value = prod.Tasas ? (prod.Tasas * 100).toFixed(2) : 21
 		EsOriginal.value = prod.esOriginal ?? 1
 		NombreImagen.value = prod.nombreImagen || ''
 	}
