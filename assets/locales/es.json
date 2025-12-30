@@ -78,7 +78,7 @@
 			"placeholderDescription": "Descripción del producto",
 			"placeholderQuantity": "0",
 			"placeholderPrice": "0.00",
-			"placeholderIva": "0.21",
+			"placeholderIva": "21",
 			"placeholderImage": "nombre-imagen.jpg"
 		},
 		"update": {
@@ -89,7 +89,7 @@
 			"placeholderQuantity": "0",
 			"placeholderPrice": "0.00",
 			"placeholderCostPrice": "0.00",
-			"placeholderIva": "0.21",
+			"placeholderIva": "21",
 			"placeholderImage": "nombre-imagen.jpg"
 		}
 	},
