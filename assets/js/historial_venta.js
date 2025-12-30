@@ -73,20 +73,20 @@ export function initHistorialVenta() {
 			})
 
 			tr.innerHTML = `
-			<td class="px-8 py-3 font-bold text-indigo-700">${v.numeroFactura || '—'}</td>
-			<td class="px-4 py-3">${v.clienteNombre}</td>
-			<td class="text-right pr-15">$${subtotal.toFixed(2)}</td>
-			<td class="text-right pr-20">$${impuestos.toFixed(2)}</td>
-			<td class="text-right pr-20">${
-				descuento > 0
-					? `<span class="text-red-600 font-medium">-$${descuento.toFixed(
-							2
-					  )}</span>`
-					: '—'
-			}</td>
-			<td class="text-right pr-8 font-bold text-green-600">$${total.toFixed(2)}</td>
-			<td class="px-4 py-3 text-gray-600">${fechaFormato}</td>
-			<td class="px-4 py-3 text-center">
+		<td class="px-4 py-3 font-bold text-indigo-700">${v.numeroFactura || '—'}</td>
+		<td class="px-4 py-3">${v.clienteNombre}</td>
+		<td class="px-4 py-3 text-right">$${subtotal.toFixed(2)}</td>
+		<td class="px-4 py-3 text-right">$${impuestos.toFixed(2)}</td>
+		<td class="px-4 py-3 text-right">${
+			descuento > 0
+				? `<span class="text-red-600 font-medium">-$${descuento.toFixed(
+						2
+				  )}</span>`
+				: '—'
+		}</td>
+		<td class="px-4 py-3 text-right font-bold text-green-600">$${total.toFixed(
+			2
+		)}</td>		<td class="px-4 py-3 text-center text-gray-600">${fechaFormato}</td>			<td class="px-4 py-3 text-center">
 				<button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm detail-btn"
 						data-id="${v.idVenta}" data-fact="${v.numeroFactura}" data-metodo="${
 				v.metodoPago || 'N/A'
