@@ -6,10 +6,29 @@ Descripcion TEXT NOT NULL,
 Cantidad INTEGER NOT NULL DEFAULT 0,
 Precio REAL NOT NULL,
 Tasas REAL NOT NULL DEFAULT 0,
-activo INTEGER NOT NULL DEFAULT 1,   -- <---- AGREGADO PARA SOFT DELETE
-esOriginal INTEGER NOT NULL DEFAULT 1,   -- 1 = Original, 0 = Copia
-nombreImagen TEXT,                        -- Nombre del archivo de imagen
-precioCosto REAL DEFAULT 0.00             -- Precio de costo (antes de venta)
+activo INTEGER NOT NULL DEFAULT 1,
+esOriginal INTEGER NOT NULL DEFAULT 1,
+precioCosto REAL DEFAULT 0.00
+);
+
+-- TABLA: Números de Parte Múltiples (nuevo)
+CREATE TABLE IF NOT EXISTS ProductoNumerosParte (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+idProducto INTEGER NOT NULL,
+nroParte TEXT NOT NULL,
+esPrincipal INTEGER NOT NULL DEFAULT 0,
+FOREIGN KEY (idProducto) REFERENCES Producto(id) ON DELETE CASCADE,
+UNIQUE(idProducto, nroParte)
+);
+
+-- TABLA: Fotos Múltiples (nuevo)
+CREATE TABLE IF NOT EXISTS ProductoFotos (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+idProducto INTEGER NOT NULL,
+nombreImagen TEXT NOT NULL,
+esPrincipal INTEGER NOT NULL DEFAULT 0,
+orden INTEGER NOT NULL DEFAULT 0,
+FOREIGN KEY (idProducto) REFERENCES Producto(id) ON DELETE CASCADE
 );
 
 -- TABLA: Clientes
@@ -89,6 +108,49 @@ INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas) VALUES
 ('P-019', 'Impresora multifunción láser', 9, 199.99, 0.21),
 ('P-020', 'Agenda 2025 semanal', 55, 9.99, 0.18);
 
+-- Insertar números de parte (cada producto tiene su número principal)
+INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES
+(1, 'P-001', 1),
+(2, 'P-002', 1),
+(3, 'P-003', 1),
+(4, 'P-004', 1),
+(5, 'P-005', 1),
+(6, 'P-006', 1),
+(7, 'P-007', 1),
+(8, 'P-008', 1),
+(9, 'P-009', 1),
+(10, 'P-010', 1),
+(11, 'P-011', 1),
+(12, 'P-012', 1),
+(13, 'P-013', 1),
+(14, 'P-014', 1),
+(15, 'P-015', 1),
+(16, 'P-016', 1),
+(17, 'P-017', 1),
+(18, 'P-018', 1),
+(19, 'P-019', 1),
+(20, 'P-020', 1),
+-- Ejemplos de números de parte adicionales
+(1, 'HDMI-CAB-001', 0),
+(1, 'CABLE-HDMI-V2', 0),
+(4, 'MON-LED-24-BK', 0),
+(8, 'SSD-512-NVMe-M2', 0),
+(12, 'GPU-MID-RANGE', 0);
+
+-- Insertar fotos de productos (solo nombres de archivo)
+INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES
+(1, 'producto1.jpg', 1, 0),
+(1, 'producto1_alt.jpg', 0, 1),
+(2, 'producto2.jpg', 1, 0),
+(3, 'producto3.jpg', 1, 0),
+(4, 'producto4.jpg', 1, 0),
+(4, 'producto4_vista2.jpg', 0, 1),
+(5, 'producto5.jpg', 1, 0),
+(6, 'producto6.jpg', 1, 0),
+(7, 'producto7.jpg', 1, 0),
+(8, 'producto8.jpg', 1, 0),
+(8, 'producto8_detalle.jpg', 0, 1);
+
 
 INSERT INTO Clientes (nombre, telefono, email, direccion) VALUES
 ('Juan Pérez', '600123456', 'juan.perez@example.com', 'Calle Sol 23'),
@@ -141,13 +203,6 @@ INSERT INTO Factura (idVenta, numeroFactura, subtotal, impuestos, total, metodoP
 VALUES
 (1, 'F-0001', 100.57, 19.25, 119.82, 'tarjeta', 'Pago completado sin incidencias', 'emitida'),
 (2, 'F-0002', 175.50, 36.09, 211.59, 'efectivo', NULL, 'emitida'),
-(3, 'F-0003', 199.98, 42.00, 241.98, 'transferencia', 'Cliente habitual', 'emitida'),
+(3, 'F-0003', 199.98, 42.00, 241.98, 'transferencia', 'Cliente habitual', 'emitita'),
 (4, 'F-0004', 26.50, 3.81, 30.31, 'tarjeta', NULL, 'emitida'),
 (5, 'F-0005', 101.95, 19.91, 121.86, 'efectivo', 'Entregado con embalaje especial', 'emitida');
-
--- Migración: Agregar columnas nuevas si no existen (para bases de datos existentes)
-ALTER TABLE Producto ADD COLUMN esOriginal INTEGER DEFAULT 1;
-ALTER TABLE Producto ADD COLUMN nombreImagen TEXT;
-ALTER TABLE Producto ADD COLUMN precioCosto REAL DEFAULT 0.00;
--- Esta línea es segura ejecutar múltiples veces porque SQLite ignora si la columna ya existe
-ALTER TABLE Factura ADD COLUMN rutaPDF TEXT;
