@@ -74,7 +74,7 @@ pathService.ensureDir('/some/path') // Crea directorio si no existe
 
 ### Modo Portable
 
-```
+```text
 ShopTrack/
 ├── portable.txt          ← Marcador de modo portable
 ├── ShopTrack.exe
@@ -92,7 +92,7 @@ ShopTrack/
 
 ### Modo Instalador (Windows)
 
-```
+```text
 C:\Users\Usuario\AppData\Roaming\ShopTrack\
 ├── shoptrack.db
 ├── config.json
@@ -150,9 +150,11 @@ Para distribuir ShopTrack como portable:
 
 1. Compila la aplicación normalmente
 2. Crea un archivo vacío `portable.txt` junto al ejecutable:
+
    ```bash
    echo. > portable.txt
    ```
+
 3. La aplicación creará automáticamente la carpeta `data/` en su ubicación
 
 ## Crear Versión Instalador
