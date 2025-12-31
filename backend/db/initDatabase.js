@@ -2,13 +2,23 @@
 const sqlite3 = require('sqlite3').verbose()
 const path = require('path')
 const fs = require('fs')
+const pathService = require('../services/path-service')
 
-const dbPath = path.join(__dirname, 'database.db')
+// Usar la ruta de la base de datos desde el servicio
+const dbPath = pathService.getDatabasePath()
 const sqlPath = path.join(__dirname, 'database.sql')
+
+// Asegurar que el directorio de datos existe
+pathService.ensureDir(path.dirname(dbPath))
+
+// Crear directorios necesarios para la aplicación
+pathService.getProductImagesPath()
+pathService.getInvoicesPath()
+pathService.getBackupsPath()
 
 const db = new sqlite3.Database(dbPath, (err) => {
 	if (err) console.error('Error al conectar:', err.message)
-	else console.log('✔ SQLite conectado')
+	else console.log('✔ SQLite conectado en:', dbPath)
 })
 
 db.serialize(() => {
