@@ -2,26 +2,66 @@
 const db = require('../db/initDatabase')
 
 module.exports = {
-	// Obtener todos los productos
+	// Obtener todos los productos con sus números de parte y fotos
 	getAll: function (callback) {
 		const sql = `SELECT * FROM Producto WHERE activo = 1 ORDER BY id DESC`
 		db.all(sql, [], (err, rows) => {
 			if (err) return callback(err)
-			callback(null, rows)
+
+			// Si no hay productos, retornar array vacío
+			if (!rows || rows.length === 0) {
+				return callback(null, [])
+			}
+
+			// Cargar números de parte y fotos para cada producto
+			let completed = 0
+			const productos = []
+
+			rows.forEach((producto) => {
+				// Obtener números de parte
+				db.all(
+					`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+					[producto.id],
+					(err, numerosParte) => {
+						if (err) return callback(err)
+
+						// Obtener fotos
+						db.all(
+						`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+							[producto.id],
+							(err, fotos) => {
+								if (err) return callback(err)
+
+								productos.push({
+									...producto,
+									numerosParte: numerosParte || [],
+									fotos: fotos || [],
+								})
+
+								completed++
+								if (completed === rows.length) {
+									callback(null, productos)
+								}
+							}
+						)
+					}
+				)
+			})
 		})
 	},
 
-	// Crear producto (incluye Descripcion y nuevos campos)
+	// Crear producto con múltiples números de parte y fotos
 	create: function (
 		{
-			NroParte,
+			NroParte, // Número principal (requerido para mantener compatibilidad)
+			numerosParte = [], // Array de números adicionales
 			Descripcion,
 			Cantidad = 0,
 			Precio = 0,
 			Tasas = 0,
 			precioCosto = 0,
 			esOriginal = 1,
-			nombreImagen = null,
+			fotos = [], // Array de rutas de fotos
 		},
 		callback
 	) {
@@ -30,8 +70,8 @@ module.exports = {
 		}
 
 		const sql = `
-			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, esOriginal, nombreImagen)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, esOriginal)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
 		`
 
 		db.run(
@@ -44,31 +84,85 @@ module.exports = {
 				Tasas,
 				precioCosto,
 				esOriginal,
-				nombreImagen,
 			],
 			function (err) {
 				if (err) return callback(err)
-				callback(null, { id: this.lastID })
+
+				const idProducto = this.lastID
+
+				// Insertar número principal en ProductoNumerosParte
+				db.run(
+					`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 1)`,
+					[idProducto, NroParte],
+					(err) => {
+						if (err) return callback(err)
+
+						// Insertar números adicionales si existen
+						if (numerosParte && numerosParte.length > 0) {
+							let insertedNumeros = 0
+							numerosParte.forEach((nroParte) => {
+								db.run(
+									`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 0)`,
+									[idProducto, nroParte],
+									(err) => {
+										if (err)
+											console.error('Error insertando número adicional:', err)
+										insertedNumeros++
+										if (insertedNumeros === numerosParte.length) {
+											insertarFotos()
+										}
+									}
+								)
+							})
+						} else {
+							insertarFotos()
+						}
+					}
+				)
+
+				function insertarFotos() {
+					// Insertar todas las fotos - la primera será marcada como principal
+					if (fotos && fotos.length > 0) {
+						let insertedFotos = 0
+						fotos.forEach((foto, index) => {
+							const esPrincipal = index === 0 ? 1 : 0
+							db.run(
+							`INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES (?, ?, ?, ?)`,
+								[idProducto, foto, esPrincipal, index],
+								(err) => {
+									if (err) console.error('Error insertando foto:', err)
+									insertedFotos++
+									if (insertedFotos === fotos.length) {
+										callback(null, { id: idProducto })
+									}
+								}
+							)
+						})
+					} else {
+						callback(null, { id: idProducto })
+					}
+				}
 			}
 		)
 	},
 
-	// Actualizar producto (incluye Descripcion y nuevos campos)
+	// Actualizar producto con múltiples números de parte y fotos
 	update: function (id, data, callback) {
 		const {
 			NroParte,
+			numerosParte = [],
 			Descripcion,
 			Cantidad,
 			Precio,
 			Tasas,
 			precioCosto,
 			esOriginal,
-			nombreImagen,
+			fotos = [],
 		} = data
 
 		const sql = `
 			UPDATE Producto 
-			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, esOriginal = ?, nombreImagen = ?
+			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, esOriginal = ?
 			WHERE id = ?
 		`
 
@@ -82,12 +176,84 @@ module.exports = {
 				Tasas,
 				precioCosto,
 				esOriginal,
-				nombreImagen,
 				id,
 			],
 			function (err) {
 				if (err) return callback(err)
-				callback(null)
+
+				// Actualizar números de parte
+				// 1. Eliminar números existentes
+				db.run(
+					`DELETE FROM ProductoNumerosParte WHERE idProducto = ?`,
+					[id],
+					(err) => {
+						if (err) return callback(err)
+
+						// 2. Insertar número principal
+						db.run(
+							`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 1)`,
+							[id, NroParte],
+							(err) => {
+								if (err) return callback(err)
+
+								// 3. Insertar números adicionales
+								if (numerosParte && numerosParte.length > 0) {
+									let insertedNumeros = 0
+									numerosParte.forEach((nroParte) => {
+										db.run(
+											`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 0)`,
+											[id, nroParte],
+											(err) => {
+												if (err)
+													console.error('Error actualizando número:', err)
+												insertedNumeros++
+												if (insertedNumeros === numerosParte.length) {
+													actualizarFotos()
+												}
+											}
+										)
+									})
+								} else {
+									actualizarFotos()
+								}
+							}
+						)
+					}
+				)
+
+				function actualizarFotos() {
+					// 1. Eliminar fotos existentes
+					db.run(
+						`DELETE FROM ProductoFotos WHERE idProducto = ?`,
+						[id],
+						(err) => {
+							if (err) return callback(err)
+
+							// 2. Insertar todas las fotos - la primera será marcada como principal
+							if (fotos && fotos.length > 0) {
+								let insertedFotos = 0
+								fotos.forEach((foto, index) => {
+									const esPrincipal = index === 0 ? 1 : 0
+									db.run(
+										`INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES (?, ?, ?, ?)`,
+										[id, foto, esPrincipal, index],
+										(err) => {
+											if (err) console.error('Error actualizando foto:', err)
+											insertedFotos++
+											if (insertedFotos === fotos.length) {
+												callback(null)
+											}
+										}
+									)
+								})
+							} else {
+								callback(null)
+							}
+						}
+					)
+				}
+					}
+				}
 			}
 		)
 	},

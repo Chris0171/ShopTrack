@@ -2,6 +2,7 @@ const PDFDocument = require('pdfkit-table')
 const fs = require('fs')
 const path = require('path')
 const configService = require('./config-service')
+const pathService = require('./path-service')
 
 // Cargar localizaciones (caché)
 let locales = {}
@@ -49,18 +50,12 @@ class PDFService {
 				// Función auxiliar dentro del contexto
 				const getText = (key) => t(locale, key)
 
-				// Crear directorio de facturas si no existe
-				const dirFacturas = path.join(__dirname, '../../facturas')
-				if (!fs.existsSync(dirFacturas)) {
-					fs.mkdirSync(dirFacturas, { recursive: true })
-				}
+			// Obtener directorio de facturas desde pathService
+			const dirFacturas = pathService.getInvoicesPath()
 
-				// Crear nombre de archivo
-				const nombreArchivo = `Factura_${datos.numeroFactura}_${Date.now()}.pdf`
-				const rutaArchivo = path.join(dirFacturas, nombreArchivo)
-
-				// Crear documento
-				const doc = new PDFDocument({
+			// Crear nombre de archivo
+			const nombreArchivo = `Factura_${datos.numeroFactura}_${Date.now()}.pdf`
+			const rutaArchivo = pathService.getInvoicePath(nombreArchivo)
 					size: 'A4',
 					margin: 40,
 				})

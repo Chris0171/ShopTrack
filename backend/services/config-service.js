@@ -4,10 +4,10 @@
  */
 
 const fs = require('fs')
-const path = require('path')
+const pathService = require('./path-service')
 
 // Ruta del archivo de configuración
-const CONFIG_PATH = path.join(__dirname, '../../data/config.json')
+const CONFIG_PATH = pathService.getConfigPath()
 
 // Configuración por defecto
 const DEFAULT_CONFIG = {
@@ -35,11 +35,8 @@ const DEFAULT_CONFIG = {
  * Asegura que el directorio de datos existe
  */
 function ensureDataDirectory() {
-	const dataDir = path.dirname(CONFIG_PATH)
-	if (!fs.existsSync(dataDir)) {
-		fs.mkdirSync(dataDir, { recursive: true })
-		console.log(`📁 Directorio de datos creado: ${dataDir}`)
-	}
+	const dataDir = pathService.getUserDataPath()
+	pathService.ensureDir(dataDir)
 }
 
 /**
