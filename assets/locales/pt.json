@@ -79,7 +79,10 @@
 			"placeholderQuantity": "0",
 			"placeholderPrice": "0.00",
 			"placeholderIva": "0.21",
-			"placeholderImage": "Nome do arquivo da imagem"
+			"placeholderImage": "nome-imagem.jpg",
+			"principal": "Principal",
+			"addPartNumber": "+ Adicionar Número de Peça",
+			"addPhoto": "+ Adicionar Foto"
 		},
 		"update": {
 			"title": "Atualizar Produto",

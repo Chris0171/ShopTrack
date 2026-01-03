@@ -50,12 +50,15 @@ class PDFService {
 				// Función auxiliar dentro del contexto
 				const getText = (key) => t(locale, key)
 
-			// Obtener directorio de facturas desde pathService
-			const dirFacturas = pathService.getInvoicesPath()
+				// Obtener directorio de facturas desde pathService
+				const dirFacturas = pathService.getInvoicesPath()
 
-			// Crear nombre de archivo
-			const nombreArchivo = `Factura_${datos.numeroFactura}_${Date.now()}.pdf`
-			const rutaArchivo = pathService.getInvoicePath(nombreArchivo)
+				// Crear nombre de archivo
+				const nombreArchivo = `Factura_${datos.numeroFactura}_${Date.now()}.pdf`
+				const rutaArchivo = pathService.getInvoicePath(nombreArchivo)
+
+				// Crear documento
+				const doc = new PDFDocument({
 					size: 'A4',
 					margin: 40,
 				})
@@ -80,12 +83,10 @@ class PDFService {
 					.fillColor(COLORS.indigo700)
 					.text(config.nombre || 'Core transport lLC', { align: 'center' })
 				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
-
 				// Layout cabecera correcto: FACTURA, luego fecha y número
 				let posY = 110
 
-				// Estilo de línea divisoria
-				doc.lineWidth(1.2).strokeColor(COLORS.indigo700).stroke()
+				// Estilo de línea divisoria				doc.lineWidth(1.2).strokeColor(COLORS.indigo700).stroke()
 
 				// Título FACTURA en indigo-700
 				doc

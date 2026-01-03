@@ -23,18 +23,23 @@
     <!-- Formulario principal -->
     <form id="formUpdate" class="space-y-4">
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.nroParte">Nro de Parte *</label>
-          <input id="NroParte" type="text"
-            class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+      <!-- Números de Parte Dinámicos -->
+      <div>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.nroParte">Nro de Parte *</label>
+        <div id="numeros-parte-container" class="space-y-2">
+          <!-- Primera fila de número de parte (se genera dinámicamente) -->
         </div>
-        <div>
-          <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.description">Descripción
-            *</label>
-          <input id="Descripcion" type="text"
-            class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
-        </div>
+        <button type="button" id="btn-add-nroParte"
+          class="mt-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold transition">
+          <span data-i18n="products.create.addPartNumber">+ Agregar Número de Parte</span>
+        </button>
+      </div>
+
+      <div>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.description">Descripción
+          *</label>
+        <input id="Descripcion" type="text"
+          class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -84,18 +89,18 @@
         </div>
       </div>
 
+      <!-- Fotos Dinámicas -->
       <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.image">Imagen del Producto</label>
-        <div class="flex items-center gap-4">
-          <input id="NombreImagen"
-            class="flex-1 border-2 border-gray-300 p-2 rounded-lg focus:border-indigo-600 outline-none transition text-gray-600"
-            type="text" placeholder="nombre-imagen.jpg" data-i18n="[placeholder]products.update.placeholderImage" />
-          <button type="button" id="btn-examinar"
-            class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold transition">
-            <span data-i18n="products.create.browse">📂 Examinar</span>
-          </button>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="products.create.image">Imágenes del
+          Producto</label>
+        <div id="fotos-container" class="space-y-2">
+          <!-- Fotos se agregarán dinámicamente -->
         </div>
-        <p class="text-sm text-gray-500 mt-2">Se guardará en <code
+        <button type="button" id="btn-add-foto"
+          class="mt-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold transition">
+          <span data-i18n="products.create.addPhoto">+ Agregar Foto</span>
+        </button>
+        <p class="text-sm text-gray-500 mt-2">Se guardarán en <code
             class="bg-gray-100 px-2 py-1 rounded">assets/images/productos/</code></p>
       </div>
 

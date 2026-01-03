@@ -2,11 +2,106 @@ export function initCreateProducto() {
 	const form = document.getElementById('form-crear-producto')
 	const appModal = document.getElementById('appModal')
 	const btnModalOk = document.getElementById('btn-modal-ok')
-	const btnExaminar = document.getElementById('btn-examinar')
-	const inputNombreImagen = document.getElementById('NombreImagen')
 	const inputTasas = document.getElementById('Tasas')
+	const numerosParteContainer = document.getElementById(
+		'numeros-parte-container'
+	)
+	const btnAddNroParte = document.getElementById('btn-add-nroParte')
+	const fotosContainer = document.getElementById('fotos-container')
+	const btnAddFoto = document.getElementById('btn-add-foto')
 
-	let selectedImagePath = null // Ruta real del archivo elegido
+	let fotoIndex = 0
+	let fotosSeleccionadas = [] // Array de { fileName, sourcePath }
+
+	// Agregar número de parte
+	btnAddNroParte.addEventListener('click', () => {
+		const index = numerosParteContainer.children.length
+		const row = document.createElement('div')
+		row.className = 'flex items-center gap-2 numero-parte-row'
+		row.innerHTML = `
+			<input type="text" class="flex-1 border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition numero-parte-input" placeholder="P-001-ALT" />
+			<label class="flex items-center gap-1 text-sm">
+				<input type="radio" name="nroParte-principal" value="${index}" class="nroParte-radio" />
+				<span data-i18n="products.create.principal">Principal</span>
+			</label>
+			<button type="button" class="btn-remove-nroParte bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
+				🗑️
+			</button>
+		`
+		numerosParteContainer.appendChild(row)
+
+		// Evento para eliminar
+		row.querySelector('.btn-remove-nroParte').addEventListener('click', () => {
+			row.remove()
+			actualizarBotonesEliminarNroParte()
+		})
+
+		actualizarBotonesEliminarNroParte()
+	})
+
+	// Actualizar visibilidad de botones eliminar
+	function actualizarBotonesEliminarNroParte() {
+		const rows = numerosParteContainer.querySelectorAll('.numero-parte-row')
+		rows.forEach((row, index) => {
+			const btnRemove = row.querySelector('.btn-remove-nroParte')
+			if (rows.length > 1) {
+				btnRemove.classList.remove('hidden')
+			} else {
+				btnRemove.classList.add('hidden')
+			}
+		})
+	}
+
+	// Agregar foto
+	btnAddFoto.addEventListener('click', async () => {
+		try {
+			const res = await window.api.producto.seleccionarImagen()
+			if (!res || !res.ok || res.canceled) return
+
+			const currentIndex = fotoIndex++
+			const isPrincipal = fotosSeleccionadas.length === 0
+
+			fotosSeleccionadas.push({
+				fileName: res.fileName,
+				sourcePath: res.path,
+				index: currentIndex,
+			})
+
+			const row = document.createElement('div')
+			row.className = 'flex items-center gap-2 foto-row'
+			row.dataset.fotoIndex = currentIndex
+			row.innerHTML = `
+				<input type="text" readonly class="flex-1 border-2 border-gray-300 p-2 rounded-lg bg-gray-50 text-gray-600" value="${
+					res.fileName
+				}" />
+				<label class="flex items-center gap-1 text-sm">
+					<input type="radio" name="foto-principal" value="${currentIndex}" ${
+				isPrincipal ? 'checked' : ''
+			} class="foto-radio" />
+					<span data-i18n="products.create.principal">Principal</span>
+				</label>
+				<button type="button" class="btn-remove-foto bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
+					🗑️
+				</button>
+			`
+			fotosContainer.appendChild(row)
+
+			// Evento para eliminar
+			row.querySelector('.btn-remove-foto').addEventListener('click', () => {
+				const idx = parseInt(row.dataset.fotoIndex)
+				fotosSeleccionadas = fotosSeleccionadas.filter((f) => f.index !== idx)
+				row.remove()
+
+				// Si era la principal y quedan fotos, marcar la primera como principal
+				if (isPrincipal && fotosContainer.children.length > 0) {
+					const firstRadio = fotosContainer.querySelector('.foto-radio')
+					if (firstRadio) firstRadio.checked = true
+				}
+			})
+		} catch (error) {
+			console.error('Error seleccionando imagen:', error)
+		}
+	})
 
 	// Cargar IVA predeterminado desde configuración
 	async function cargarIVAPredeterminado() {
@@ -35,19 +130,6 @@ export function initCreateProducto() {
 
 	// Cargar IVA al iniciar
 	cargarIVAPredeterminado()
-
-	// Abrir selector de archivos (IPC seguro) al hacer clic en "Examinar"
-	btnExaminar.addEventListener('click', async () => {
-		try {
-			const res = await window.api.producto.seleccionarImagen()
-			if (!res || !res.ok || res.canceled) return
-
-			selectedImagePath = res.path
-			inputNombreImagen.value = res.fileName || ''
-		} catch (error) {
-			console.error('Error seleccionando imagen:', error)
-		}
-	})
 
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
@@ -79,29 +161,55 @@ export function initCreateProducto() {
 	// Limpiar formulario
 	document.getElementById('btn-limpiar').addEventListener('click', () => {
 		form.reset()
+		fotosSeleccionadas = []
+		fotoIndex = 0
+		fotosContainer.innerHTML = ''
+
+		// Resetear números de parte a solo uno
+		const rows = numerosParteContainer.querySelectorAll('.numero-parte-row')
+		rows.forEach((row, index) => {
+			if (index > 0) row.remove()
+		})
+		actualizarBotonesEliminarNroParte()
 	})
 
 	// Guardar producto
 	document.getElementById('btn-guardar').addEventListener('click', async () => {
-		const nroParte = document.getElementById('NroParte').value.trim()
+		// Recolectar números de parte
+		const numerosParteInputs = numerosParteContainer.querySelectorAll(
+			'.numero-parte-input'
+		)
+		const numerosParte = []
+		const principalRadio = document.querySelector(
+			'input[name="nroParte-principal"]:checked'
+		)
+		const principalIndex = principalRadio ? parseInt(principalRadio.value) : 0
+
+		numerosParteInputs.forEach((input, index) => {
+			const valor = input.value.trim()
+			if (valor) {
+				numerosParte.push({
+					nroParte: valor,
+					esPrincipal: index === principalIndex ? 1 : 0,
+				})
+			}
+		})
+
 		const descripcion = document.getElementById('Descripcion').value.trim()
 		const cantidad = parseInt(document.getElementById('Cantidad').value) || 0
 		const precio = parseFloat(document.getElementById('Precio').value) || 0
 		const precioCosto =
 			parseFloat(document.getElementById('PrecioCosto').value) || 0
-		// Convertir porcentaje a decimal (21 -> 0.21)
 		const tasasInput = parseFloat(document.getElementById('Tasas').value)
 		const tasas = tasasInput ? tasasInput / 100 : 0.21
 		const esOriginal = parseInt(document.getElementById('EsOriginal').value)
-		let nombreImagen =
-			document.getElementById('NombreImagen').value.trim() || null
 
 		// Validaciones
-		if (!nroParte) {
+		if (numerosParte.length === 0) {
 			mostrarModal(
 				'❌',
 				'Campo Requerido',
-				'El Número de Parte es obligatorio',
+				'Debe agregar al menos un Número de Parte',
 				true
 			)
 			return
@@ -138,40 +246,69 @@ export function initCreateProducto() {
 		}
 
 		try {
-			// Si hay imagen seleccionada, copiarla a assets y usar el nombre guardado
-			if (selectedImagePath) {
-				const copyRes = await window.api.producto.copiarImagen({
-					sourcePath: selectedImagePath,
-					fileName: nombreImagen || undefined,
-				})
+			// Copiar fotos y obtener nombres guardados
+			const fotos = []
+			if (fotosSeleccionadas.length > 0) {
+				const principalFotoRadio = document.querySelector(
+					'input[name="foto-principal"]:checked'
+				)
+				const principalFotoIndex = principalFotoRadio
+					? parseInt(principalFotoRadio.value)
+					: fotosSeleccionadas[0].index
 
-				if (!copyRes || !copyRes.ok) {
-					mostrarModal(
-						'❌',
-						'Error',
-						'No se pudo copiar la imagen seleccionada',
-						true
-					)
-					return
+				for (const foto of fotosSeleccionadas) {
+					const copyRes = await window.api.producto.copiarImagen({
+						sourcePath: foto.sourcePath,
+						fileName: foto.fileName,
+					})
+
+					if (copyRes && copyRes.ok) {
+						fotos.push(copyRes.savedName || foto.fileName)
+					}
 				}
 
-				nombreImagen = copyRes.savedName || nombreImagen
+				// Reordenar para que la principal sea la primera
+				const principalFoto = fotosSeleccionadas.find(
+					(f) => f.index === principalFotoIndex
+				)
+				if (principalFoto) {
+					const principalIndex = fotos.indexOf(principalFoto.fileName)
+					if (principalIndex > 0) {
+						const [principal] = fotos.splice(principalIndex, 1)
+						fotos.unshift(principal)
+					}
+				}
 			}
 
 			const data = {
-				NroParte: nroParte,
+				numerosParte: numerosParte,
 				Descripcion: descripcion,
 				Cantidad: cantidad,
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
 				esOriginal: esOriginal,
-				nombreImagen: nombreImagen,
+				fotos: fotos,
 			}
 
 			const result = await window.api.producto.create(data)
 
-			mostrarModal('✅', 'Éxito', `Producto "${nroParte}" creado correctamente`)
+			mostrarModal(
+				'✅',
+				'Éxito',
+				`Producto "${numerosParte[0].nroParte}" creado correctamente`
+			)
+
+			// Limpiar formulario
+			form.reset()
+			fotosSeleccionadas = []
+			fotoIndex = 0
+			fotosContainer.innerHTML = ''
+			const rows = numerosParteContainer.querySelectorAll('.numero-parte-row')
+			rows.forEach((row, index) => {
+				if (index > 0) row.remove()
+			})
+			actualizarBotonesEliminarNroParte()
 		} catch (err) {
 			mostrarModal('❌', 'Error', `No se pudo crear: ${err}`, true)
 			console.error(err)

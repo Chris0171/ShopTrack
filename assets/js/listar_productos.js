@@ -73,18 +73,44 @@ export function initProductList() {
 			  )}</span>`
 	}
 
-	function renderImagen(nombreImagen, id) {
-		if (!nombreImagen) {
+	function renderImagen(fotos, id) {
+		// fotos es un array de objetos { nombreImagen, esPrincipal, orden }
+		if (!fotos || fotos.length === 0) {
 			return `<div class="flex items-center justify-center"><span class="text-gray-400 text-sm">${t(
 				'products.list.noImage'
 			)}</span></div>`
 		}
-		const imagePath = `./assets/images/productos/${nombreImagen}`
+
+		// Ordenar fotos: principal primero, luego por orden
+		const fotosOrdenadas = [...fotos].sort((a, b) => {
+			if (a.esPrincipal !== b.esPrincipal) {
+				return b.esPrincipal - a.esPrincipal
+			}
+			return a.orden - b.orden
+		})
+
+		// Generar HTML para todas las fotos
+		const thumbnails = fotosOrdenadas
+			.map((foto, index) => {
+				const imagePath = `./assets/images/productos/${foto.nombreImagen}`
+				const isPrincipal = foto.esPrincipal === 1
+				return `
+				<img data-foto-index="${index}" data-product-id="${id}" src="${imagePath}" alt="${
+					foto.nombreImagen
+				}" 
+					 class="product-thumb w-10 h-10 object-cover rounded border ${
+							isPrincipal
+								? 'border-indigo-500 ring-2 ring-indigo-300'
+								: 'border-gray-300'
+						} cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" 
+					 title="${isPrincipal ? '★ ' : ''}${t('products.list.zoomImage')}" />
+			`
+			})
+			.join('')
+
 		return `
-			<div class="flex items-center justify-center">
-				<img id="thumb_${id}" src="${imagePath}" alt="${nombreImagen}" 
-					   class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" 
-					   title="${t('products.list.zoomImage')}" />
+			<div class="flex items-center justify-center gap-1 flex-wrap max-w-[120px]">
+				${thumbnails}
 			</div>
 		`
 	}
@@ -199,8 +225,19 @@ export function initProductList() {
 			const tr = document.createElement('tr')
 			tr.className = 'hover:bg-gray-50'
 
+			// Obtener número de parte principal
+			const nroPartePrincipal =
+				p.numerosParte?.find((n) => n.esPrincipal === 1)?.nroParte || p.NroParte
+			const cantidadNumerosParte = p.numerosParte?.length || 0
+			const numeroParteDisplay =
+				cantidadNumerosParte > 1
+					? `${nroPartePrincipal} <span class="text-xs text-gray-500">(+${
+							cantidadNumerosParte - 1
+					  })</span>`
+					: nroPartePrincipal
+
 			tr.innerHTML = `
-        <td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
+        <td class="py-3 px-4 text-sm font-bold text-gray-800">${numeroParteDisplay}</td>
         <td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
         <td class="py-3 px-4 text-sm text-right text-gray-700">${
 					p.Cantidad
@@ -216,7 +253,7 @@ export function initProductList() {
 				)}</td>
         <td class="py-3 px-4 text-center">${renderTipo(p.esOriginal)}</td>
         <td class="py-3 px-4 text-sm text-gray-700">${renderImagen(
-					p.nombreImagen,
+					p.fotos,
 					p.id
 				)}</td>
         <td class="py-3 px-4 text-center">${renderEstado(p.activo)}</td>
@@ -241,12 +278,25 @@ export function initProductList() {
 				})
 			}
 
-			const thumbImg = document.getElementById(`thumb_${p.id}`)
-			if (thumbImg && p.nombreImagen) {
-				thumbImg.addEventListener('click', () => {
-					showImageModal(p.nombreImagen)
+			// Manejador para todas las miniaturas del producto (delegación de eventos)
+			const productThumbs = document.querySelectorAll(
+				`img.product-thumb[data-product-id="${p.id}"]`
+			)
+			productThumbs.forEach((thumb) => {
+				thumb.addEventListener('click', () => {
+					const fotoIndex = parseInt(thumb.dataset.fotoIndex)
+					if (p.fotos && p.fotos[fotoIndex]) {
+						// Ordenar fotos igual que en renderImagen
+						const fotosOrdenadas = [...p.fotos].sort((a, b) => {
+							if (a.esPrincipal !== b.esPrincipal) {
+								return b.esPrincipal - a.esPrincipal
+							}
+							return a.orden - b.orden
+						})
+						showImageModal(fotosOrdenadas[fotoIndex].nombreImagen)
+					}
 				})
-			}
+			})
 
 			const btnDelete = document.getElementById(`btn_del_${p.id}`)
 			if (btnDelete) {

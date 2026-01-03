@@ -1,0 +1,2 @@
+Este archivo indica que la aplicación debe ejecutarse en modo portable.
+Todas las rutas (base de datos, imágenes, facturas) se guardarán en la carpeta 'data' del proyecto.

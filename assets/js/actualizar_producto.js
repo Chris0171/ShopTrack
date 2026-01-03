@@ -3,23 +3,28 @@ export function initUpdateProducto(productId = null) {
 	const btnBuscar = document.getElementById('btnBuscar')
 	const form = document.getElementById('formUpdate')
 	const btnLimpiar = document.getElementById('btnLimpiar')
-	const btnExaminar = document.getElementById('btn-examinar')
+	const btnAddNroParte = document.getElementById('btn-add-nroParte')
+	const btnAddFoto = document.getElementById('btn-add-foto')
+	const numerosParteContainer = document.getElementById(
+		'numeros-parte-container'
+	)
+	const fotosContainer = document.getElementById('fotos-container')
 
 	// Campos del formulario
-	const NroParte = document.getElementById('NroParte')
 	const Descripcion = document.getElementById('Descripcion')
 	const Cantidad = document.getElementById('Cantidad')
 	const Precio = document.getElementById('Precio')
 	const PrecioCosto = document.getElementById('PrecioCosto')
 	const Tasas = document.getElementById('Tasas')
 	const EsOriginal = document.getElementById('EsOriginal')
-	const NombreImagen = document.getElementById('NombreImagen')
 
 	const appModal = document.getElementById('appModal')
 	const btnModalOk = document.getElementById('btn-modal-ok')
 
 	let currentProductId = productId
-	let selectedImagePath = null
+	let fotoIndex = 0
+	let fotosSeleccionadas = [] // Array de { fileName, sourcePath, index, isExisting }
+	let fotosExistentes = [] // Para rastrear fotos que ya estaban en la BD
 
 	// Cargar IVA predeterminado desde configuración (solo si no hay producto cargado)
 	async function cargarIVAPredeterminadoSiVacio() {
@@ -51,6 +56,109 @@ export function initUpdateProducto(productId = null) {
 	// Cargar IVA si no hay producto cargado inicialmente
 	if (!currentProductId) {
 		cargarIVAPredeterminadoSiVacio()
+	}
+
+	// Agregar número de parte
+	btnAddNroParte.replaceWith(btnAddNroParte.cloneNode(true))
+	const newBtnAddNroParte = document.getElementById('btn-add-nroParte')
+	newBtnAddNroParte.addEventListener('click', () => {
+		agregarNroParteRow()
+	})
+
+	function agregarNroParteRow(valor = '', esPrincipal = false) {
+		const index = numerosParteContainer.children.length
+		const row = document.createElement('div')
+		row.className = 'flex items-center gap-2 numero-parte-row'
+		row.innerHTML = `
+			<input type="text" value="${valor}" class="flex-1 border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition numero-parte-input" placeholder="P-001-ALT" />
+			<label class="flex items-center gap-1 text-sm">
+				<input type="radio" name="nroParte-principal" value="${index}" ${
+			esPrincipal ? 'checked' : ''
+		} class="nroParte-radio" />
+				<span data-i18n="products.create.principal">Principal</span>
+			</label>
+			<button type="button" class="btn-remove-nroParte bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
+				🗑️
+			</button>
+		`
+		numerosParteContainer.appendChild(row)
+
+		// Evento para eliminar
+		row.querySelector('.btn-remove-nroParte').addEventListener('click', () => {
+			row.remove()
+			actualizarBotonesEliminarNroParte()
+		})
+
+		actualizarBotonesEliminarNroParte()
+	}
+
+	// Actualizar visibilidad de botones eliminar
+	function actualizarBotonesEliminarNroParte() {
+		const rows = numerosParteContainer.querySelectorAll('.numero-parte-row')
+		rows.forEach((row) => {
+			const btnRemove = row.querySelector('.btn-remove-nroParte')
+			if (rows.length > 1) {
+				btnRemove.classList.remove('hidden')
+			} else {
+				btnRemove.classList.add('hidden')
+			}
+		})
+	}
+
+	// Agregar foto
+	btnAddFoto.replaceWith(btnAddFoto.cloneNode(true))
+	const newBtnAddFoto = document.getElementById('btn-add-foto')
+	newBtnAddFoto.addEventListener('click', async () => {
+		try {
+			const res = await window.api.producto.seleccionarImagen()
+			if (!res || !res.ok || res.canceled) return
+
+			const currentIndex = fotoIndex++
+			const isPrincipal = fotosSeleccionadas.length === 0
+
+			fotosSeleccionadas.push({
+				fileName: res.fileName,
+				sourcePath: res.path,
+				index: currentIndex,
+				isExisting: false,
+			})
+
+			agregarFotoRow(res.fileName, currentIndex, isPrincipal, false)
+		} catch (error) {
+			console.error('Error seleccionando imagen:', error)
+		}
+	})
+
+	function agregarFotoRow(fileName, index, isPrincipal, isExisting) {
+		const row = document.createElement('div')
+		row.className = 'flex items-center gap-2 foto-row'
+		row.dataset.fotoIndex = index
+		row.innerHTML = `
+			<input type="text" readonly class="flex-1 border-2 border-gray-300 p-2 rounded-lg bg-gray-50 text-gray-600" value="${fileName}" />
+			<label class="flex items-center gap-1 text-sm">
+				<input type="radio" name="foto-principal" value="${index}" ${
+			isPrincipal ? 'checked' : ''
+		} class="foto-radio" />
+				<span data-i18n="products.create.principal">Principal</span>
+			</label>
+			<button type="button" class="btn-remove-foto bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
+				🗑️
+			</button>
+		`
+		fotosContainer.appendChild(row)
+
+		// Evento para eliminar
+		row.querySelector('.btn-remove-foto').addEventListener('click', () => {
+			const idx = parseInt(row.dataset.fotoIndex)
+			fotosSeleccionadas = fotosSeleccionadas.filter((f) => f.index !== idx)
+			row.remove()
+
+			// Si era la principal y quedan fotos, marcar la primera como principal
+			if (isPrincipal && fotosContainer.children.length > 0) {
+				const firstRadio = fotosContainer.querySelector('.foto-radio')
+				if (firstRadio) firstRadio.checked = true
+			}
+		})
 	}
 
 	// Abrir modal con mensaje
@@ -101,21 +209,9 @@ export function initUpdateProducto(productId = null) {
 		}
 
 		currentProductId = producto.id
-		selectedImagePath = null
+		fotosSeleccionadas = []
+		fotosExistentes = []
 		rellenarFormulario(producto)
-	})
-
-	// Examinar imagen
-	btnExaminar.addEventListener('click', async () => {
-		try {
-			const res = await window.api.producto.seleccionarImagen()
-			if (!res || !res.ok || res.canceled) return
-
-			selectedImagePath = res.path
-			NombreImagen.value = res.fileName || ''
-		} catch (error) {
-			console.error('Error seleccionando imagen:', error)
-		}
 	})
 
 	// 📝 Guardar cambios
@@ -132,7 +228,22 @@ export function initUpdateProducto(productId = null) {
 			return
 		}
 
-		const nroParte = NroParte.value.trim()
+		// Recopilar números de parte
+		const nroParteInputs = document.querySelectorAll('.numero-parte-input')
+		const numerosParte = []
+		nroParteInputs.forEach((input, index) => {
+			const valor = input.value.trim()
+			if (valor) {
+				const radio = document.querySelector(
+					`input[name="nroParte-principal"][value="${index}"]`
+				)
+				numerosParte.push({
+					NroParte: valor,
+					esPrincipal: radio?.checked ? 1 : 0,
+				})
+			}
+		})
+
 		const descripcion = Descripcion.value.trim()
 		const cantidad = parseInt(Cantidad.value) || 0
 		const precio = parseFloat(Precio.value) || 0
@@ -141,17 +252,22 @@ export function initUpdateProducto(productId = null) {
 		const tasasInput = parseFloat(Tasas.value)
 		const tasas = tasasInput ? tasasInput / 100 : 0.21
 		const esOriginal = parseInt(EsOriginal.value)
-		let nombreImagen = NombreImagen.value.trim() || null
 
 		// Validaciones
-		if (!nroParte) {
+		if (numerosParte.length === 0) {
 			mostrarModal(
 				'❌',
 				'Campo requerido',
-				'El Número de Parte es obligatorio',
+				'Debes agregar al menos un Número de Parte',
 				true
 			)
 			return
+		}
+
+		// Verificar que haya al menos un número de parte principal
+		const hayPrincipal = numerosParte.some((np) => np.esPrincipal === 1)
+		if (!hayPrincipal && numerosParte.length > 0) {
+			numerosParte[0].esPrincipal = 1
 		}
 
 		if (!descripcion) {
@@ -185,41 +301,84 @@ export function initUpdateProducto(productId = null) {
 		}
 
 		try {
-			// Si hay imagen seleccionada, copiarla a assets y usar el nombre guardado
-			if (selectedImagePath) {
-				const copyRes = await window.api.producto.copiarImagen({
-					sourcePath: selectedImagePath,
-					fileName: nombreImagen || undefined,
-				})
+			// Procesar fotos nuevas (copiar a assets)
+			const fotosParaGuardar = []
 
-				if (!copyRes || !copyRes.ok) {
-					mostrarModal(
-						'❌',
-						'Error',
-						'No se pudo copiar la imagen seleccionada',
-						true
-					)
-					return
+			for (const foto of fotosSeleccionadas) {
+				if (foto.isExisting) {
+					// Foto existente, mantener el nombre
+					fotosParaGuardar.push({
+						nombreImagen: foto.fileName,
+						esPrincipal: 0, // Se actualizará después
+						orden: 0,
+					})
+				} else {
+					// Foto nueva, copiar archivo
+					const copyRes = await window.api.producto.copiarImagen({
+						sourcePath: foto.sourcePath,
+						fileName: foto.fileName,
+					})
+
+					if (!copyRes || !copyRes.ok) {
+						mostrarModal(
+							'❌',
+							'Error',
+							`No se pudo copiar la imagen: ${foto.fileName}`,
+							true
+						)
+						return
+					}
+
+					fotosParaGuardar.push({
+						nombreImagen: copyRes.savedName || foto.fileName,
+						esPrincipal: 0,
+						orden: 0,
+					})
 				}
-
-				nombreImagen = copyRes.savedName || nombreImagen
 			}
 
+			// Establecer foto principal y orden
+			const fotoPrincipalRadio = document.querySelector(
+				'input[name="foto-principal"]:checked'
+			)
+			if (fotoPrincipalRadio) {
+				const principalIndex = parseInt(fotoPrincipalRadio.value)
+				const fotoSeleccionada = fotosSeleccionadas.find(
+					(f) => f.index === principalIndex
+				)
+				if (fotoSeleccionada) {
+					const fotoEnLista = fotosParaGuardar.find(
+						(f) => f.nombreImagen === fotoSeleccionada.fileName
+					)
+					if (fotoEnLista) {
+						fotoEnLista.esPrincipal = 1
+					}
+				}
+			} else if (fotosParaGuardar.length > 0) {
+				fotosParaGuardar[0].esPrincipal = 1
+			}
+
+			// Asignar orden
+			fotosParaGuardar.forEach((foto, index) => {
+				foto.orden = index + 1
+			})
+
 			const data = {
-				NroParte: nroParte,
 				Descripcion: descripcion,
 				Cantidad: cantidad,
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
 				esOriginal: esOriginal,
-				nombreImagen: nombreImagen,
+				numerosParte: numerosParte,
+				fotos: fotosParaGuardar,
 			}
 
 			await window.api.producto.update(currentProductId, data)
 
 			mostrarModal('✅', 'Actualizado', 'Producto actualizado correctamente')
-			selectedImagePath = null
+			fotosSeleccionadas = []
+			fotosExistentes = []
 		} catch (err) {
 			mostrarModal('❌', 'Error', `No se pudo actualizar: ${err}`, true)
 			console.error(err)
@@ -229,7 +388,12 @@ export function initUpdateProducto(productId = null) {
 	// Limpiar formulario
 	btnLimpiar.addEventListener('click', () => {
 		form.reset()
-		selectedImagePath = null
+		numerosParteContainer.innerHTML = ''
+		fotosContainer.innerHTML = ''
+		fotosSeleccionadas = []
+		fotosExistentes = []
+		fotoIndex = 0
+		currentProductId = null
 		// Recargar IVA predeterminado después de limpiar
 		cargarIVAPredeterminadoSiVacio()
 	})
@@ -243,7 +407,14 @@ export function initUpdateProducto(productId = null) {
 	}
 
 	function rellenarFormulario(prod) {
-		NroParte.value = prod.NroParte || ''
+		// Limpiar contenedores
+		numerosParteContainer.innerHTML = ''
+		fotosContainer.innerHTML = ''
+		fotosSeleccionadas = []
+		fotosExistentes = []
+		fotoIndex = 0
+
+		// Rellenar campos básicos
 		Descripcion.value = prod.Descripcion || ''
 		Cantidad.value = prod.Cantidad ?? 0
 		Precio.value = prod.Precio ?? 0
@@ -251,6 +422,46 @@ export function initUpdateProducto(productId = null) {
 		// Convertir decimal a porcentaje para mostrar (0.21 -> 21)
 		Tasas.value = prod.Tasas ? (prod.Tasas * 100).toFixed(2) : 21
 		EsOriginal.value = prod.esOriginal ?? 1
-		NombreImagen.value = prod.nombreImagen || ''
+
+		// Cargar números de parte
+		if (prod.numerosParte && prod.numerosParte.length > 0) {
+			prod.numerosParte.forEach((np) => {
+				// Normalizar: puede venir como nroParte o NroParte
+				const nroParteValor = np.nroParte || np.NroParte
+				agregarNroParteRow(nroParteValor, np.esPrincipal === 1)
+			})
+		} else if (prod.NroParte) {
+			// Fallback para compatibilidad con productos antiguos
+			agregarNroParteRow(prod.NroParte, true)
+		}
+
+		// Cargar fotos existentes
+		if (prod.fotos && prod.fotos.length > 0) {
+			prod.fotos.forEach((foto, index) => {
+				const currentIndex = fotoIndex++
+				const isPrincipal = foto.esPrincipal === 1
+
+				fotosSeleccionadas.push({
+					fileName: foto.nombreImagen,
+					sourcePath: null,
+					index: currentIndex,
+					isExisting: true,
+				})
+
+				fotosExistentes.push(foto.nombreImagen)
+				agregarFotoRow(foto.nombreImagen, currentIndex, isPrincipal, true)
+			})
+		} else if (prod.nombreImagen) {
+			// Fallback para compatibilidad con productos antiguos
+			const currentIndex = fotoIndex++
+			fotosSeleccionadas.push({
+				fileName: prod.nombreImagen,
+				sourcePath: null,
+				index: currentIndex,
+				isExisting: true,
+			})
+			fotosExistentes.push(prod.nombreImagen)
+			agregarFotoRow(prod.nombreImagen, currentIndex, true, true)
+		}
 	}
 }

@@ -1,6 +1,14 @@
 const path = require('path')
-const { app } = require('electron')
 const fs = require('fs')
+
+// Intentar cargar Electron, pero no fallar si no está disponible
+let app
+try {
+	app = require('electron').app
+} catch (e) {
+	// No estamos en Electron, usar null
+	app = null
+}
 
 /**
  * Servicio centralizado para el manejo de rutas de la aplicación
@@ -13,9 +21,15 @@ class PathService {
 		this.isPortable = this.checkIfPortable()
 
 		// Definir directorio base según el modo
-		this.userDataPath = this.isPortable
-			? path.join(process.cwd(), 'data')
-			: app.getPath('userData')
+		if (this.isPortable) {
+			this.userDataPath = path.join(process.cwd(), 'data')
+		} else if (app && app.getPath) {
+			// Estamos en Electron
+			this.userDataPath = app.getPath('userData')
+		} else {
+			// Fallback para Node.js puro (testing)
+			this.userDataPath = path.join(process.cwd(), 'data')
+		}
 	}
 
 	/**

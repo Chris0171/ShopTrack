@@ -27,7 +27,7 @@ module.exports = {
 
 						// Obtener fotos
 						db.all(
-						`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+							`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
 							[producto.id],
 							(err, fotos) => {
 								if (err) return callback(err)
@@ -53,21 +53,25 @@ module.exports = {
 	// Crear producto con múltiples números de parte y fotos
 	create: function (
 		{
-			NroParte, // Número principal (requerido para mantener compatibilidad)
-			numerosParte = [], // Array de números adicionales
+			numerosParte = [], // Array de objetos { nroParte, esPrincipal }
 			Descripcion,
 			Cantidad = 0,
 			Precio = 0,
 			Tasas = 0,
 			precioCosto = 0,
 			esOriginal = 1,
-			fotos = [], // Array de rutas de fotos
+			fotos = [], // Array de nombres de archivo
 		},
 		callback
 	) {
-		if (!NroParte || !Descripcion) {
-			return callback(new Error('NroParte y Descripcion son obligatorios'))
+		// Validación: debe haber al menos un número de parte
+		if (!numerosParte || numerosParte.length === 0 || !Descripcion) {
+			return callback(new Error('numerosParte y Descripcion son obligatorios'))
 		}
+
+		// Obtener el número de parte principal
+		const nroPartePrincipal =
+			numerosParte.find((n) => n.esPrincipal === 1) || numerosParte[0]
 
 		const sql = `
 			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, esOriginal)
@@ -77,7 +81,7 @@ module.exports = {
 		db.run(
 			sql,
 			[
-				NroParte,
+				nroPartePrincipal.nroParte,
 				Descripcion,
 				Cantidad,
 				Precio,
@@ -90,35 +94,25 @@ module.exports = {
 
 				const idProducto = this.lastID
 
-				// Insertar número principal en ProductoNumerosParte
-				db.run(
-					`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 1)`,
-					[idProducto, NroParte],
-					(err) => {
-						if (err) return callback(err)
-
-						// Insertar números adicionales si existen
-						if (numerosParte && numerosParte.length > 0) {
-							let insertedNumeros = 0
-							numerosParte.forEach((nroParte) => {
-								db.run(
-									`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 0)`,
-									[idProducto, nroParte],
-									(err) => {
-										if (err)
-											console.error('Error insertando número adicional:', err)
-										insertedNumeros++
-										if (insertedNumeros === numerosParte.length) {
-											insertarFotos()
-										}
-									}
-								)
-							})
-						} else {
-							insertarFotos()
-						}
-					}
-				)
+				// Insertar todos los números de parte
+				if (numerosParte && numerosParte.length > 0) {
+					let insertedNumeros = 0
+					numerosParte.forEach((numeroParte) => {
+						db.run(
+							`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, ?)`,
+							[idProducto, numeroParte.nroParte, numeroParte.esPrincipal],
+							(err) => {
+								if (err) console.error('Error insertando número de parte:', err)
+								insertedNumeros++
+								if (insertedNumeros === numerosParte.length) {
+									insertarFotos()
+								}
+							}
+						)
+					})
+				} else {
+					insertarFotos()
+				}
 
 				function insertarFotos() {
 					// Insertar todas las fotos - la primera será marcada como principal
@@ -127,7 +121,7 @@ module.exports = {
 						fotos.forEach((foto, index) => {
 							const esPrincipal = index === 0 ? 1 : 0
 							db.run(
-							`INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES (?, ?, ?, ?)`,
+								`INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES (?, ?, ?, ?)`,
 								[idProducto, foto, esPrincipal, index],
 								(err) => {
 									if (err) console.error('Error insertando foto:', err)
@@ -149,7 +143,6 @@ module.exports = {
 	// Actualizar producto con múltiples números de parte y fotos
 	update: function (id, data, callback) {
 		const {
-			NroParte,
 			numerosParte = [],
 			Descripcion,
 			Cantidad,
@@ -160,6 +153,14 @@ module.exports = {
 			fotos = [],
 		} = data
 
+		// Obtener el número de parte principal
+		const nroPartePrincipal =
+			numerosParte.find((n) => n.esPrincipal === 1) || numerosParte[0]
+
+		// Normalizar el nombre de la propiedad (puede venir como NroParte o nroParte)
+		const nroParteValor =
+			nroPartePrincipal.NroParte || nroPartePrincipal.nroParte
+
 		const sql = `
 			UPDATE Producto 
 			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, esOriginal = ?
@@ -169,7 +170,7 @@ module.exports = {
 		db.run(
 			sql,
 			[
-				NroParte,
+				nroParteValor,
 				Descripcion,
 				Cantidad,
 				Precio,
@@ -189,35 +190,28 @@ module.exports = {
 					(err) => {
 						if (err) return callback(err)
 
-						// 2. Insertar número principal
-						db.run(
-							`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 1)`,
-							[id, NroParte],
-							(err) => {
-								if (err) return callback(err)
-
-								// 3. Insertar números adicionales
-								if (numerosParte && numerosParte.length > 0) {
-									let insertedNumeros = 0
-									numerosParte.forEach((nroParte) => {
-										db.run(
-											`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, 0)`,
-											[id, nroParte],
-											(err) => {
-												if (err)
-													console.error('Error actualizando número:', err)
-												insertedNumeros++
-												if (insertedNumeros === numerosParte.length) {
-													actualizarFotos()
-												}
-											}
-										)
-									})
-								} else {
-									actualizarFotos()
-								}
-							}
-						)
+						// 2. Insertar todos los números de parte
+						if (numerosParte && numerosParte.length > 0) {
+							let insertedNumeros = 0
+							numerosParte.forEach((numeroParte) => {
+								// Normalizar el nombre de la propiedad (puede venir como NroParte o nroParte)
+								const nroParteValor =
+									numeroParte.NroParte || numeroParte.nroParte
+								db.run(
+									`INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES (?, ?, ?)`,
+									[id, nroParteValor, numeroParte.esPrincipal],
+									(err) => {
+										if (err) console.error('Error actualizando número:', err)
+										insertedNumeros++
+										if (insertedNumeros === numerosParte.length) {
+											actualizarFotos()
+										}
+									}
+								)
+							})
+						} else {
+							actualizarFotos()
+						}
 					}
 				)
 
@@ -229,14 +223,20 @@ module.exports = {
 						(err) => {
 							if (err) return callback(err)
 
-							// 2. Insertar todas las fotos - la primera será marcada como principal
+							// 2. Insertar todas las fotos con su información
 							if (fotos && fotos.length > 0) {
 								let insertedFotos = 0
-								fotos.forEach((foto, index) => {
-									const esPrincipal = index === 0 ? 1 : 0
+								fotos.forEach((foto) => {
+									// foto puede ser un objeto { nombreImagen, esPrincipal, orden } o un string
+									const nombreImagen =
+										typeof foto === 'string' ? foto : foto.nombreImagen
+									const esPrincipal =
+										typeof foto === 'object' ? foto.esPrincipal || 0 : 0
+									const orden = typeof foto === 'object' ? foto.orden || 0 : 0
+
 									db.run(
 										`INSERT INTO ProductoFotos (idProducto, nombreImagen, esPrincipal, orden) VALUES (?, ?, ?, ?)`,
-										[id, foto, esPrincipal, index],
+										[id, nombreImagen, esPrincipal, orden],
 										(err) => {
 											if (err) console.error('Error actualizando foto:', err)
 											insertedFotos++
@@ -252,8 +252,6 @@ module.exports = {
 						}
 					)
 				}
-					}
-				}
 			}
 		)
 	},
@@ -268,10 +266,75 @@ module.exports = {
 	},
 	// Buscar producto por número de parte
 	buscarPorNroParte: function (nroParte, callback) {
-		const sql = `SELECT * FROM Producto WHERE NroParte = ?`
-		db.get(sql, [nroParte], (err, row) => {
+		// Primero buscar el producto por número de parte (puede ser principal o alterno)
+		const sqlBuscarEnPrincipal = `SELECT * FROM Producto WHERE NroParte = ? AND activo = 1`
+
+		db.get(sqlBuscarEnPrincipal, [nroParte], (err, producto) => {
 			if (err) return callback(err)
-			callback(null, row)
+
+			// Si se encontró en el campo principal
+			if (producto) {
+				// Cargar números de parte
+				db.all(
+					`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+					[producto.id],
+					(err, numerosParte) => {
+						if (err) return callback(err)
+
+						// Cargar fotos
+						db.all(
+							`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+							[producto.id],
+							(err, fotos) => {
+								if (err) return callback(err)
+
+								callback(null, {
+									...producto,
+									numerosParte: numerosParte || [],
+									fotos: fotos || [],
+								})
+							}
+						)
+					}
+				)
+			} else {
+				// Si no se encontró, buscar en la tabla de números de parte alternos
+				const sqlBuscarEnAlternos = `
+					SELECT p.* FROM Producto p
+					INNER JOIN ProductoNumerosParte pnp ON p.id = pnp.idProducto
+					WHERE pnp.nroParte = ? AND p.activo = 1
+					LIMIT 1
+				`
+
+				db.get(sqlBuscarEnAlternos, [nroParte], (err, producto) => {
+					if (err) return callback(err)
+					if (!producto) return callback(null, null)
+
+					// Cargar números de parte
+					db.all(
+						`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+						[producto.id],
+						(err, numerosParte) => {
+							if (err) return callback(err)
+
+							// Cargar fotos
+							db.all(
+								`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+								[producto.id],
+								(err, fotos) => {
+									if (err) return callback(err)
+
+									callback(null, {
+										...producto,
+										numerosParte: numerosParte || [],
+										fotos: fotos || [],
+									})
+								}
+							)
+						}
+					)
+				})
+			}
 		})
 	},
 	// 🔥 Actualizar solo el stock de un producto
