@@ -162,25 +162,43 @@ export function initUpdateProducto(productId = null) {
 
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
+		// Si el modal ya está visible, ocultarlo primero completamente
+		const yaVisible = appModal.style.display === 'flex'
+
+		// Ocultar completamente
 		appModal.style.display = 'none'
+		appModal.style.opacity = '0'
 
-		// Actualizar contenido
-		document.getElementById('modalIcon').textContent = icono
-		document.getElementById('modalTitle').textContent = titulo
-		document.getElementById('modalMessage').textContent = mensaje
+		// Esperar a que el navegador renderice el cambio
+		setTimeout(
+			() => {
+				// Actualizar contenido mientras está oculto
+				document.getElementById('modalIcon').textContent = icono
+				document.getElementById('modalTitle').textContent = titulo
+				document.getElementById('modalMessage').textContent = mensaje
 
-		btnModalOk.className = esError
-			? 'bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
-			: 'bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
+				btnModalOk.className = esError
+					? 'bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
+					: 'bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
 
-		btnModalOk.onclick = () => {
-			appModal.style.display = 'none'
-		}
+				btnModalOk.onclick = () => {
+					appModal.style.opacity = '0'
+					setTimeout(() => {
+						appModal.style.display = 'none'
+					}, 150)
+				}
 
-		// Pequeño delay para asegurar que el DOM se actualiza antes de mostrar
-		setTimeout(() => {
-			appModal.style.display = 'flex'
-		}, 10)
+				// Mostrar el modal con el nuevo contenido
+				appModal.style.display = 'flex'
+				appModal.style.transition = 'opacity 0.2s ease'
+
+				// Fade in suave
+				setTimeout(() => {
+					appModal.style.opacity = '1'
+				}, 20)
+			},
+			yaVisible ? 100 : 20
+		)
 	}
 
 	// Cerrar modal al hacer clic fuera
