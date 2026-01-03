@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const { shell, dialog, ipcMain: ipcMainModule } = require('electron')
 const configService = require('../services/config-service')
+const pathService = require('../services/path-service')
 
 // Variable global para almacenar el BrowserWindow y poder hacer emit
 let mainWindow = null
@@ -22,20 +23,36 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 		}
 	})
 
-	// Abrir imagen de producto por nombre (ubicada en assets/images/productos)
+	// Abrir imagen de producto por nombre (usando pathService)
 	ipcMain.handle('producto:abrir-imagen', async (event, nombreImagen) => {
 		try {
 			if (!nombreImagen) return { ok: false, error: 'Nombre de imagen vacío' }
-			const assetsPath = path.join(
-				__dirname,
-				'../../assets/images/productos',
-				nombreImagen
-			)
-			if (!fs.existsSync(assetsPath)) {
+
+			const imagesPath = pathService.getProductImagesPath()
+			const imagePath = path.join(imagesPath, nombreImagen)
+
+			if (!fs.existsSync(imagePath)) {
 				return { ok: false, error: 'Archivo no encontrado' }
 			}
-			await shell.openPath(assetsPath)
-			return { ok: true, path: assetsPath }
+			await shell.openPath(imagePath)
+			return { ok: true, path: imagePath }
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	// Obtener la ruta completa de una imagen de producto
+	ipcMain.handle('producto:get-imagen-path', async (event, nombreImagen) => {
+		try {
+			if (!nombreImagen) return { ok: false, error: 'Nombre de imagen vacío' }
+
+			const imagesPath = pathService.getProductImagesPath()
+			const imagePath = path.join(imagesPath, nombreImagen)
+
+			// Convertir a URL para usar en el frontend
+			const fileUrl = `file:///${imagePath.replace(/\\/g, '/')}`
+
+			return { ok: true, path: fileUrl, exists: fs.existsSync(imagePath) }
 		} catch (error) {
 			return { ok: false, error: error.message }
 		}
@@ -60,7 +77,7 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 		return { ok: true, path: fullPath, fileName }
 	})
 
-	// Copiar imagen seleccionada a assets/images/productos
+	// Copiar imagen seleccionada a data/images/productos (usando pathService)
 	ipcMain.handle(
 		'producto:copiar-imagen',
 		async (event, { sourcePath, fileName }) => {
@@ -68,10 +85,8 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 				if (!sourcePath)
 					return { ok: false, error: 'Ruta de origen no definida' }
 
-				const assetsDir = path.join(__dirname, '../../assets/images/productos')
-				if (!fs.existsSync(assetsDir)) {
-					fs.mkdirSync(assetsDir, { recursive: true })
-				}
+				// Usar pathService para obtener la ruta correcta
+				const assetsDir = pathService.getProductImagesPath()
 
 				const ext = path.extname(sourcePath) || path.extname(fileName || '')
 				const baseName = fileName

@@ -38,7 +38,6 @@ export function initUpdateProducto(productId = null) {
 					// Convertir decimal a porcentaje (0.21 -> 21)
 					const ivaPorcentaje = (res.data.ivaPredeterminado * 100).toFixed(2)
 					Tasas.value = ivaPorcentaje
-					console.log(`✓ IVA predeterminado cargado: ${ivaPorcentaje}%`)
 				}
 			} else {
 				// Fallback: cargar de localStorage
@@ -49,7 +48,7 @@ export function initUpdateProducto(productId = null) {
 				}
 			}
 		} catch (error) {
-			console.warn('No se pudo cargar IVA predeterminado:', error)
+			// Error silencioso al cargar IVA
 		}
 	}
 
@@ -125,7 +124,7 @@ export function initUpdateProducto(productId = null) {
 
 			agregarFotoRow(res.fileName, currentIndex, isPrincipal, false)
 		} catch (error) {
-			console.error('Error seleccionando imagen:', error)
+			// Error al seleccionar imagen
 		}
 	})
 
@@ -163,6 +162,9 @@ export function initUpdateProducto(productId = null) {
 
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
+		appModal.style.display = 'none'
+
+		// Actualizar contenido
 		document.getElementById('modalIcon').textContent = icono
 		document.getElementById('modalTitle').textContent = titulo
 		document.getElementById('modalMessage').textContent = mensaje
@@ -171,22 +173,20 @@ export function initUpdateProducto(productId = null) {
 			? 'bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
 			: 'bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105'
 
-		appModal.style.display = 'flex'
-
 		btnModalOk.onclick = () => {
 			appModal.style.display = 'none'
 		}
+
+		// Pequeño delay para asegurar que el DOM se actualiza antes de mostrar
+		setTimeout(() => {
+			appModal.style.display = 'flex'
+		}, 10)
 	}
 
 	// Cerrar modal al hacer clic fuera
 	appModal.addEventListener('click', (e) => {
 		if (e.target === appModal) appModal.style.display = 'none'
 	})
-
-	// 🔥 Cargar datos si se pasa un ID desde otra vista
-	if (currentProductId) {
-		cargarProductoPorID(currentProductId)
-	}
 
 	// 🔍 Buscar por Nro de Parte
 	btnBuscar.addEventListener('click', async () => {
@@ -374,14 +374,17 @@ export function initUpdateProducto(productId = null) {
 				fotos: fotosParaGuardar,
 			}
 
-			await window.api.producto.update(currentProductId, data)
+			const result = await window.api.producto.update(currentProductId, data)
 
-			mostrarModal('✅', 'Actualizado', 'Producto actualizado correctamente')
-			fotosSeleccionadas = []
-			fotosExistentes = []
+			if (result && result.ok) {
+				mostrarModal('✅', 'Actualizado', 'Producto actualizado correctamente')
+				fotosSeleccionadas = []
+				fotosExistentes = []
+			} else {
+				mostrarModal('❌', 'Error', `No se pudo actualizar el producto`, true)
+			}
 		} catch (err) {
 			mostrarModal('❌', 'Error', `No se pudo actualizar: ${err}`, true)
-			console.error(err)
 		}
 	})
 
@@ -414,11 +417,11 @@ export function initUpdateProducto(productId = null) {
 		fotosExistentes = []
 		fotoIndex = 0
 
-		// Rellenar campos básicos
+		// Llenar campos básicos del formulario
 		Descripcion.value = prod.Descripcion || ''
-		Cantidad.value = prod.Cantidad ?? 0
-		Precio.value = prod.Precio ?? 0
-		PrecioCosto.value = prod.precioCosto ?? 0
+		Cantidad.value = prod.Cantidad || 0
+		Precio.value = prod.Precio || 0
+		PrecioCosto.value = prod.precioCosto || 0
 		// Convertir decimal a porcentaje para mostrar (0.21 -> 21)
 		Tasas.value = prod.Tasas ? (prod.Tasas * 100).toFixed(2) : 21
 		EsOriginal.value = prod.esOriginal ?? 1
@@ -434,7 +437,6 @@ export function initUpdateProducto(productId = null) {
 			// Fallback para compatibilidad con productos antiguos
 			agregarNroParteRow(prod.NroParte, true)
 		}
-
 		// Cargar fotos existentes
 		if (prod.fotos && prod.fotos.length > 0) {
 			prod.fotos.forEach((foto, index) => {
@@ -463,5 +465,17 @@ export function initUpdateProducto(productId = null) {
 			fotosExistentes.push(prod.nombreImagen)
 			agregarFotoRow(prod.nombreImagen, currentIndex, true, true)
 		}
+	}
+
+	// Si se pasó un productId al inicializar, cargar el producto automáticamente
+	if (currentProductId) {
+		window.api.producto.getAll().then((productos) => {
+			const producto = productos.find((p) => p.id === currentProductId)
+			if (producto) {
+				fotosSeleccionadas = []
+				fotosExistentes = []
+				rellenarFormulario(producto)
+			}
+		})
 	}
 }

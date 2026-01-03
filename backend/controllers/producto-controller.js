@@ -371,12 +371,57 @@ module.exports = {
 				[`%${NroParte}%`, `%${Descripcion}%`, limite, offset],
 				(err, rows) => {
 					if (err) return callback(err)
-					callback(null, {
-						productos: rows,
-						total,
-						pagina,
-						limite,
-						totalPaginas: Math.ceil(total / limite),
+
+					// Si no hay productos, retornar resultado vacío
+					if (!rows || rows.length === 0) {
+						return callback(null, {
+							productos: [],
+							total,
+							pagina,
+							limite,
+							totalPaginas: Math.ceil(total / limite),
+						})
+					}
+
+					// Cargar números de parte y fotos para cada producto
+					let completed = 0
+					const productos = []
+
+					rows.forEach((producto) => {
+						// Obtener números de parte
+						db.all(
+							`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+							[producto.id],
+							(err, numerosParte) => {
+								if (err) return callback(err)
+
+								// Obtener fotos
+								db.all(
+									`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+									[producto.id],
+									(err, fotos) => {
+										if (err) return callback(err)
+
+										productos.push({
+											...producto,
+											numerosParte: numerosParte || [],
+											fotos: fotos || [],
+										})
+
+										completed++
+										if (completed === rows.length) {
+											callback(null, {
+												productos,
+												total,
+												pagina,
+												limite,
+												totalPaginas: Math.ceil(total / limite),
+											})
+										}
+									}
+								)
+							}
+						)
 					})
 				}
 			)

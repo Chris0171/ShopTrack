@@ -89,13 +89,14 @@ export function initProductList() {
 			return a.orden - b.orden
 		})
 
-		// Generar HTML para todas las fotos
+		// Generar HTML para todas las fotos con src vacío inicialmente
 		const thumbnails = fotosOrdenadas
 			.map((foto, index) => {
-				const imagePath = `./assets/images/productos/${foto.nombreImagen}`
 				const isPrincipal = foto.esPrincipal === 1
 				return `
-				<img data-foto-index="${index}" data-product-id="${id}" src="${imagePath}" alt="${
+				<img data-foto-index="${index}" data-product-id="${id}" data-foto-name="${
+					foto.nombreImagen
+				}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${
 					foto.nombreImagen
 				}" 
 					 class="product-thumb w-10 h-10 object-cover rounded border ${
@@ -109,10 +110,31 @@ export function initProductList() {
 			.join('')
 
 		return `
-			<div class="flex items-center justify-center gap-1 flex-wrap max-w-[120px]">
-				${thumbnails}
-			</div>
-		`
+		<div class="flex items-center justify-center gap-1 flex-wrap max-w-[120px]">
+			${thumbnails}
+		</div>
+	`
+	}
+
+	// Función auxiliar para cargar las rutas de las imágenes después del render
+	async function cargarRutasImagenes(fotos) {
+		for (const foto of fotos) {
+			try {
+				const result = await window.api.producto.getImagenPath(
+					foto.nombreImagen
+				)
+				if (result.ok && result.exists) {
+					const imgs = document.querySelectorAll(
+						`img[data-foto-name="${foto.nombreImagen}"]`
+					)
+					imgs.forEach((img) => {
+						img.src = result.path
+					})
+				}
+			} catch (error) {
+				// Error cargando ruta de imagen
+			}
+		}
 	}
 
 	function sortProductos(lista) {
@@ -148,11 +170,14 @@ export function initProductList() {
 	}
 
 	function showImageModal(nombreImagen) {
-		const imagePath = `./assets/images/productos/${nombreImagen}`
-		modalImage.src = imagePath
-		imageModal.style.display = 'flex'
+		// Usar IPC para obtener la ruta correcta
+		window.api.producto.getImagenPath(nombreImagen).then((result) => {
+			if (result.ok && result.exists) {
+				modalImage.src = result.path
+				imageModal.style.display = 'flex'
+			}
+		})
 	}
-
 	function hideImageModal() {
 		imageModal.style.display = 'none'
 		modalImage.src = ''
@@ -167,7 +192,6 @@ export function initProductList() {
 					cargarProductos()
 				})
 				.catch((err) => {
-					console.error(err)
 					showModal('❌', 'Error', t('products.list.deleteError'))
 				})
 		} else {
@@ -269,6 +293,29 @@ export function initProductList() {
 
 			tablaBody.appendChild(tr)
 
+			// Cargar rutas de imágenes después de agregar al DOM
+			if (p.fotos && p.fotos.length > 0) {
+				cargarRutasImagenes(p.fotos)
+				// Manejador para todas las miniaturas del producto (delegación de eventos)
+				const productThumbs = document.querySelectorAll(
+					`img.product-thumb[data-product-id="${p.id}"]`
+				)
+				productThumbs.forEach((thumb) => {
+					thumb.addEventListener('click', () => {
+						const fotoIndex = parseInt(thumb.dataset.fotoIndex)
+						if (p.fotos && p.fotos[fotoIndex]) {
+							// Ordenar fotos igual que en renderImagen
+							const fotosOrdenadas = [...p.fotos].sort((a, b) => {
+								if (a.esPrincipal !== b.esPrincipal) {
+									return b.esPrincipal - a.esPrincipal
+								}
+								return a.orden - b.orden
+							})
+							showImageModal(fotosOrdenadas[fotoIndex].nombreImagen)
+						}
+					})
+				})
+			}
 			const btnUpdate = document.getElementById(`btn_upd_${p.id}`)
 			if (btnUpdate) {
 				btnUpdate.textContent = t('common.edit')
@@ -277,26 +324,6 @@ export function initProductList() {
 					initUpdateProducto(p.id)
 				})
 			}
-
-			// Manejador para todas las miniaturas del producto (delegación de eventos)
-			const productThumbs = document.querySelectorAll(
-				`img.product-thumb[data-product-id="${p.id}"]`
-			)
-			productThumbs.forEach((thumb) => {
-				thumb.addEventListener('click', () => {
-					const fotoIndex = parseInt(thumb.dataset.fotoIndex)
-					if (p.fotos && p.fotos[fotoIndex]) {
-						// Ordenar fotos igual que en renderImagen
-						const fotosOrdenadas = [...p.fotos].sort((a, b) => {
-							if (a.esPrincipal !== b.esPrincipal) {
-								return b.esPrincipal - a.esPrincipal
-							}
-							return a.orden - b.orden
-						})
-						showImageModal(fotosOrdenadas[fotoIndex].nombreImagen)
-					}
-				})
-			})
 
 			const btnDelete = document.getElementById(`btn_del_${p.id}`)
 			if (btnDelete) {
@@ -317,9 +344,6 @@ export function initProductList() {
 
 		// Actualizar número de página
 		paginaActualSpan.textContent = formatPageLabel(pagina, totalPaginas)
-
-		// Mostrar u ocultar botones de paginación
-		prevPageBtn.style.display = pagina > 1 ? 'inline-block' : 'none'
 		nextPageBtn.style.display = pagina < totalPaginas ? 'inline-block' : 'none'
 	}
 

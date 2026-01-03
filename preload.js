@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld('api', {
 		seleccionarImagen: () => ipcRenderer.invoke('producto:seleccionar-imagen'),
 		copiarImagen: (payload) =>
 			ipcRenderer.invoke('producto:copiar-imagen', payload),
+		getImagenPath: (nombreImagen) =>
+			ipcRenderer.invoke('producto:get-imagen-path', nombreImagen),
 	},
 
 	cliente: {
