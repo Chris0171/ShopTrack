@@ -48,6 +48,8 @@
 			"original": "Original",
 			"copy": "Copy",
 			"noProducts": "No products to display",
+			"loading": "Loading products...",
+			"loadError": "Error loading products",
 			"filter": "Filter",
 			"clearFilters": "Clear",
 			"previous": "Previous",

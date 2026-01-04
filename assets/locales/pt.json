@@ -48,6 +48,8 @@
 			"original": "Original",
 			"copy": "Cópia",
 			"noProducts": "Não há produtos para exibir",
+			"loading": "Carregando produtos...",
+			"loadError": "Erro ao carregar produtos",
 			"filter": "Filtrar",
 			"clearFilters": "Limpar",
 			"previous": "Anterior",
