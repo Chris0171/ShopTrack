@@ -1,4 +1,12 @@
 export function initUpdateProducto(productId = null) {
+	// Constantes de configuración
+	const CONFIG = {
+		IVA_DEFAULT_FALLBACK: 0.21, // Solo usado si no se puede leer de config.json
+		MODAL_TIMEOUT: 100,
+		FADE_DURATION: 150,
+		FADE_IN_DELAY: 20,
+	}
+
 	const inputBuscar = document.getElementById('buscarNroParte')
 	const btnBuscar = document.getElementById('btnBuscar')
 	const form = document.getElementById('formUpdate')
@@ -25,6 +33,7 @@ export function initUpdateProducto(productId = null) {
 	let fotoIndex = 0
 	let fotosSeleccionadas = [] // Array de { fileName, sourcePath, index, isExisting }
 	let fotosExistentes = [] // Para rastrear fotos que ya estaban en la BD
+	let modalTimeout = null // Control de timeout del modal
 
 	// Cargar IVA predeterminado desde configuración (solo si no hay producto cargado)
 	async function cargarIVAPredeterminadoSiVacio() {
@@ -35,15 +44,21 @@ export function initUpdateProducto(productId = null) {
 			if (window.api?.config?.get) {
 				const res = await window.api.config.get()
 				if (res.ok && res.data.ivaPredeterminado !== undefined) {
-					// Convertir decimal a porcentaje (0.21 -> 21)
-					const ivaPorcentaje = (res.data.ivaPredeterminado * 100).toFixed(2)
+					// Normalizar: si es > 1 ya está en porcentaje, si no convertir
+					const valorIva = res.data.ivaPredeterminado
+					const ivaPorcentaje = (
+						valorIva > 1 ? valorIva : valorIva * 100
+					).toFixed(2)
 					Tasas.value = ivaPorcentaje
 				}
 			} else {
 				// Fallback: cargar de localStorage
 				const config = JSON.parse(localStorage.getItem('appConfig') || '{}')
 				if (config.ivaPredeterminado !== undefined) {
-					const ivaPorcentaje = (config.ivaPredeterminado * 100).toFixed(2)
+					const valorIva = config.ivaPredeterminado
+					const ivaPorcentaje = (
+						valorIva > 1 ? valorIva : valorIva * 100
+					).toFixed(2)
 					Tasas.value = ivaPorcentaje
 				}
 			}
@@ -58,9 +73,7 @@ export function initUpdateProducto(productId = null) {
 	}
 
 	// Agregar número de parte
-	btnAddNroParte.replaceWith(btnAddNroParte.cloneNode(true))
-	const newBtnAddNroParte = document.getElementById('btn-add-nroParte')
-	newBtnAddNroParte.addEventListener('click', () => {
+	btnAddNroParte.addEventListener('click', () => {
 		agregarNroParteRow()
 	})
 
@@ -84,7 +97,16 @@ export function initUpdateProducto(productId = null) {
 
 		// Evento para eliminar
 		row.querySelector('.btn-remove-nroParte').addEventListener('click', () => {
+			const wasChecked = row.querySelector('.nroParte-radio').checked
 			row.remove()
+
+			// Si se eliminó el principal, marcar el primero como principal
+			if (wasChecked) {
+				const firstRadio =
+					numerosParteContainer.querySelector('.nroParte-radio')
+				if (firstRadio) firstRadio.checked = true
+			}
+
 			actualizarBotonesEliminarNroParte()
 		})
 
@@ -105,9 +127,7 @@ export function initUpdateProducto(productId = null) {
 	}
 
 	// Agregar foto
-	btnAddFoto.replaceWith(btnAddFoto.cloneNode(true))
-	const newBtnAddFoto = document.getElementById('btn-add-foto')
-	newBtnAddFoto.addEventListener('click', async () => {
+	btnAddFoto.addEventListener('click', async () => {
 		try {
 			const res = await window.api.producto.seleccionarImagen()
 			if (!res || !res.ok || res.canceled) return
@@ -124,7 +144,13 @@ export function initUpdateProducto(productId = null) {
 
 			agregarFotoRow(res.fileName, currentIndex, isPrincipal, false)
 		} catch (error) {
-			// Error al seleccionar imagen
+			console.error('Error al seleccionar imagen:', error)
+			mostrarModal(
+				'❌',
+				'Error',
+				'No se pudo seleccionar la imagen. Intenta nuevamente.',
+				true
+			)
 		}
 	})
 
@@ -162,6 +188,12 @@ export function initUpdateProducto(productId = null) {
 
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
+		// Cancelar timeout pendiente para prevenir race conditions
+		if (modalTimeout) {
+			clearTimeout(modalTimeout)
+			modalTimeout = null
+		}
+
 		// Si el modal ya está visible, ocultarlo primero completamente
 		const yaVisible = appModal.style.display === 'flex'
 
@@ -170,7 +202,7 @@ export function initUpdateProducto(productId = null) {
 		appModal.style.opacity = '0'
 
 		// Esperar a que el navegador renderice el cambio
-		setTimeout(
+		modalTimeout = setTimeout(
 			() => {
 				// Actualizar contenido mientras está oculto
 				document.getElementById('modalIcon').textContent = icono
@@ -185,7 +217,7 @@ export function initUpdateProducto(productId = null) {
 					appModal.style.opacity = '0'
 					setTimeout(() => {
 						appModal.style.display = 'none'
-					}, 150)
+					}, CONFIG.FADE_DURATION)
 				}
 
 				// Mostrar el modal con el nuevo contenido
@@ -195,9 +227,11 @@ export function initUpdateProducto(productId = null) {
 				// Fade in suave
 				setTimeout(() => {
 					appModal.style.opacity = '1'
-				}, 20)
+				}, CONFIG.FADE_IN_DELAY)
+
+				modalTimeout = null
 			},
-			yaVisible ? 100 : 20
+			yaVisible ? CONFIG.MODAL_TIMEOUT : CONFIG.FADE_IN_DELAY
 		)
 	}
 
@@ -266,12 +300,36 @@ export function initUpdateProducto(productId = null) {
 		const cantidad = parseInt(Cantidad.value) || 0
 		const precio = parseFloat(Precio.value) || 0
 		const precioCosto = parseFloat(PrecioCosto.value) || 0
-		// Convertir porcentaje a decimal (21 -> 0.21)
+		// Convertir porcentaje a decimal con validación (21 -> 0.21)
 		const tasasInput = parseFloat(Tasas.value)
-		const tasas = tasasInput ? tasasInput / 100 : 0.21
+		// Si el valor es > 1, asumimos que está en porcentaje y convertimos
+		const tasas = tasasInput
+			? tasasInput > 1
+				? tasasInput / 100
+				: tasasInput
+			: CONFIG.IVA_DEFAULT_FALLBACK
 		const esOriginal = parseInt(EsOriginal.value)
 
 		// Validaciones
+		// Verificar duplicados en números de parte
+		const valoresUnicos = new Set()
+		const hayDuplicados = numerosParte.some((np) => {
+			const valorNormalizado = np.NroParte.toLowerCase()
+			if (valoresUnicos.has(valorNormalizado)) return true
+			valoresUnicos.add(valorNormalizado)
+			return false
+		})
+
+		if (hayDuplicados) {
+			mostrarModal(
+				'❌',
+				'Números duplicados',
+				'Hay números de parte duplicados. Cada número debe ser único.',
+				true
+			)
+			return
+		}
+
 		if (numerosParte.length === 0) {
 			mostrarModal(
 				'❌',
@@ -316,6 +374,14 @@ export function initUpdateProducto(productId = null) {
 				true
 			)
 			return
+		}
+
+		// Indicador de carga
+		const btnSubmit = form.querySelector('button[type="submit"]')
+		const textoOriginal = btnSubmit?.textContent || 'Actualizar'
+		if (btnSubmit) {
+			btnSubmit.disabled = true
+			btnSubmit.textContent = '⏳ Guardando...'
 		}
 
 		try {
@@ -402,13 +468,40 @@ export function initUpdateProducto(productId = null) {
 				mostrarModal('❌', 'Error', `No se pudo actualizar el producto`, true)
 			}
 		} catch (err) {
-			mostrarModal('❌', 'Error', `No se pudo actualizar: ${err}`, true)
+			console.error('Error al actualizar producto:', err)
+			mostrarModal(
+				'❌',
+				'Error',
+				`No se pudo actualizar: ${err.message || err}`,
+				true
+			)
+		} finally {
+			// Re-habilitar botón submit
+			if (btnSubmit) {
+				btnSubmit.disabled = false
+				btnSubmit.textContent = textoOriginal
+			}
 		}
 	})
 
 	// Limpiar formulario
 	btnLimpiar.addEventListener('click', () => {
+		// Verificar si hay datos en el formulario
+		const hayDatos =
+			Descripcion.value.trim() ||
+			numerosParteContainer.children.length > 0 ||
+			fotosSeleccionadas.length > 0 ||
+			currentProductId !== null
+
+		if (hayDatos) {
+			const confirmar = confirm(
+				'¿Está seguro de limpiar el formulario? Se perderán todos los cambios no guardados.'
+			)
+			if (!confirmar) return
+		}
+
 		form.reset()
+		Tasas.value = '' // Forzar limpieza del campo IVA
 		numerosParteContainer.innerHTML = ''
 		fotosContainer.innerHTML = ''
 		fotosSeleccionadas = []
@@ -440,8 +533,15 @@ export function initUpdateProducto(productId = null) {
 		Cantidad.value = prod.Cantidad || 0
 		Precio.value = prod.Precio || 0
 		PrecioCosto.value = prod.precioCosto || 0
-		// Convertir decimal a porcentaje para mostrar (0.21 -> 21)
-		Tasas.value = prod.Tasas ? (prod.Tasas * 100).toFixed(2) : 21
+		// Normalizar tasas: si es > 1 ya está en porcentaje, si no convertir
+		if (prod.Tasas !== undefined && prod.Tasas !== null) {
+			const valorTasas = parseFloat(prod.Tasas)
+			Tasas.value = (valorTasas > 1 ? valorTasas : valorTasas * 100).toFixed(2)
+		} else {
+			// Si no hay tasas en el producto, cargar desde configuración
+			Tasas.value = ''
+			cargarIVAPredeterminadoSiVacio()
+		}
 		EsOriginal.value = prod.esOriginal ?? 1
 
 		// Cargar números de parte
