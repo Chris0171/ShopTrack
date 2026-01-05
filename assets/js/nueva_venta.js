@@ -99,9 +99,10 @@ export function initNuevaVenta() {
 		})
 	}
 
-	function showImageModal(nombreImagen) {
+	async function showImageModal(nombreImagen) {
 		if (!nombreImagen) return
-		modalImage.src = `./assets/images/productos/${nombreImagen}`
+		const rutaImagen = await window.api.producto.getImagenPath(nombreImagen)
+		modalImage.src = rutaImagen
 		imageModal.style.display = 'flex'
 	}
 
@@ -217,15 +218,39 @@ export function initNuevaVenta() {
 			}
 			existente.cantidad++
 		} else {
+			// Obtener número de parte principal y foto principal
+			const numerosParte = Array.isArray(producto.numerosParte)
+				? producto.numerosParte
+				: producto.NroParte
+				? [producto.NroParte]
+				: []
+			const nroPartePrincipal =
+				numerosParte.find((np) => np.esPrincipal)?.numero ||
+				numerosParte[0]?.numero ||
+				producto.NroParte ||
+				'N/A'
+
+			const fotos = Array.isArray(producto.fotos)
+				? producto.fotos
+				: producto.nombreImagen
+				? [{ nombre: producto.nombreImagen, esPrincipal: true }]
+				: []
+			const fotoPrincipal =
+				fotos.find((f) => f.esPrincipal)?.nombre ||
+				fotos[0]?.nombre ||
+				producto.nombreImagen ||
+				null
+
 			productosVenta.push({
 				id: producto.id,
-				NroParte: producto.NroParte,
+				NroParte: nroPartePrincipal,
 				Descripcion: producto.Descripcion ?? 'Sin descripción',
 				precio: producto.Precio,
 				tasa: producto.Tasas,
 				cantidad: 1,
 				stockActual: producto.Cantidad,
-				nombreImagen: producto.nombreImagen || null,
+				nombreImagen: fotoPrincipal,
+				todasLasFotos: fotos,
 			})
 		}
 
@@ -234,7 +259,7 @@ export function initNuevaVenta() {
 	}
 
 	// RENDER TABLA PRODUCTOS
-	function renderTabla() {
+	async function renderTabla() {
 		tablaVenta.innerHTML = ''
 
 		if (productosVenta.length === 0) {
@@ -247,16 +272,23 @@ export function initNuevaVenta() {
 			return
 		}
 
+		// Cargar todas las rutas de imágenes en paralelo
+		const imagenesPromises = productosVenta.map((p) =>
+			p.nombreImagen
+				? window.api.producto.getImagenPath(p.nombreImagen)
+				: Promise.resolve(null)
+		)
+		const rutasImagenes = await Promise.all(imagenesPromises)
+
 		productosVenta.forEach((p, index) => {
 			const tr = document.createElement('tr')
 			tr.className = 'hover:bg-gray-50'
+			tr.dataset.index = index
 			const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
 
-			const imagePath = p.nombreImagen
-				? `./assets/images/productos/${p.nombreImagen}`
-				: null
+			const imagePath = rutasImagenes[index]
 			const imagenHtml = imagePath
-				? `<img id="venta_img_${p.id}" src="${imagePath}" alt="${p.NroParte}" class="w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
+				? `<img data-imagen="${p.nombreImagen}" src="${imagePath}" alt="${p.NroParte}" class="producto-imagen w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
 				: '<span class="text-gray-400 text-xs">Sin imagen</span>'
 
 			tr.innerHTML = `
@@ -283,42 +315,61 @@ export function initNuevaVenta() {
 				</td>
 			`
 
-			const thumbImg = tr.querySelector(`#venta_img_${p.id}`)
-			if (thumbImg && p.nombreImagen) {
-				thumbImg.addEventListener('click', () => {
-					showImageModal(p.nombreImagen)
-				})
-			}
-
-			// Event listeners seguros
-			tr.querySelector('.btn-eliminar').addEventListener('click', () => {
-				productosVenta.splice(index, 1)
-				renderTabla()
-				actualizarTotales()
-			})
-
-			tr.querySelector('.cantidad-input').addEventListener(
-				'change',
-				async (e) => {
-					const nuevaCantidad = parseInt(e.target.value)
-					if (nuevaCantidad > p.stockActual) {
-						await showModalInfo(
-							`Stock insuficiente. Solo hay ${p.stockActual} unidades disponibles.`,
-							'Stock insuficiente',
-							'warning'
-						)
-						renderTabla()
-						return
-					}
-					productosVenta[index].cantidad = nuevaCantidad
-					renderTabla()
-					actualizarTotales()
-				}
-			)
-
 			tablaVenta.appendChild(tr)
 		})
 	}
+
+	// Delegación de eventos para la tabla (elimina memory leaks)
+	tablaVenta.addEventListener('click', async (e) => {
+		const target = e.target
+
+		// Clic en imagen de producto
+		if (target.classList.contains('producto-imagen')) {
+			const nombreImagen = target.dataset.imagen
+			if (nombreImagen) {
+				await showImageModal(nombreImagen)
+			}
+			return
+		}
+
+		// Clic en botón eliminar
+		if (
+			target.classList.contains('btn-eliminar') ||
+			target.closest('.btn-eliminar')
+		) {
+			const btn = target.closest('.btn-eliminar') || target
+			const tr = btn.closest('tr')
+			const index = parseInt(tr.dataset.index)
+			productosVenta.splice(index, 1)
+			await renderTabla()
+			actualizarTotales()
+			return
+		}
+	})
+
+	// Delegación de eventos para inputs de cantidad
+	tablaVenta.addEventListener('change', async (e) => {
+		if (e.target.classList.contains('cantidad-input')) {
+			const tr = e.target.closest('tr')
+			const index = parseInt(tr.dataset.index)
+			const p = productosVenta[index]
+			const nuevaCantidad = parseInt(e.target.value)
+
+			if (nuevaCantidad > p.stockActual) {
+				await showModalInfo(
+					`Stock insuficiente. Solo hay ${p.stockActual} unidades disponibles.`,
+					'Stock insuficiente',
+					'warning'
+				)
+				await renderTabla()
+				return
+			}
+
+			productosVenta[index].cantidad = nuevaCantidad
+			await renderTabla()
+			actualizarTotales()
+		}
+	})
 
 	// CALCULAR TOTALES
 	function actualizarTotales() {
