@@ -167,6 +167,18 @@ export function initNuevaVenta() {
 	}
 	cargarTodo()
 	cargarClientes()
+	cargarNumeroFactura()
+
+	// Cargar número de factura automático
+	async function cargarNumeroFactura() {
+		const resultado = await window.api.factura.generateNumero()
+		if (resultado.ok) {
+			numeroFactura.value = resultado.numeroFactura
+		} else {
+			console.error('Error al generar número de factura:', resultado.error)
+			numeroFactura.value = 'FAC-ERROR-0000'
+		}
+	}
 
 	// Event listener para descuento
 	descuentoInput.addEventListener('change', () => {
@@ -414,11 +426,6 @@ export function initNuevaVenta() {
 			return
 		}
 
-		if (!numeroFactura.value.trim()) {
-			await showModalInfo('Debe ingresar un número de factura.', 'Aviso')
-			return
-		}
-
 		// Confirmación antes de generar factura
 		const confirmar = await showModalConfirm(
 			'¿Deseas generar la factura con los datos ingresados?',
@@ -526,8 +533,9 @@ export function initNuevaVenta() {
 		clienteDireccion.value = ''
 		descuentoInput.value = ''
 		motivoDescuentoInput.value = ''
-		numeroFactura.value = ''
 		observaciones.value = ''
+		// Generar nuevo número de factura para siguiente venta
+		await cargarNumeroFactura()
 
 		// Rehabilitar botón
 		btnFinalizarVenta.disabled = false

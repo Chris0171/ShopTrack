@@ -53,8 +53,8 @@ class PDFService {
 				// Obtener directorio de facturas desde pathService
 				const dirFacturas = pathService.getInvoicesPath()
 
-				// Crear nombre de archivo
-				const nombreArchivo = `Factura_${datos.numeroFactura}_${Date.now()}.pdf`
+				// Crear nombre de archivo usando el número de factura
+				const nombreArchivo = `${datos.numeroFactura}.pdf`
 				const rutaArchivo = pathService.getInvoicePath(nombreArchivo)
 
 				// Crear documento

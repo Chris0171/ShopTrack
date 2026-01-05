@@ -158,10 +158,10 @@
 
       <div>
         <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.invoice.invoiceNumber">Número de Factura
-          *</label>
-        <input id="numeroFactura" type="text" placeholder="Ej: F-2025-001"
-          data-i18n="[placeholder]sales.new.invoice.placeholderInvoiceNumber"
-          class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+          <span class="text-green-600 text-sm font-normal">(Generado automáticamente)</span></label>
+        <input id="numeroFactura" type="text" readonly placeholder="Se generará automáticamente..."
+          class="w-full border-2 border-gray-300 p-3 rounded-lg bg-gray-50 text-gray-700 font-semibold cursor-not-allowed">
+        <p class="text-xs text-gray-500 mt-1">📋 Formato: FAC-YYYYMMDD-####</p>
       </div>
 
       <div class="md:col-span-2">

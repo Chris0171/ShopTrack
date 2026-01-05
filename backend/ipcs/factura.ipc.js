@@ -8,6 +8,15 @@ const fs = require('fs')
 const path = require('path')
 
 module.exports = function registerFacturaIPC(ipcMain) {
+	ipcMain.handle('factura:generateNumero', async () => {
+		return new Promise((resolve) => {
+			facturaController.generateNumeroFactura((err, numero) => {
+				if (err) resolve({ ok: false, error: err.message })
+				else resolve({ ok: true, numeroFactura: numero })
+			})
+		})
+	})
+
 	ipcMain.handle('factura:create', async (event, data) => {
 		return new Promise((resolve) => {
 			facturaController.create(data, (err, result) => {

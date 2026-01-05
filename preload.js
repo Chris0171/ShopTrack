@@ -70,6 +70,7 @@ contextBridge.exposeInMainWorld('api', {
 		generarPDF: (datos) => ipcRenderer.invoke('factura:generarPDF', datos),
 		generatePDF: (idVenta) =>
 			ipcRenderer.invoke('factura:generatePDF', idVenta),
+		generateNumero: () => ipcRenderer.invoke('factura:generateNumero'),
 	},
 
 	general: {

@@ -1,6 +1,34 @@
 const db = require('../db/initDatabase')
 
 module.exports = {
+	// 🔹 Generar número de factura automático
+	generateNumeroFactura: function (callback) {
+		const hoy = new Date().toISOString().split('T')[0].replace(/-/g, '') // YYYYMMDD
+		const prefijo = `FAC-${hoy}-`
+
+		const sql = `
+            SELECT numeroFactura 
+            FROM Factura 
+            WHERE numeroFactura LIKE ? 
+            ORDER BY numeroFactura DESC 
+            LIMIT 1
+        `
+
+		db.get(sql, [`${prefijo}%`], (err, row) => {
+			if (err) return callback(err)
+
+			let nuevoNumero
+			if (!row) {
+				nuevoNumero = `${prefijo}0001`
+			} else {
+				const ultimoNumero = parseInt(row.numeroFactura.split('-')[2])
+				nuevoNumero = `${prefijo}${String(ultimoNumero + 1).padStart(4, '0')}`
+			}
+
+			callback(null, nuevoNumero)
+		})
+	},
+
 	// 🔹 Obtener todas las facturas
 	getAll: function (callback) {
 		const sql = `
@@ -30,44 +58,49 @@ module.exports = {
 		},
 		callback
 	) {
-		if (
-			!idVenta ||
-			!numeroFactura ||
-			subtotal == null ||
-			impuestos == null ||
-			total == null
-		) {
+		if (!idVenta || subtotal == null || impuestos == null || total == null) {
 			return callback(
-				new Error(
-					'idVenta, numeroFactura, subtotal, impuestos y total son obligatorios'
-				)
+				new Error('idVenta, subtotal, impuestos y total son obligatorios')
 			)
 		}
 
-		const sql = `
-            INSERT INTO Factura 
-            (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado, rutaPDF)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `
-		const stmt = db.prepare(sql)
-		stmt.run(
-			[
-				idVenta,
-				numeroFactura,
-				subtotal,
-				impuestos,
-				total,
-				metodoPago,
-				observaciones,
-				estado,
-				rutaPDF,
-			],
-			function (err) {
+		// Generar numeroFactura si no se proporciona
+		const procesarCreacion = (numFacturaFinal) => {
+			const sql = `
+                INSERT INTO Factura 
+                (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado, rutaPDF)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `
+			const stmt = db.prepare(sql)
+			stmt.run(
+				[
+					idVenta,
+					numFacturaFinal,
+					subtotal,
+					impuestos,
+					total,
+					metodoPago,
+					observaciones,
+					estado,
+					rutaPDF,
+				],
+				function (err) {
+					if (err) return callback(err)
+					callback(null, { id: this.lastID, numeroFactura: numFacturaFinal })
+				}
+			)
+			stmt.finalize()
+		}
+
+		if (!numeroFactura) {
+			// Generar número automáticamente
+			module.exports.generateNumeroFactura((err, nuevoNumero) => {
 				if (err) return callback(err)
-				callback(null, { id: this.lastID })
-			}
-		)
-		stmt.finalize()
+				procesarCreacion(nuevoNumero)
+			})
+		} else {
+			procesarCreacion(numeroFactura)
+		}
 	},
 
 	// 🔹 Actualizar factura
