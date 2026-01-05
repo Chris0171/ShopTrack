@@ -45,6 +45,16 @@ module.exports = function registerProductoIPC(ipcMain) {
 			})
 		})
 	})
+
+	ipcMain.handle('producto:buscar-productos', async (event, texto) => {
+		return new Promise((resolve, reject) => {
+			productoController.buscarProductos(texto, (err, productos) => {
+				if (err) return reject(err.message)
+				resolve(productos)
+			})
+		})
+	})
+
 	ipcMain.handle(
 		'producto:actualizar-stock',
 		async (event, idProducto, nuevaCantidad) => {

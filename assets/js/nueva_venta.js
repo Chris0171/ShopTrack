@@ -4,7 +4,13 @@ export function initNuevaVenta() {
 	let ventaActual = null // Almacenar datos de la venta actual
 
 	const buscarInput = document.getElementById('buscarInput')
+	const autocompleteDropdown = document.getElementById('autocompleteDropdown')
 	const tablaVenta = document.getElementById('tablaVenta')
+
+	// Estado del autocompletado
+	let productosSugeridos = []
+	let selectedIndex = -1
+	let searchTimeout = null
 
 	const clienteSelect = document.getElementById('clienteSelect')
 	const clienteNombre = document.getElementById('clienteNombre')
@@ -185,24 +191,170 @@ export function initNuevaVenta() {
 		actualizarTotales()
 	})
 
-	// BUSCADOR DE PRODUCTOS
-	buscarInput.addEventListener('keydown', async (e) => {
-		if (e.key === 'Enter') {
-			const nroParte = buscarInput.value.trim()
-			if (!nroParte) return
+	// BUSCADOR DE PRODUCTOS con autocompletado
+	buscarInput.addEventListener('input', async (e) => {
+		const texto = e.target.value.trim()
 
-			const producto = await window.api.producto.buscarProducto(nroParte)
+		// Limpiar timeout anterior
+		if (searchTimeout) clearTimeout(searchTimeout)
 
-			if (!producto) {
-				await showModalInfo('Producto no encontrado', 'Aviso')
-				buscarInput.focus()
-				return
+		if (texto.length === 0) {
+			ocultarDropdown()
+			return
+		}
+
+		// Debounce: esperar 300ms antes de buscar
+		searchTimeout = setTimeout(async () => {
+			try {
+				const productos = await window.api.producto.buscarProductos(texto)
+
+				if (productos.length === 0) {
+					ocultarDropdown()
+					return
+				}
+
+				productosSugeridos = productos
+				selectedIndex = -1
+				mostrarDropdown()
+			} catch (error) {
+				console.error('Error buscando productos:', error)
+				ocultarDropdown()
 			}
+		}, 300)
+	})
 
-			await agregarProducto(producto)
-			buscarInput.value = ''
+	buscarInput.addEventListener('keydown', async (e) => {
+		if (e.key === 'ArrowDown') {
+			e.preventDefault()
+			if (productosSugeridos.length > 0) {
+				selectedIndex = Math.min(
+					selectedIndex + 1,
+					productosSugeridos.length - 1
+				)
+				actualizarSeleccion()
+			}
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault()
+			if (productosSugeridos.length > 0) {
+				selectedIndex = Math.max(selectedIndex - 1, -1)
+				actualizarSeleccion()
+			}
+		} else if (e.key === 'Enter') {
+			e.preventDefault()
+
+			if (selectedIndex >= 0 && productosSugeridos[selectedIndex]) {
+				// Agregar producto seleccionado del dropdown
+				await agregarProducto(productosSugeridos[selectedIndex])
+				buscarInput.value = ''
+				ocultarDropdown()
+			} else {
+				// Buscar por número exacto (comportamiento legacy)
+				const nroParte = buscarInput.value.trim()
+				if (!nroParte) return
+
+				const producto = await window.api.producto.buscarProducto(nroParte)
+
+				if (!producto) {
+					await showModalInfo('Producto no encontrado', 'Aviso')
+					buscarInput.focus()
+					return
+				}
+
+				await agregarProducto(producto)
+				buscarInput.value = ''
+				ocultarDropdown()
+			}
+		} else if (e.key === 'Escape') {
+			ocultarDropdown()
 		}
 	})
+
+	// Cerrar dropdown al hacer clic fuera
+	document.addEventListener('click', (e) => {
+		if (
+			!buscarInput.contains(e.target) &&
+			!autocompleteDropdown.contains(e.target)
+		) {
+			ocultarDropdown()
+		}
+	})
+
+	async function mostrarDropdown() {
+		autocompleteDropdown.innerHTML = ''
+
+		for (const producto of productosSugeridos) {
+			const div = document.createElement('div')
+			div.className =
+				'px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-100 transition'
+			div.dataset.productId = producto.id
+
+			// Obtener número de parte principal
+			const numerosParte = Array.isArray(producto.numerosParte)
+				? producto.numerosParte
+				: []
+			const nroPartePrincipal =
+				numerosParte.find((np) => np.esPrincipal)?.nroParte ||
+				numerosParte[0]?.nroParte ||
+				producto.NroParte ||
+				'N/A'
+
+			const stockColor =
+				producto.Cantidad > 10
+					? 'text-green-600'
+					: producto.Cantidad > 0
+					? 'text-yellow-600'
+					: 'text-red-600'
+
+			div.innerHTML = `
+				<div class="flex items-center justify-between">
+					<div class="flex-1">
+						<span class="font-bold text-indigo-700">[${nroPartePrincipal}]</span>
+						<span class="text-gray-800 ml-2">${
+							producto.Descripcion || 'Sin descripción'
+						}</span>
+					</div>
+					<div class="flex items-center gap-4">
+						<span class="text-sm font-semibold ${stockColor}">Stock: ${
+				producto.Cantidad
+			}</span>
+						<span class="text-sm font-bold text-gray-700">$${producto.Precio.toFixed(
+							2
+						)}</span>
+					</div>
+				</div>
+			`
+
+			div.addEventListener('click', async () => {
+				await agregarProducto(producto)
+				buscarInput.value = ''
+				ocultarDropdown()
+			})
+
+			autocompleteDropdown.appendChild(div)
+		}
+
+		autocompleteDropdown.classList.remove('hidden')
+	}
+
+	function ocultarDropdown() {
+		autocompleteDropdown.classList.add('hidden')
+		productosSugeridos = []
+		selectedIndex = -1
+	}
+
+	function actualizarSeleccion() {
+		const items = autocompleteDropdown.querySelectorAll('div[data-product-id]')
+		items.forEach((item, index) => {
+			if (index === selectedIndex) {
+				item.classList.add('bg-indigo-100')
+				item.classList.remove('hover:bg-indigo-50')
+				item.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+			} else {
+				item.classList.remove('bg-indigo-100')
+				item.classList.add('hover:bg-indigo-50')
+			}
+		})
+	}
 
 	// AGREGAR PRODUCTO A LISTA
 	async function agregarProducto(producto) {

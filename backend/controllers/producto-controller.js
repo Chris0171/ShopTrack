@@ -337,6 +337,92 @@ module.exports = {
 			}
 		})
 	},
+
+	// 🔍 Buscar productos por texto (número de parte, descripción)
+	buscarProductos: function (texto, callback) {
+		if (!texto || texto.trim() === '') {
+			return callback(null, [])
+		}
+
+		const textoBusqueda = `%${texto}%`
+
+		// Buscar en múltiples campos: NroParte principal, Descripción, y números alternos
+		const sql = `
+			SELECT DISTINCT p.* 
+			FROM Producto p
+			LEFT JOIN ProductoNumerosParte pnp ON p.id = pnp.idProducto
+			WHERE p.activo = 1 
+				AND (
+					p.NroParte LIKE ? 
+					OR p.Descripcion LIKE ?
+					OR pnp.nroParte LIKE ?
+				)
+			ORDER BY 
+				CASE 
+					WHEN p.NroParte = ? THEN 1
+					WHEN p.NroParte LIKE ? THEN 2
+					WHEN p.Descripcion LIKE ? THEN 3
+					ELSE 4
+				END,
+				p.Cantidad DESC
+			LIMIT 10
+		`
+
+		db.all(
+			sql,
+			[
+				textoBusqueda,
+				textoBusqueda,
+				textoBusqueda,
+				texto,
+				`${texto}%`,
+				`%${texto}%`,
+			],
+			(err, rows) => {
+				if (err) return callback(err)
+
+				if (!rows || rows.length === 0) {
+					return callback(null, [])
+				}
+
+				// Cargar números de parte y fotos para cada producto
+				let completed = 0
+				const productos = []
+
+				rows.forEach((producto) => {
+					// Obtener números de parte
+					db.all(
+						`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+						[producto.id],
+						(err, numerosParte) => {
+							if (err) return callback(err)
+
+							// Obtener fotos
+							db.all(
+								`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+								[producto.id],
+								(err, fotos) => {
+									if (err) return callback(err)
+
+									productos.push({
+										...producto,
+										numerosParte: numerosParte || [],
+										fotos: fotos || [],
+									})
+
+									completed++
+									if (completed === rows.length) {
+										callback(null, productos)
+									}
+								}
+							)
+						}
+					)
+				})
+			}
+		)
+	},
+
 	// 🔥 Actualizar solo el stock de un producto
 	actualizarStock: function (idProducto, nuevaCantidad, callback) {
 		const sql = `UPDATE Producto SET Cantidad = ? WHERE id = ?`
