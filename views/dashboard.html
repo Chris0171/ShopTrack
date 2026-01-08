@@ -6,10 +6,15 @@
       <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
         <div id="chartIngresos" class="chart-box w-full"></div>
         <div class="flex flex-col gap-4 w-full lg:w-auto justify-start">
-          <div class="flex flex-col gap-2 lg:gap-4">
-            <button id="btn7Dias" class="btn-periodo active" data-i18n="dashboard.last7Days">Últimos 7 días</button>
-            <button id="btn15Dias" class="btn-periodo" data-i18n="dashboard.last15Days">Últimos 15 días</button>
-            <button id="btn30Dias" class="btn-periodo" data-i18n="dashboard.last30Days">Últimos 30 días</button>
+          <!-- Botones de navegación para vista diaria (siempre ocupan espacio) -->
+          <div id="filtrosDiarios" class="flex flex-col gap-2 lg:gap-4" style="visibility: hidden;">
+            <button id="btnVolver" class="btn-periodo bg-gray-100 hover:bg-gray-200">
+              <i class="fas fa-arrow-left mr-2"></i>Volver
+            </button>
+            <div class="border-t border-gray-300 my-2"></div>
+            <button id="btn7Dias" class="btn-periodo">Primeros 7 días</button>
+            <button id="btn15Dias" class="btn-periodo">Primeros 15 días</button>
+            <button id="btnTodoMes" class="btn-periodo active">Todo el mes</button>
           </div>
         </div>
       </div>
@@ -59,16 +64,13 @@
       </div>
       <!-- Tarjeta 3: Promedio de ventas -->
       <div class="tarjetas p-4 md:p-5">
-        <h3 class="text-black text-base md:text-lg font-bold mb-3 md:mb-4" data-i18n="dashboard.avgSales">Promedio de
+        <h3 id="avgSalesTitle" class="text-black text-base md:text-lg font-bold mb-3 md:mb-4"
+          data-i18n="dashboard.avgSales">Promedio de
           Ventas</h3>
-        <div class="grid grid-cols-3 gap-2 md:gap-4 lg:gap-3">
+        <div class="grid grid-cols-2 gap-4 md:gap-6">
           <div>
             <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgDaily">Diario</p>
             <p id="avgDaily" class="text-base md:text-lg font-bold text-green-700">$0.00</p>
-          </div>
-          <div>
-            <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgWeekly">Semanal</p>
-            <p id="avgWeekly" class="text-base md:text-lg font-bold text-blue-700">$0.00</p>
           </div>
           <div>
             <p class="text-gray-700 font-semibold text-xs" data-i18n="dashboard.avgMonthly">Mensual</p>
@@ -87,35 +89,35 @@
       <div class="grid grid-cols-3 text-center gap-2 md:gap-4">
         <div class="border-r-2 border-gray-200 pr-2">
           <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.orders">Órdenes</p>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
+          <p id="ventasDiaOrdenes" class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
         </div>
         <div class="border-r-2 border-gray-200 pr-2">
           <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.products">Productos</p>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
+          <p id="ventasDiaProductos" class="text-2xl md:text-3xl font-bold text-gray-900">--</p>
         </div>
         <div>
           <p class="text-gray-600 text-xs md:text-sm font-semibold mb-1" data-i18n="dashboard.income">Ingreso</p>
-          <p class="text-2xl md:text-3xl font-bold text-gray-900">$0</p>
+          <p id="ventasDiaIngreso" class="text-2xl md:text-3xl font-bold text-gray-900">$0</p>
         </div>
       </div>
     </div>
     <!-- Tarjeta 2: Productos con stock bajo -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
       <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.lowStock">Stock Bajo</h3>
-      <p class="text-3xl md:text-4xl font-bold text-red-600">--</p>
+      <p id="stockBajo" class="text-3xl md:text-4xl font-bold text-red-600">--</p>
       <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.critical">productos críticos</p>
     </div>
     <!-- Tarjeta 3: Ingresos del período -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
       <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.periodIncome">Ingresos del
         Período</h3>
-      <p class="text-3xl md:text-4xl font-bold text-green-600">$0.00</p>
+      <p id="ingresosPeriodo" class="text-3xl md:text-4xl font-bold text-green-600">$0.00</p>
       <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.totalSales">total ventas</p>
     </div>
     <!-- Tarjeta 4: Total productos -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
       <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.inventory">Inventario</h3>
-      <p class="text-3xl md:text-4xl font-bold text-blue-600">--</p>
+      <p id="inventario" class="text-3xl md:text-4xl font-bold text-blue-600">--</p>
       <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.available">productos disponibles</p>
     </div>
   </div>
