@@ -471,9 +471,12 @@ export async function initDashboard() {
 			const tituloElement = document.getElementById('avgSalesTitle')
 			if (tituloElement) {
 				if (mesEspecifico) {
-					tituloElement.textContent = `Promedio de Ventas (${mesEspecifico.label})`
+					tituloElement.textContent = t('dashboard.avgSalesMonth').replace(
+						'{month}',
+						mesEspecifico.label
+					)
 				} else {
-					tituloElement.textContent = 'Promedio de Ventas (Últimos 30 días)'
+					tituloElement.textContent = t('dashboard.avgSalesLast30')
 				}
 			}
 
@@ -604,10 +607,7 @@ export async function initDashboard() {
 					const datos = ventasPorMes[mesKey]
 
 					if (!datos) {
-						return `<div>No hay datos disponibles</div>`
-					}
-
-					const ticketPromedio =
+					return `<div>${t('dashboard.noDataAvailable')}</div>`
 						datos.ordenes > 0 ? datos.ingresos / datos.ordenes : 0
 					const rentabilidad =
 						datos.costos > 0 ? (datos.beneficio / datos.costos) * 100 : 0
@@ -623,34 +623,25 @@ export async function initDashboard() {
 							const colorVariacion = variacion >= 0 ? '#22c55e' : '#ef4444'
 							const simbolo = variacion >= 0 ? '▲' : '▼'
 							variacionHTML = `<div style="margin-top:8px; color:${colorVariacion}">
-								${simbolo} ${Math.abs(variacion).toFixed(1)}% vs mes anterior
-							</div>`
-						}
-					}
-
-					return `
-						<div style="font-weight:bold; margin-bottom:10px; font-size:14px">${
-							params[0].axisValue
-						}</div>
-						<div style="line-height:1.8">
-							<div><span style="color:#6d3aef">●</span> <b>Ingresos:</b> ${formatCurrency(
-								datos.ingresos
-							)}</div>
-							<div><span style="color:#22c55e">●</span> <b>Beneficio:</b> ${formatCurrency(
-								datos.beneficio
-							)}</div>
-							<div><span style="color:#f59e0b">●</span> <b>Rentabilidad:</b> ${rentabilidad.toFixed(
-								1
-							)}%</div>
+							${simbolo} ${Math.abs(variacion).toFixed(1)}% ${t('dashboard.vsPreviousMonth')}
+							)}:</b> ${formatCurrency(datos.ingresos)}</div>
+							<div><span style="color:#22c55e">●</span> <b>${t(
+								'dashboard.beneficio'
+							)}:</b> ${formatCurrency(datos.beneficio)}</div>
+							<div><span style="color:#f59e0b">●</span> <b>${t(
+								'dashboard.rentabilidad'
+							)}:</b> ${rentabilidad.toFixed(1)}%</div>
 							<div style="margin-top:5px; padding-top:5px; border-top:1px solid #e5e7eb">
-								<div>📦 <b>Órdenes:</b> ${datos.ordenes}</div>
-								<div>🛒 <b>Productos:</b> ${datos.productos}</div>
-								<div>💵 <b>Ticket promedio:</b> ${formatCurrency(ticketPromedio)}</div>
+								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
+								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
+								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
+									ticketPromedio
+								)}</div>
 							</div>
 							${variacionHTML}
 						</div>
 						<div style="margin-top:10px; padding-top:8px; border-top:1px solid #e5e7eb; color:#6b7280; font-size:11px">
-							Click para ver detalle diario →
+							${t('dashboard.clickForDetail')}
 						</div>
 					`
 				},
@@ -678,7 +669,7 @@ export async function initDashboard() {
 			},
 			yAxis: {
 				type: 'value',
-				name: 'Ingresos ($)',
+				name: t('dashboard.incomeAxis'),
 				nameTextStyle: {
 					color: '#666',
 					fontSize: 12,
@@ -701,7 +692,7 @@ export async function initDashboard() {
 			},
 			series: [
 				{
-					name: 'Ingresos',
+					name: t('dashboard.ingresos'),
 					type: 'bar',
 					data: ingresos,
 					itemStyle: {
@@ -862,7 +853,9 @@ export async function initDashboard() {
 		}
 
 		const filtroTexto =
-			filtro === 'all' ? 'Todo el mes' : `Primeros ${filtro} días`
+			filtro === 'all'
+				? t('dashboard.wholeMonth')
+				: t('dashboard.firstDays').replace('{days}', filtro)
 
 		const option = {
 			title: {
@@ -891,7 +884,7 @@ export async function initDashboard() {
 					const datos = ventasPorDia[fecha]
 
 					if (!datos) {
-						return `<div>No hay datos disponibles</div>`
+						return `<div>${t('dashboard.noDataAvailable')}</div>`
 					}
 
 					const ticketPromedio =
@@ -912,26 +905,33 @@ export async function initDashboard() {
 					return `
 						<div style="font-weight:bold; margin-bottom:10px; font-size:14px; text-transform:capitalize">${fechaFormateada}</div>
 						<div style="line-height:1.8">
-							<div><span style="color:#6d3aef">●</span> <b>Ingresos:</b> ${formatCurrency(
-								datos.ingresos
-							)}</div>
-							<div><span style="color:#22c55e">●</span> <b>Beneficio:</b> ${formatCurrency(
-								datos.beneficio
-							)}</div>
-							<div><span style="color:#f59e0b">●</span> <b>Rentabilidad:</b> ${rentabilidad.toFixed(
-								1
-							)}%</div>
+							<div><span style="color:#6d3aef">●</span> <b>${t(
+								'dashboard.ingresos'
+							)}:</b> ${formatCurrency(datos.ingresos)}</div>
+							<div><span style="color:#22c55e">●</span> <b>${t(
+								'dashboard.beneficio'
+							)}:</b> ${formatCurrency(datos.beneficio)}</div>
+							<div><span style="color:#f59e0b">●</span> <b>${t(
+								'dashboard.rentabilidad'
+							)}:</b> ${rentabilidad.toFixed(1)}%</div>
 							<div style="margin-top:5px; padding-top:5px; border-top:1px solid #e5e7eb">
-								<div>📦 <b>Órdenes:</b> ${datos.ordenes}</div>
-								<div>🛒 <b>Productos:</b> ${datos.productos}</div>
-								<div>💵 <b>Ticket promedio:</b> ${formatCurrency(ticketPromedio)}</div>
+								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
+								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
+								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
+									ticketPromedio
+								)}</div>
 							</div>
 						</div>
 					`
 				},
 			},
 			legend: {
-				data: ['Ingresos', 'Beneficio', 'Órdenes', 'Promedio Móvil'],
+				data: [
+					t('dashboard.ingresos'),
+					t('dashboard.beneficio'),
+					t('dashboard.orders'),
+					t('dashboard.promedioMovil'),
+				],
 				top: 40,
 				textStyle: {
 					fontSize: 12,

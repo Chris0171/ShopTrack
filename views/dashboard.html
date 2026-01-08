@@ -9,12 +9,12 @@
           <!-- Botones de navegación para vista diaria (siempre ocupan espacio) -->
           <div id="filtrosDiarios" class="flex flex-col gap-2 lg:gap-4" style="visibility: hidden;">
             <button id="btnVolver" class="btn-periodo bg-gray-100 hover:bg-gray-200">
-              <i class="fas fa-arrow-left mr-2"></i>Volver
+              <i class="fas fa-arrow-left mr-2"></i><span data-i18n="dashboard.btnBack">Volver</span>
             </button>
             <div class="border-t border-gray-300 my-2"></div>
-            <button id="btn7Dias" class="btn-periodo">Primeros 7 días</button>
-            <button id="btn15Dias" class="btn-periodo">Primeros 15 días</button>
-            <button id="btnTodoMes" class="btn-periodo active">Todo el mes</button>
+            <button id="btn7Dias" class="btn-periodo" data-i18n="dashboard.first7Days">Primeros 7 días</button>
+            <button id="btn15Dias" class="btn-periodo" data-i18n="dashboard.first15Days">Primeros 15 días</button>
+            <button id="btnTodoMes" class="btn-periodo active" data-i18n="dashboard.wholeMonth">Todo el mes</button>
           </div>
         </div>
       </div>
