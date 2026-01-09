@@ -141,7 +141,14 @@
 		"noDataAvailable": "No data available",
 		"clickForDetail": "Click for daily detail →",
 		"vsPreviousMonth": "vs previous month",
-		"incomeAxis": "Revenue ($)"
+		"incomeAxis": "Revenue ($)",
+		"unknown": "Unknown",
+		"errorLoadingData": "Error loading data",
+		"retry": "Retry",
+		"errorLoadingDashboard": "Error loading dashboard data. Please try again.",
+		"monthlyChartTitle": "Revenue by Month (Last 12 Months)",
+		"incomeAndProfitAxis": "Revenue/Profit ($)",
+		"ordersAxis": "Orders"
 	},
 	"sales": {
 		"new": {

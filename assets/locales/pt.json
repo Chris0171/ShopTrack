@@ -141,7 +141,14 @@
 		"noDataAvailable": "Sem dados disponíveis",
 		"clickForDetail": "Clique para ver detalhes diários →",
 		"vsPreviousMonth": "vs mês anterior",
-		"incomeAxis": "Receita ($)"
+		"incomeAxis": "Receita ($)",
+		"unknown": "Desconhecido",
+		"errorLoadingData": "Erro ao carregar dados",
+		"retry": "Tentar novamente",
+		"errorLoadingDashboard": "Erro ao carregar dados do painel. Por favor, tente novamente.",
+		"monthlyChartTitle": "Receita por Mês (Últimos 12 Meses)",
+		"incomeAndProfitAxis": "Receita/Lucro ($)",
+		"ordersAxis": "Pedidos"
 	},
 	"sales": {
 		"new": {

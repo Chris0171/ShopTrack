@@ -81,10 +81,12 @@ export async function initDashboard() {
 			chartContainer.innerHTML = `
 				<div class="flex flex-col items-center justify-center h-64 text-center">
 					<i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-					<p class="text-gray-700 font-semibold mb-2">Error al cargar datos</p>
+					<p class="text-gray-700 font-semibold mb-2">${t(
+						'dashboard.errorLoadingData'
+					)}</p>
 					<p class="text-gray-500 text-sm">${mensaje}</p>
 					<button id="btnReintentarCarga" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-						<i class="fas fa-redo mr-2"></i>Reintentar
+						<i class="fas fa-redo mr-2"></i>${t('dashboard.retry')}
 					</button>
 				</div>
 			`
@@ -458,7 +460,7 @@ export async function initDashboard() {
 			})
 
 			document.getElementById('topClientName').textContent = topClientId
-				? clienteMap.get(parseInt(topClientId)) || 'Desconocido'
+				? clienteMap.get(parseInt(topClientId)) || t('dashboard.unknown')
 				: '--'
 			document.getElementById('topClientAmount').textContent = topClientTotal
 				? `$${topClientTotal.toFixed(2)}`
@@ -582,7 +584,7 @@ export async function initDashboard() {
 
 		const option = {
 			title: {
-				text: 'Ingresos por Mes (Últimos 12 Meses)',
+				text: t('dashboard.monthlyChartTitle'),
 				left: 'center',
 				top: 10,
 				textStyle: {
@@ -607,7 +609,10 @@ export async function initDashboard() {
 					const datos = ventasPorMes[mesKey]
 
 					if (!datos) {
-					return `<div>${t('dashboard.noDataAvailable')}</div>`
+						return `<div>${t('dashboard.noDataAvailable')}</div>`
+					}
+
+					const ticketPromedio =
 						datos.ordenes > 0 ? datos.ingresos / datos.ordenes : 0
 					const rentabilidad =
 						datos.costos > 0 ? (datos.beneficio / datos.costos) * 100 : 0
@@ -623,7 +628,18 @@ export async function initDashboard() {
 							const colorVariacion = variacion >= 0 ? '#22c55e' : '#ef4444'
 							const simbolo = variacion >= 0 ? '▲' : '▼'
 							variacionHTML = `<div style="margin-top:8px; color:${colorVariacion}">
-							${simbolo} ${Math.abs(variacion).toFixed(1)}% ${t('dashboard.vsPreviousMonth')}
+								${simbolo} ${Math.abs(variacion).toFixed(1)}% ${t('dashboard.vsPreviousMonth')}
+							</div>`
+						}
+					}
+
+					return `
+						<div style="font-weight:bold; margin-bottom:10px; font-size:14px">${
+							params[0].axisValue
+						}</div>
+						<div style="line-height:1.8">
+							<div><span style="color:#6d3aef">●</span> <b>${t(
+								'dashboard.ingresos'
 							)}:</b> ${formatCurrency(datos.ingresos)}</div>
 							<div><span style="color:#22c55e">●</span> <b>${t(
 								'dashboard.beneficio'
@@ -635,8 +651,8 @@ export async function initDashboard() {
 								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
 								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
 								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
-									ticketPromedio
-								)}</div>
+						ticketPromedio
+					)}</div>
 							</div>
 							${variacionHTML}
 						</div>
@@ -918,8 +934,8 @@ export async function initDashboard() {
 								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
 								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
 								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
-									ticketPromedio
-								)}</div>
+						ticketPromedio
+					)}</div>
 							</div>
 						</div>
 					`
@@ -961,7 +977,7 @@ export async function initDashboard() {
 			yAxis: [
 				{
 					type: 'value',
-					name: 'Ingresos/Beneficio ($)',
+					name: t('dashboard.incomeAndProfitAxis'),
 					position: 'left',
 					nameTextStyle: {
 						color: '#666',
@@ -984,7 +1000,7 @@ export async function initDashboard() {
 				},
 				{
 					type: 'value',
-					name: 'Órdenes',
+					name: t('dashboard.ordersAxis'),
 					position: 'right',
 					nameTextStyle: {
 						color: '#666',
@@ -1121,9 +1137,7 @@ export async function initDashboard() {
 			await cargarKPIs()
 		} catch (error) {
 			console.error('Error al actualizar el gráfico:', error)
-			mostrarError(
-				'Error al cargar los datos del dashboard. Por favor, intenta nuevamente.'
-			)
+			mostrarError(t('dashboard.errorLoadingDashboard'))
 		} finally {
 			ocultarCargando()
 			isUpdating = false

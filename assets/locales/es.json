@@ -141,7 +141,14 @@
 		"noDataAvailable": "No hay datos disponibles",
 		"clickForDetail": "Click para ver detalle diario →",
 		"vsPreviousMonth": "vs mes anterior",
-		"incomeAxis": "Ingresos ($)"
+		"incomeAxis": "Ingresos ($)",
+		"unknown": "Desconocido",
+		"errorLoadingData": "Error al cargar datos",
+		"retry": "Reintentar",
+		"errorLoadingDashboard": "Error al cargar los datos del dashboard. Por favor, intenta nuevamente.",
+		"monthlyChartTitle": "Ingresos por Mes (Últimos 12 Meses)",
+		"incomeAndProfitAxis": "Ingresos/Beneficio ($)",
+		"ordersAxis": "Órdenes"
 	},
 	"sales": {
 		"new": {
