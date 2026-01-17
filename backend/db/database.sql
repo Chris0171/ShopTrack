@@ -1,3 +1,10 @@
+-- TABLA: Marcas
+CREATE TABLE IF NOT EXISTS Marca (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+nombre TEXT NOT NULL UNIQUE,
+activo INTEGER NOT NULL DEFAULT 1
+);
+
 -- TABLA: Producto
 CREATE TABLE IF NOT EXISTS Producto (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,8 +14,10 @@ Cantidad INTEGER NOT NULL DEFAULT 0,
 Precio REAL NOT NULL,
 Tasas REAL NOT NULL DEFAULT 0,
 activo INTEGER NOT NULL DEFAULT 1,
-esOriginal INTEGER NOT NULL DEFAULT 1,
-precioCosto REAL DEFAULT 0.00
+marcaId INTEGER NOT NULL,
+precioCosto REAL DEFAULT 0.00,
+ubicacion TEXT,
+FOREIGN KEY (marcaId) REFERENCES Marca(id)
 );
 
 -- TABLA: Números de Parte Múltiples (nuevo)
@@ -86,27 +95,41 @@ FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
 
 
-INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, activo, precioCosto) VALUES
-('P-001', 'Cables HDMI de alta velocidad', 25, 12.99, 0.21, 1, 7.50),
-('P-002', 'Ratón inalámbrico óptico', 14, 8.50, 0.18, 1, 5.00),
-('P-003', 'Teclado mecánico básico', 50, 22.30, 0.21, 1, 12.00),
-('P-004', 'Monitor LED 24 pulgadas', 8, 150.00, 0.21, 1, 95.00),
-('P-005', 'Adaptador USB a Ethernet', 12, 5.99, 0.10, 1, 3.50),
-('P-006', 'Auriculares con micrófono', 34, 18.75, 0.21, 1, 10.00),
-('P-007', 'Bolígrafos tinta gel azul (pack 10)', 60, 3.40, 0.10, 1, 1.80),
-('P-008', 'Disco SSD 512GB NVMe', 20, 99.99, 0.21, 1, 65.00),
-('P-009', 'Powerbank 20,000 mAh', 15, 45.00, 0.21, 1, 28.00),
-('P-010', 'Lápices HB (pack 20)', 100, 1.20, 0.10, 1, 0.60),
-('P-011', 'Cuaderno tapa dura A5', 40, 6.75, 0.18, 1, 3.80),
-('P-012', 'Tarjeta gráfica gama media', 10, 250.00, 0.21, 1, 165.00),
-('P-013', 'Goma de borrar escolar', 70, 2.90, 0.10, 1, 1.50),
-('P-014', 'Regla de plástico 30 cm', 90, 4.50, 0.18, 1, 2.20),
-('P-015', 'Altavoces USB estéreo', 18, 13.00, 0.21, 1, 7.50),
-('P-016', 'Memoria USB 32GB', 24, 7.25, 0.18, 1, 4.00),
-('P-017', 'Router WiFi dual band', 35, 15.80, 0.21, 1, 9.00),
-('P-018', 'Caja organizadora mediana', 27, 11.40, 0.21, 1, 6.50),
-('P-019', 'Impresora multifunción láser', 9, 199.99, 0.21, 1, 130.00),
-('P-020', 'Agenda 2025 semanal', 55, 9.99, 0.18, 1, 5.50);
+-- Insertar marcas
+INSERT INTO Marca (nombre) VALUES
+('Shell Rotella'),
+('Mobil Delvac'),
+('Delo 400'),
+('Fleetguard'),
+('Donaldson'),
+('Grasa Mystik'),
+('SKF'),
+('Luber Finer'),
+('Refrigerant National'),
+('Mobil synthetic oil 75w-90'),
+('Torque');
+
+INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, activo, marcaId, precioCosto, ubicacion) VALUES
+('P-001', 'Cables HDMI de alta velocidad', 25, 12.99, 0.21, 1, 1, 7.50, 'Almacén A-01'),
+('P-002', 'Ratón inalámbrico óptico', 14, 8.50, 0.18, 1, 2, 5.00, 'Almacén A-02'),
+('P-003', 'Teclado mecánico básico', 50, 22.30, 0.21, 1, 3, 12.00, 'Almacén A-03'),
+('P-004', 'Monitor LED 24 pulgadas', 8, 150.00, 0.21, 1, 4, 95.00, 'Almacén A-04'),
+('P-005', 'Adaptador USB a Ethernet', 12, 5.99, 0.10, 1, 5, 3.50, 'Almacén B-01'),
+('P-006', 'Auriculares con micrófono', 34, 18.75, 0.21, 1, 6, 10.00, 'Almacén B-02'),
+('P-007', 'Bolígrafos tinta gel azul (pack 10)', 60, 3.40, 0.10, 1, 7, 1.80, 'Almacén B-03'),
+('P-008', 'Disco SSD 512GB NVMe', 20, 99.99, 0.21, 1, 8, 65.00, 'Almacén B-04'),
+('P-009', 'Powerbank 20,000 mAh', 15, 45.00, 0.21, 1, 9, 28.00, 'Almacén C-01'),
+('P-010', 'Lápices HB (pack 20)', 100, 1.20, 0.10, 1, 10, 0.60, 'Almacén C-02'),
+('P-011', 'Cuaderno tapa dura A5', 40, 6.75, 0.18, 1, 11, 3.80, 'Almacén C-03'),
+('P-012', 'Tarjeta gráfica gama media', 10, 250.00, 0.21, 1, 1, 165.00, 'Almacén C-04'),
+('P-013', 'Goma de borrar escolar', 70, 2.90, 0.10, 1, 2, 1.50, 'Almacén D-01'),
+('P-014', 'Regla de plástico 30 cm', 90, 4.50, 0.18, 1, 3, 2.20, 'Almacén D-02'),
+('P-015', 'Altavoces USB estéreo', 18, 13.00, 0.21, 1, 4, 7.50, 'Almacén D-03'),
+('P-016', 'Memoria USB 32GB', 24, 7.25, 0.18, 1, 5, 4.00, 'Almacén D-04'),
+('P-017', 'Router WiFi dual band', 35, 15.80, 0.21, 1, 6, 9.00, 'Almacén E-01'),
+('P-018', 'Caja organizadora mediana', 27, 11.40, 0.21, 1, 7, 6.50, 'Almacén E-02'),
+('P-019', 'Impresora multifunción láser', 9, 199.99, 0.21, 1, 8, 130.00, 'Almacén E-03'),
+('P-020', 'Agenda 2025 semanal', 55, 9.99, 0.18, 1, 9, 5.50, 'Almacén E-04');
 
 -- Insertar números de parte (cada producto tiene su número principal)
 INSERT INTO ProductoNumerosParte (idProducto, nroParte, esPrincipal) VALUES

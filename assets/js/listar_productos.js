@@ -13,6 +13,7 @@ export function initProductList() {
 	const tablaBody = document.getElementById('tablaProductosBody')
 	const filtroNroParte = document.getElementById('filtroNroParte')
 	const filtroDescripcion = document.getElementById('filtroDescripcion')
+	const filtroMarca = document.getElementById('filtroMarca')
 	const btnFiltrar = document.getElementById('btnFiltrar')
 	const btnLimpiarFiltros = document.getElementById('btnLimpiarFiltros')
 
@@ -39,6 +40,29 @@ export function initProductList() {
 	let isLoading = false // Control de estado de carga
 	let currentCarouselImages = [] // Array de fotos del producto actual para carousel
 	let currentCarouselIndex = 0 // Índice actual en el carousel
+	let marcasCargadas = false
+
+	// Cargar marcas en filtro
+	async function cargarMarcasFiltro() {
+		try {
+			const res = await window.api.marca.getAll()
+			if (res.ok && Array.isArray(res.marcas)) {
+				filtroMarca.innerHTML = `
+					<option value="" data-i18n="products.list.filterByBrand">Todas las marcas</option>
+				`
+				res.marcas.forEach((marca) => {
+					const opt = document.createElement('option')
+					opt.value = marca.id
+					opt.textContent = marca.nombre
+					filtroMarca.appendChild(opt)
+				})
+				window.i18n?.applyTranslations?.(filtroMarca)
+				marcasCargadas = true
+			}
+		} catch (error) {
+			console.error('Error cargando marcas:', error)
+		}
+	}
 
 	const debounce = (fn, delay = 300) => {
 		let t
@@ -65,16 +89,6 @@ export function initProductList() {
 	function formatPageLabel(page, total) {
 		const label = t('products.list.pageLabel') || 'Página {page} de {total}'
 		return label.replace('{page}', page).replace('{total}', total)
-	}
-
-	function renderTipo(esOriginal) {
-		return esOriginal
-			? `<span class="px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">${t(
-					'products.list.original'
-			  )}</span>`
-			: `<span class="px-2 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700">${t(
-					'products.list.copy'
-			  )}</span>`
 	}
 
 	function renderEstado(activo) {
@@ -451,7 +465,7 @@ export function initProductList() {
 		// Mostrar indicador de carga
 		tablaBody.innerHTML = `
 			<tr>
-				<td colspan="10" class="text-center py-8">
+				<td colspan="11" class="text-center py-8">
 					<div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
 					<p class="mt-2 text-gray-600 font-semibold">${
 						t('products.list.loading') || 'Cargando productos...'
@@ -464,6 +478,7 @@ export function initProductList() {
 			const filtros = {
 				NroParte: filtroNroParte.value.trim(),
 				Descripcion: filtroDescripcion.value.trim(),
+				marcaId: filtroMarca.value ? parseInt(filtroMarca.value) : null,
 				pagina,
 				limite,
 			}
@@ -489,9 +504,9 @@ export function initProductList() {
 			if (!listaOrdenada || listaOrdenada.length === 0) {
 				tablaBody.innerHTML = `
 			<tr>
-				<td colspan="10" class="text-center py-6 text-gray-500 font-semibold">${t(
-					'products.list.noProducts'
-				)}</td>
+					<td colspan="11" class="text-center py-6 text-gray-500 font-semibold">${t(
+						'products.list.noProducts'
+					)}</td>
 			</tr>`
 				paginaActualSpan.textContent = formatPageLabel(pagina, totalPaginas)
 				prevPageBtn.style.display = pagina > 1 ? 'inline-block' : 'none'
@@ -520,39 +535,35 @@ export function initProductList() {
 						  })</span>`
 						: nroPartePrincipal
 				tr.innerHTML = `
-        <td class="py-3 px-4 text-sm font-bold text-gray-800">${numeroParteDisplay}</td>
-        <td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
-        <td class="py-3 px-4 text-sm text-right text-gray-700">${
-					p.Cantidad
-				}</td>
-        <td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">${formatMoney(
+				<td class="py-3 px-4 text-sm font-bold text-gray-800">${numeroParteDisplay}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.ubicacion || '—'}</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${p.Cantidad}</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">${formatMoney(
 					p.Precio
 				)}</td>
-        <td class="py-3 px-4 text-sm text-right text-gray-700">${formatMoney(
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${formatMoney(
 					Number.isFinite(Number(p.precioCosto)) ? Number(p.precioCosto) : 0
 				)}</td>
-        <td class="py-3 px-4 text-sm text-right text-gray-700">${formatPercent(
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${formatPercent(
 					p.Tasas
 				)}</td>
-        <td class="py-3 px-4 text-center">${renderTipo(p.esOriginal)}</td>
-        <td class="py-3 px-4 text-sm text-gray-700">${renderImagen(
-					p.fotos,
-					p.id
-				)}</td>
-        <td class="py-3 px-4 text-center">${renderEstado(p.activo)}</td>
-        <td class="py-3 px-4 text-center flex gap-2 justify-center">
-          <button id="btn_upd_${
+				<td class="py-3 px-4 text-sm text-gray-700">${renderImagen(p.fotos, p.id)}</td>
+				<td class="py-3 px-4 text-center">${renderEstado(p.activo)}</td>
+				<td class="py-3 px-4 text-center flex gap-2 justify-center">
+					<button id="btn_upd_${
 						p.id
 					}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow">${t(
 					'common.edit'
 				)}</button>
-          <button id="btn_del_${
+					<button id="btn_del_${
 						p.id
 					}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow">${t(
 					'common.delete'
 				)}</button>
-        </td>
-      `
+				</td>
+			`
 
 				tablaBody.appendChild(tr)
 
@@ -574,7 +585,7 @@ export function initProductList() {
 			console.error('Error al cargar productos:', error)
 			tablaBody.innerHTML = `
 				<tr>
-					<td colspan="10" class="text-center py-8 text-red-600">
+					<td colspan="11" class="text-center py-8 text-red-600">
 						<div class="text-4xl mb-2">❌</div>
 						<p class="font-semibold">${
 							t('products.list.loadError') || 'Error al cargar productos'
@@ -589,6 +600,9 @@ export function initProductList() {
 			isLoading = false
 		}
 	}
+
+	// Cargar marcas al iniciar
+	cargarMarcasFiltro()
 
 	// Sortable headers
 	document.querySelectorAll('th.sortable').forEach((th) => {
@@ -615,6 +629,15 @@ export function initProductList() {
 		th.style.userSelect = 'none'
 		th.title = th.title || 'Clic para ordenar'
 	})
+
+	// Aplicar filtro por marca
+	filtroMarca.addEventListener(
+		'change',
+		debounce(() => {
+			pagina = 1
+			cargarProductos()
+		}, 300)
+	)
 
 	// Delegación de eventos para botones e imágenes (evita memory leaks)
 	tablaBody.addEventListener('click', async (e) => {
@@ -689,7 +712,10 @@ export function initProductList() {
 	btnLimpiarFiltros.addEventListener('click', () => {
 		// Verificar si hay filtros activos
 		const hayFiltros =
-			filtroNroParte.value.trim() || filtroDescripcion.value.trim() || sortField
+			filtroNroParte.value.trim() ||
+			filtroDescripcion.value.trim() ||
+			filtroMarca.value ||
+			sortField
 
 		if (hayFiltros) {
 			const confirmar = confirm(
@@ -700,6 +726,7 @@ export function initProductList() {
 
 		filtroNroParte.value = ''
 		filtroDescripcion.value = ''
+		filtroMarca.value = ''
 		sortField = null
 		sortAsc = true
 		pagina = 1

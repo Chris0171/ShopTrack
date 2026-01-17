@@ -24,7 +24,8 @@ export function initUpdateProducto(productId = null) {
 	const Precio = document.getElementById('Precio')
 	const PrecioCosto = document.getElementById('PrecioCosto')
 	const Tasas = document.getElementById('Tasas')
-	const EsOriginal = document.getElementById('EsOriginal')
+	const marcaSelect = document.getElementById('marcaSelect')
+	const Ubicacion = document.getElementById('Ubicacion')
 
 	const appModal = document.getElementById('appModal')
 	const btnModalOk = document.getElementById('btn-modal-ok')
@@ -34,6 +35,32 @@ export function initUpdateProducto(productId = null) {
 	let fotosSeleccionadas = [] // Array de { fileName, sourcePath, index, isExisting }
 	let fotosExistentes = [] // Para rastrear fotos que ya estaban en la BD
 	let modalTimeout = null // Control de timeout del modal
+	let marcasCargadas = false
+
+	// Cargar marcas desde backend
+	async function cargarMarcas() {
+		try {
+			const res = await window.api.marca.getAll()
+			if (res.ok && Array.isArray(res.marcas)) {
+				marcaSelect.innerHTML = `
+					<option value="" data-i18n="products.create.selectBrand">Selecciona una marca</option>
+				`
+				res.marcas.forEach((marca) => {
+					const opt = document.createElement('option')
+					opt.value = marca.id
+					opt.textContent = marca.nombre
+					marcaSelect.appendChild(opt)
+				})
+				window.i18n?.applyTranslations?.(marcaSelect)
+				marcasCargadas = true
+			}
+		} catch (error) {
+			console.error('Error cargando marcas:', error)
+		}
+	}
+
+	// Cargar marcas al iniciar
+	cargarMarcas()
 
 	// Cargar IVA predeterminado desde configuración (solo si no hay producto cargado)
 	async function cargarIVAPredeterminadoSiVacio() {
@@ -308,7 +335,8 @@ export function initUpdateProducto(productId = null) {
 				? tasasInput / 100
 				: tasasInput
 			: CONFIG.IVA_DEFAULT_FALLBACK
-		const esOriginal = parseInt(EsOriginal.value)
+		const marcaId = parseInt(marcaSelect.value)
+		const ubicacion = Ubicacion.value.trim()
 
 		// Validaciones
 		// Verificar duplicados en números de parte
@@ -373,6 +401,11 @@ export function initUpdateProducto(productId = null) {
 				'El Precio de Costo no puede ser mayor al Precio de Venta',
 				true
 			)
+			return
+		}
+
+		if (!marcaId) {
+			mostrarModal('❌', 'Marca requerida', 'Debes seleccionar una marca', true)
 			return
 		}
 
@@ -453,7 +486,8 @@ export function initUpdateProducto(productId = null) {
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
-				esOriginal: esOriginal,
+				marcaId: marcaId,
+				ubicacion: ubicacion || null,
 				numerosParte: numerosParte,
 				fotos: fotosParaGuardar,
 			}
@@ -542,7 +576,17 @@ export function initUpdateProducto(productId = null) {
 			Tasas.value = ''
 			cargarIVAPredeterminadoSiVacio()
 		}
-		EsOriginal.value = prod.esOriginal ?? 1
+		if (marcasCargadas) {
+			marcaSelect.value = prod.marcaId || ''
+		} else {
+			const interval = setInterval(() => {
+				if (marcasCargadas) {
+					marcaSelect.value = prod.marcaId || ''
+					clearInterval(interval)
+				}
+			}, 100)
+		}
+		Ubicacion.value = prod.ubicacion || ''
 
 		// Cargar números de parte
 		if (prod.numerosParte && prod.numerosParte.length > 0) {

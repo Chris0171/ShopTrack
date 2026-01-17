@@ -15,6 +15,13 @@
         data-i18n="[placeholder]products.list.filterByDescription"
         class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
     </div>
+    <div class="flex-1 min-w-[220px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="products.list.brand">Marca</label>
+      <select id="filtroMarca"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+        <option value="" data-i18n="products.list.filterByBrand">Todas las marcas</option>
+      </select>
+    </div>
     <div class="flex gap-3">
       <button id="btnFiltrar"
         class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold shadow transition transform hover:scale-105"
@@ -33,6 +40,8 @@
           <th class="py-3 px-4 text-left sortable" data-field="NroParte" data-i18n="products.list.nroParte">NroParte
           </th>
           <th class="py-3 px-4 text-left" data-i18n="products.list.description">Descripción</th>
+          <th class="py-3 px-4 text-left" data-i18n="products.list.brand">Marca</th>
+          <th class="py-3 px-4 text-left" data-i18n="products.list.location">Ubicación</th>
           <th class="py-3 px-4 text-right sortable" data-field="Cantidad" data-i18n="products.list.quantity">Cantidad
           </th>
           <th class="py-3 px-4 text-right sortable" data-field="Precio" data-i18n="products.list.priceVenta">Precio
@@ -40,7 +49,6 @@
           <th class="py-3 px-4 text-right sortable" data-field="precioCosto" data-i18n="products.list.precioCosto">
             Precio Costo</th>
           <th class="py-3 px-4 text-right sortable" data-field="Tasas" data-i18n="products.list.iva">IVA/Tasa</th>
-          <th class="py-3 px-4 text-center" data-i18n="products.list.type">Tipo</th>
           <th class="py-3 px-4 text-left" data-i18n="products.list.image">Imagen</th>
           <th class="py-3 px-4 text-center sortable" data-field="activo" data-i18n="products.list.status">Estado</th>
           <th class="py-3 px-4 text-center" data-i18n="products.list.actions">Acciones</th>

@@ -91,4 +91,8 @@ contextBridge.exposeInMainWorld('api', {
 			})
 		},
 	},
+
+	marca: {
+		getAll: () => ipcRenderer.invoke('marca:getAll'),
+	},
 })

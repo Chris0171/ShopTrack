@@ -3,6 +3,8 @@ export function initCreateProducto() {
 	const appModal = document.getElementById('appModal')
 	const btnModalOk = document.getElementById('btn-modal-ok')
 	const inputTasas = document.getElementById('Tasas')
+	const marcaSelect = document.getElementById('marcaSelect')
+	const ubicacionInput = document.getElementById('Ubicacion')
 	const numerosParteContainer = document.getElementById(
 		'numeros-parte-container'
 	)
@@ -103,6 +105,27 @@ export function initCreateProducto() {
 		}
 	})
 
+	// Cargar marcas desde backend
+	async function cargarMarcas() {
+		try {
+			const res = await window.api.marca.getAll()
+			if (res.ok && Array.isArray(res.marcas)) {
+				marcaSelect.innerHTML = `
+					<option value="" data-i18n="products.create.selectBrand">Selecciona una marca</option>
+				`
+				res.marcas.forEach((marca) => {
+					const opt = document.createElement('option')
+					opt.value = marca.id
+					opt.textContent = marca.nombre
+					marcaSelect.appendChild(opt)
+				})
+				window.i18n?.applyTranslations?.(marcaSelect)
+			}
+		} catch (error) {
+			console.error('Error cargando marcas:', error)
+		}
+	}
+
 	// Cargar IVA predeterminado desde configuración
 	async function cargarIVAPredeterminado() {
 		try {
@@ -130,6 +153,8 @@ export function initCreateProducto() {
 
 	// Cargar IVA al iniciar
 	cargarIVAPredeterminado()
+	// Cargar marcas al iniciar
+	cargarMarcas()
 
 	// Abrir modal con mensaje
 	function mostrarModal(icono, titulo, mensaje, esError = false) {
@@ -202,7 +227,8 @@ export function initCreateProducto() {
 			parseFloat(document.getElementById('PrecioCosto').value) || 0
 		const tasasInput = parseFloat(document.getElementById('Tasas').value)
 		const tasas = tasasInput ? tasasInput / 100 : 0.21
-		const esOriginal = parseInt(document.getElementById('EsOriginal').value)
+		const marcaId = parseInt(marcaSelect.value)
+		const ubicacion = ubicacionInput.value.trim()
 
 		// Validaciones
 		if (numerosParte.length === 0) {
@@ -232,6 +258,11 @@ export function initCreateProducto() {
 				'El Precio de Venta debe ser mayor a 0',
 				true
 			)
+			return
+		}
+
+		if (!marcaId) {
+			mostrarModal('❌', 'Marca requerida', 'Debes seleccionar una marca', true)
 			return
 		}
 
@@ -287,7 +318,8 @@ export function initCreateProducto() {
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
-				esOriginal: esOriginal,
+				marcaId: marcaId,
+				ubicacion: ubicacion || null,
 				fotos: fotos,
 			}
 

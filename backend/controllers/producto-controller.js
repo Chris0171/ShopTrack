@@ -4,7 +4,13 @@ const db = require('../db/initDatabase')
 module.exports = {
 	// Obtener todos los productos con sus números de parte y fotos
 	getAll: function (callback) {
-		const sql = `SELECT * FROM Producto WHERE activo = 1 ORDER BY id DESC`
+		const sql = `
+			SELECT p.*, m.nombre AS marcaNombre
+			FROM Producto p
+			LEFT JOIN Marca m ON p.marcaId = m.id
+			WHERE p.activo = 1
+			ORDER BY p.id DESC
+		`
 		db.all(sql, [], (err, rows) => {
 			if (err) return callback(err)
 
@@ -59,14 +65,22 @@ module.exports = {
 			Precio = 0,
 			Tasas = 0,
 			precioCosto = 0,
-			esOriginal = 1,
+			marcaId,
+			ubicacion = null,
 			fotos = [], // Array de nombres de archivo
 		},
 		callback
 	) {
 		// Validación: debe haber al menos un número de parte
-		if (!numerosParte || numerosParte.length === 0 || !Descripcion) {
-			return callback(new Error('numerosParte y Descripcion son obligatorios'))
+		if (
+			!numerosParte ||
+			numerosParte.length === 0 ||
+			!Descripcion ||
+			!marcaId
+		) {
+			return callback(
+				new Error('numerosParte, Descripcion y marcaId son obligatorios')
+			)
 		}
 
 		// Obtener el número de parte principal
@@ -74,8 +88,8 @@ module.exports = {
 			numerosParte.find((n) => n.esPrincipal === 1) || numerosParte[0]
 
 		const sql = `
-			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, esOriginal)
-			VALUES (?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, marcaId, ubicacion)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 		`
 
 		db.run(
@@ -87,7 +101,8 @@ module.exports = {
 				Precio,
 				Tasas,
 				precioCosto,
-				esOriginal,
+				marcaId,
+				ubicacion,
 			],
 			function (err) {
 				if (err) return callback(err)
@@ -149,7 +164,8 @@ module.exports = {
 			Precio,
 			Tasas,
 			precioCosto,
-			esOriginal,
+			marcaId,
+			ubicacion,
 			fotos = [],
 		} = data
 
@@ -163,7 +179,7 @@ module.exports = {
 
 		const sql = `
 			UPDATE Producto 
-			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, esOriginal = ?
+			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, marcaId = ?, ubicacion = ?
 			WHERE id = ?
 		`
 
@@ -176,7 +192,8 @@ module.exports = {
 				Precio,
 				Tasas,
 				precioCosto,
-				esOriginal,
+				marcaId,
+				ubicacion,
 				id,
 			],
 			function (err) {
@@ -267,7 +284,12 @@ module.exports = {
 	// Buscar producto por número de parte
 	buscarPorNroParte: function (nroParte, callback) {
 		// Primero buscar el producto por número de parte (puede ser principal o alterno)
-		const sqlBuscarEnPrincipal = `SELECT * FROM Producto WHERE NroParte = ? AND activo = 1`
+		const sqlBuscarEnPrincipal = `
+			SELECT p.*, m.nombre AS marcaNombre
+			FROM Producto p
+			LEFT JOIN Marca m ON p.marcaId = m.id
+			WHERE p.NroParte = ? AND p.activo = 1
+		`
 
 		db.get(sqlBuscarEnPrincipal, [nroParte], (err, producto) => {
 			if (err) return callback(err)
@@ -300,8 +322,10 @@ module.exports = {
 			} else {
 				// Si no se encontró, buscar en la tabla de números de parte alternos
 				const sqlBuscarEnAlternos = `
-					SELECT p.* FROM Producto p
+					SELECT p.*, m.nombre AS marcaNombre
+					FROM Producto p
 					INNER JOIN ProductoNumerosParte pnp ON p.id = pnp.idProducto
+					LEFT JOIN Marca m ON p.marcaId = m.id
 					WHERE pnp.nroParte = ? AND p.activo = 1
 					LIMIT 1
 				`
@@ -348,9 +372,10 @@ module.exports = {
 
 		// Buscar en múltiples campos: NroParte principal, Descripción, y números alternos
 		const sql = `
-			SELECT DISTINCT p.* 
+			SELECT DISTINCT p.*, m.nombre AS marcaNombre
 			FROM Producto p
 			LEFT JOIN ProductoNumerosParte pnp ON p.id = pnp.idProducto
+			LEFT JOIN Marca m ON p.marcaId = m.id
 			WHERE p.activo = 1 
 				AND (
 					p.NroParte LIKE ? 
@@ -433,84 +458,110 @@ module.exports = {
 		})
 	},
 	getPaginated: function (filtros, callback) {
-		const { NroParte = '', Descripcion = '', pagina = 1, limite = 10 } = filtros
+		const {
+			NroParte = '',
+			Descripcion = '',
+			marcaId = null,
+			pagina = 1,
+			limite = 10,
+		} = filtros
 		const offset = (pagina - 1) * limite
+		const marcaIdValue = marcaId ? Number(marcaId) : null
 
 		const countSql = `
     SELECT COUNT(*) AS total 
     FROM Producto 
-    WHERE activo = 1 AND NroParte LIKE ? AND Descripcion LIKE ?
+    WHERE activo = 1 
+      AND NroParte LIKE ? 
+      AND Descripcion LIKE ?
+      AND (? IS NULL OR marcaId = ?)
   `
-		db.get(countSql, [`%${NroParte}%`, `%${Descripcion}%`], (err, countRow) => {
-			if (err) return callback(err)
+		db.get(
+			countSql,
+			[`%${NroParte}%`, `%${Descripcion}%`, marcaIdValue, marcaIdValue],
+			(err, countRow) => {
+				if (err) return callback(err)
 
-			const total = countRow.total
+				const total = countRow.total
 
-			const dataSql = `
-      SELECT * FROM Producto
-      WHERE activo = 1 AND NroParte LIKE ? AND Descripcion LIKE ?
-      ORDER BY id ASC
-      LIMIT ? OFFSET ?
-    `
-			db.all(
-				dataSql,
-				[`%${NroParte}%`, `%${Descripcion}%`, limite, offset],
-				(err, rows) => {
-					if (err) return callback(err)
+				const dataSql = `
+					SELECT p.*, m.nombre AS marcaNombre
+					FROM Producto p
+					LEFT JOIN Marca m ON p.marcaId = m.id
+					WHERE p.activo = 1 
+						AND p.NroParte LIKE ? 
+						AND p.Descripcion LIKE ?
+						AND (? IS NULL OR p.marcaId = ?)
+					ORDER BY p.id ASC
+					LIMIT ? OFFSET ?
+				`
+				db.all(
+					dataSql,
+					[
+						`%${NroParte}%`,
+						`%${Descripcion}%`,
+						marcaIdValue,
+						marcaIdValue,
+						limite,
+						offset,
+					],
+					(err, rows) => {
+						if (err) return callback(err)
 
-					// Si no hay productos, retornar resultado vacío
-					if (!rows || rows.length === 0) {
-						return callback(null, {
-							productos: [],
-							total,
-							pagina,
-							limite,
-							totalPaginas: Math.ceil(total / limite),
+						// Si no hay productos, retornar resultado vacío
+						if (!rows || rows.length === 0) {
+							return callback(null, {
+								productos: [],
+								total,
+								pagina,
+								limite,
+								totalPaginas: Math.ceil(total / limite),
+							})
+						}
+
+						// Cargar números de parte y fotos para cada producto
+						let completed = 0
+						const productos = []
+
+						rows.forEach((producto) => {
+							// Obtener números de parte
+							db.all(
+								`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
+								[producto.id],
+								(err, numerosParte) => {
+									if (err) return callback(err)
+
+									// Obtener fotos
+									db.all(
+										`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
+										[producto.id],
+										(err, fotos) => {
+											if (err) return callback(err)
+
+											productos.push({
+												...producto,
+												numerosParte: numerosParte || [],
+												fotos: fotos || [],
+											})
+
+											completed++
+											if (completed === rows.length) {
+												callback(null, {
+													productos,
+													total,
+													pagina,
+													limite,
+													totalPaginas: Math.ceil(total / limite),
+												})
+											}
+										}
+									)
+								}
+							)
 						})
 					}
-
-					// Cargar números de parte y fotos para cada producto
-					let completed = 0
-					const productos = []
-
-					rows.forEach((producto) => {
-						// Obtener números de parte
-						db.all(
-							`SELECT nroParte, esPrincipal FROM ProductoNumerosParte WHERE idProducto = ? ORDER BY esPrincipal DESC`,
-							[producto.id],
-							(err, numerosParte) => {
-								if (err) return callback(err)
-
-								// Obtener fotos
-								db.all(
-									`SELECT nombreImagen, esPrincipal, orden FROM ProductoFotos WHERE idProducto = ? ORDER BY esPrincipal DESC, orden ASC`,
-									[producto.id],
-									(err, fotos) => {
-										if (err) return callback(err)
-
-										productos.push({
-											...producto,
-											numerosParte: numerosParte || [],
-											fotos: fotos || [],
-										})
-
-										completed++
-										if (completed === rows.length) {
-											callback(null, {
-												productos,
-												total,
-												pagina,
-												limite,
-												totalPaginas: Math.ceil(total / limite),
-											})
-										}
-									}
-								)
-							}
-						)
-					})
-				}
-			)
-		})
+				)
+			}
+		)
 	},
 }

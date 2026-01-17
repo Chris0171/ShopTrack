@@ -9,6 +9,7 @@ const registerVentaIPC = require('./backend/ipcs/venta.ipc')
 const registerDetalleVentaIPC = require('./backend/ipcs/detalleVenta.ipc')
 const registerFacturaIPC = require('./backend/ipcs/factura.ipc')
 const registerGeneralIPC = require('./backend/ipcs/general.ipc')
+const registerMarcaIPC = require('./backend/ipcs/marca.ipc')
 
 const db = require('./backend/db/initDatabase') // * Inicializa DB
 
@@ -56,3 +57,4 @@ registerVentaIPC(ipcMain)
 registerDetalleVentaIPC(ipcMain)
 registerFacturaIPC(ipcMain)
 registerGeneralIPC(ipcMain, mainWindow)
+registerMarcaIPC(ipcMain)

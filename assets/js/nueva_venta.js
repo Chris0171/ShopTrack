@@ -6,6 +6,7 @@ export function initNuevaVenta() {
 	const buscarInput = document.getElementById('buscarInput')
 	const autocompleteDropdown = document.getElementById('autocompleteDropdown')
 	const tablaVenta = document.getElementById('tablaVenta')
+	const filtroMarcaVenta = document.getElementById('filtroMarcaVenta')
 
 	// Estado del autocompletado
 	let productosSugeridos = []
@@ -30,6 +31,7 @@ export function initNuevaVenta() {
 
 	const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
 	const btnDescargarPDF = document.getElementById('btnDescargarPDF')
+	let marcasCargadas = false
 
 	// Referencias del modal reutilizable
 	const modal = document.getElementById('appModal')
@@ -108,7 +110,11 @@ export function initNuevaVenta() {
 	async function showImageModal(nombreImagen) {
 		if (!nombreImagen) return
 		const rutaImagen = await window.api.producto.getImagenPath(nombreImagen)
-		modalImage.src = rutaImagen
+		if (rutaImagen?.ok && rutaImagen.path) {
+			modalImage.src = rutaImagen.path
+		} else {
+			modalImage.src = ''
+		}
 		imageModal.style.display = 'flex'
 	}
 
@@ -152,6 +158,28 @@ export function initNuevaVenta() {
 			clienteSelect.appendChild(opt)
 		})
 	}
+
+	// Cargar marcas para filtro
+	async function cargarMarcasFiltro() {
+		try {
+			const res = await window.api.marca.getAll()
+			if (res.ok && Array.isArray(res.marcas)) {
+				filtroMarcaVenta.innerHTML = `
+					<option value="" data-i18n="sales.new.brandAll">Todas las marcas</option>
+				`
+				res.marcas.forEach((marca) => {
+					const opt = document.createElement('option')
+					opt.value = marca.id
+					opt.textContent = marca.nombre
+					filtroMarcaVenta.appendChild(opt)
+				})
+				window.i18n?.applyTranslations?.(filtroMarcaVenta)
+				marcasCargadas = true
+			}
+		} catch (error) {
+			console.error('Error cargando marcas:', error)
+		}
+	}
 	// Adaptador: reemplaza alertas en div por modal
 	async function showFieldError(_id, msg, elem) {
 		await showModalInfo(msg, 'Aviso')
@@ -174,6 +202,7 @@ export function initNuevaVenta() {
 	cargarTodo()
 	cargarClientes()
 	cargarNumeroFactura()
+	cargarMarcasFiltro()
 
 	// Cargar número de factura automático
 	async function cargarNumeroFactura() {
@@ -191,6 +220,22 @@ export function initNuevaVenta() {
 		actualizarTotales()
 	})
 
+	// Reaplicar búsqueda al cambiar marca
+	filtroMarcaVenta.addEventListener('change', () => {
+		if (buscarInput.value.trim().length > 0) {
+			buscarInput.dispatchEvent(new Event('input'))
+		} else {
+			ocultarDropdown()
+		}
+	})
+
+	function filtrarPorMarca(productos) {
+		const marcaId = filtroMarcaVenta.value
+		if (!marcaId) return productos
+		const marcaIdNum = Number(marcaId)
+		return productos.filter((p) => Number(p.marcaId) === marcaIdNum)
+	}
+
 	// BUSCADOR DE PRODUCTOS con autocompletado
 	buscarInput.addEventListener('input', async (e) => {
 		const texto = e.target.value.trim()
@@ -207,13 +252,14 @@ export function initNuevaVenta() {
 		searchTimeout = setTimeout(async () => {
 			try {
 				const productos = await window.api.producto.buscarProductos(texto)
+				const productosFiltrados = filtrarPorMarca(productos)
 
-				if (productos.length === 0) {
+				if (productosFiltrados.length === 0) {
 					ocultarDropdown()
 					return
 				}
 
-				productosSugeridos = productos
+				productosSugeridos = productosFiltrados
 				selectedIndex = -1
 				mostrarDropdown()
 			} catch (error) {
@@ -256,6 +302,16 @@ export function initNuevaVenta() {
 
 				if (!producto) {
 					await showModalInfo('Producto no encontrado', 'Aviso')
+					buscarInput.focus()
+					return
+				}
+
+				const filtrados = filtrarPorMarca([producto])
+				if (filtrados.length === 0) {
+					await showModalInfo(
+						'El producto no coincide con la marca filtrada',
+						'Aviso'
+					)
 					buscarInput.focus()
 					return
 				}
@@ -312,6 +368,7 @@ export function initNuevaVenta() {
 						<span class="text-gray-800 ml-2">${
 							producto.Descripcion || 'Sin descripción'
 						}</span>
+						<div class="text-xs text-gray-500 mt-1">${producto.marcaNombre || '—'}</div>
 					</div>
 					<div class="flex items-center gap-4">
 						<span class="text-sm font-semibold ${stockColor}">Stock: ${
@@ -409,6 +466,7 @@ export function initNuevaVenta() {
 				id: producto.id,
 				NroParte: nroPartePrincipal,
 				Descripcion: producto.Descripcion ?? 'Sin descripción',
+				marcaNombre: producto.marcaNombre || '—',
 				precio: producto.Precio,
 				tasa: producto.Tasas,
 				cantidad: 1,
@@ -429,7 +487,7 @@ export function initNuevaVenta() {
 		if (productosVenta.length === 0) {
 			tablaVenta.innerHTML = `
 				<tr>
-					<td colspan="8" class="text-center py-8 text-gray-500 font-semibold">
+					<td colspan="9" class="text-center py-8 text-gray-500 font-semibold">
 						🛒 No hay productos agregados. Busca y agrega productos a la venta.
 					</td>
 				</tr>`
@@ -451,8 +509,9 @@ export function initNuevaVenta() {
 			const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
 
 			const imagePath = rutasImagenes[index]
-			const imagenHtml = imagePath
-				? `<img data-imagen="${p.nombreImagen}" src="${imagePath}" alt="${p.NroParte}" class="producto-imagen w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
+			const imageUrl = imagePath?.ok ? imagePath.path : null
+			const imagenHtml = imageUrl
+				? `<img data-imagen="${p.nombreImagen}" src="${imageUrl}" alt="${p.NroParte}" class="producto-imagen w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
 				: '<span class="text-gray-400 text-xs">Sin imagen</span>'
 
 			tr.innerHTML = `
@@ -461,6 +520,7 @@ export function initNuevaVenta() {
 				</td>
 				<td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
 				<td class="py-3 px-4 text-right">
 					<input type="number" min="1" value="${p.cantidad}" 
 						class="cantidad-input w-20 p-2 text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-600 outline-none font-semibold">
