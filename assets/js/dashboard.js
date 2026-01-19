@@ -534,14 +534,11 @@ export async function initDashboard() {
 				ventasDiaIngreso.textContent = `$${ingresoHoy.toFixed(0)}`
 
 			// KPI 2: Stock bajo (según stock mínimo por producto)
-			const stockBajo = productos.filter((p) => {
-				if (p.activo !== 1) return false
-				const min = Number(p.stockMinimo ?? 0)
-				const qty = Number(p.Cantidad ?? 0)
-				return qty <= min
-			}).length
+			const stockCriticos = obtenerStockCritico(productos)
+			const stockBajo = stockCriticos.length
 			const stockBajoEl = document.querySelector('#stockBajo')
 			if (stockBajoEl) stockBajoEl.textContent = stockBajo
+			renderTablaStockCritico(stockCriticos)
 
 			// KPI 3: Ingresos del período (últimos 30 días)
 			const hace30Dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -561,6 +558,66 @@ export async function initDashboard() {
 		} catch (error) {
 			console.error('Error al cargar KPIs:', error)
 		}
+	}
+
+	function obtenerStockCritico(productos) {
+		return (productos || [])
+			.filter((p) => {
+				if (p.activo !== 1) return false
+				const min = Number(p.stockMinimo ?? 0)
+				const qty = Number(p.Cantidad ?? 0)
+				return qty <= min
+			})
+			.map((p) => ({
+				...p,
+				_qty: Number(p.Cantidad ?? 0),
+				_min: Number(p.stockMinimo ?? 0),
+			}))
+			.sort((a, b) => a._qty - a._min - (b._qty - b._min))
+	}
+
+	function renderTablaStockCritico(productos) {
+		const tbody = document.querySelector('#tablaStockCriticoBody')
+		const contador = document.querySelector('#stockCriticoCount')
+		if (contador) contador.textContent = productos.length
+		if (!tbody) return
+
+		if (!productos || productos.length === 0) {
+			tbody.innerHTML = `
+				<tr>
+					<td colspan="5" class="text-center py-4 text-gray-500">${
+						t('dashboard.criticalEmpty') || 'No hay productos en stock crítico'
+					}</td>
+				</tr>
+			`
+			return
+		}
+
+		const rows = productos
+			.map((p) => {
+				const nroPartePrincipal =
+					p.numerosParte?.find((n) => n.esPrincipal === 1)?.nroParte ||
+					p.NroParte ||
+					'—'
+				const descripcion = p.Descripcion || ''
+				const productoLabel = descripcion
+					? `${nroPartePrincipal} - ${descripcion}`
+					: nroPartePrincipal
+				const marca = p.marcaNombre || '—'
+				const ubicacion = p.ubicacion || '—'
+				return `
+					<tr class="border-t">
+						<td class="py-2 px-3 font-semibold text-gray-800">${productoLabel}</td>
+						<td class="py-2 px-3 text-gray-700">${marca}</td>
+						<td class="py-2 px-3 text-gray-700">${ubicacion}</td>
+						<td class="py-2 px-3 text-right text-gray-700">${p._qty}</td>
+						<td class="py-2 px-3 text-right text-red-600 font-semibold">${p._min}</td>
+					</tr>
+				`
+			})
+			.join('')
+
+		tbody.innerHTML = rows
 	}
 
 	// Función para renderizar vista mensual (últimos 12 meses)

@@ -539,10 +539,10 @@ export function initProductList() {
 				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.ubicacion || '—'}</td>
-				<td class="py-3 px-4 text-sm text-right text-gray-700">${p.Cantidad}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-700">${
 					Number.isFinite(Number(p.stockMinimo)) ? Number(p.stockMinimo) : 0
 				}</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${p.Cantidad}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">${formatMoney(
 					p.Precio,
 				)}</td>
