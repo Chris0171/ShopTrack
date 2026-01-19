@@ -14,7 +14,7 @@ export function initUpdateProducto(productId = null) {
 	const btnAddNroParte = document.getElementById('btn-add-nroParte')
 	const btnAddFoto = document.getElementById('btn-add-foto')
 	const numerosParteContainer = document.getElementById(
-		'numeros-parte-container'
+		'numeros-parte-container',
 	)
 	const fotosContainer = document.getElementById('fotos-container')
 
@@ -26,6 +26,7 @@ export function initUpdateProducto(productId = null) {
 	const Tasas = document.getElementById('Tasas')
 	const marcaSelect = document.getElementById('marcaSelect')
 	const Ubicacion = document.getElementById('Ubicacion')
+	const StockMinimo = document.getElementById('StockMinimo')
 
 	const appModal = document.getElementById('appModal')
 	const btnModalOk = document.getElementById('btn-modal-ok')
@@ -112,8 +113,8 @@ export function initUpdateProducto(productId = null) {
 			<input type="text" value="${valor}" class="flex-1 border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition numero-parte-input" placeholder="P-001-ALT" />
 			<label class="flex items-center gap-1 text-sm">
 				<input type="radio" name="nroParte-principal" value="${index}" ${
-			esPrincipal ? 'checked' : ''
-		} class="nroParte-radio" />
+					esPrincipal ? 'checked' : ''
+				} class="nroParte-radio" />
 				<span data-i18n="products.create.principal">Principal</span>
 			</label>
 			<button type="button" class="btn-remove-nroParte bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
@@ -176,7 +177,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Error',
 				'No se pudo seleccionar la imagen. Intenta nuevamente.',
-				true
+				true,
 			)
 		}
 	})
@@ -189,8 +190,8 @@ export function initUpdateProducto(productId = null) {
 			<input type="text" readonly class="flex-1 border-2 border-gray-300 p-2 rounded-lg bg-gray-50 text-gray-600" value="${fileName}" />
 			<label class="flex items-center gap-1 text-sm">
 				<input type="radio" name="foto-principal" value="${index}" ${
-			isPrincipal ? 'checked' : ''
-		} class="foto-radio" />
+					isPrincipal ? 'checked' : ''
+				} class="foto-radio" />
 				<span data-i18n="products.create.principal">Principal</span>
 			</label>
 			<button type="button" class="btn-remove-foto bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
@@ -258,7 +259,7 @@ export function initUpdateProducto(productId = null) {
 
 				modalTimeout = null
 			},
-			yaVisible ? CONFIG.MODAL_TIMEOUT : CONFIG.FADE_IN_DELAY
+			yaVisible ? CONFIG.MODAL_TIMEOUT : CONFIG.FADE_IN_DELAY,
 		)
 	}
 
@@ -282,7 +283,7 @@ export function initUpdateProducto(productId = null) {
 				'⚠️',
 				'No encontrado',
 				'No se encontró ningún producto con ese número de parte',
-				true
+				true,
 			)
 			return
 		}
@@ -302,7 +303,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Falta producto',
 				'Busca un producto antes de actualizar',
-				true
+				true,
 			)
 			return
 		}
@@ -314,7 +315,7 @@ export function initUpdateProducto(productId = null) {
 			const valor = input.value.trim()
 			if (valor) {
 				const radio = document.querySelector(
-					`input[name="nroParte-principal"][value="${index}"]`
+					`input[name="nroParte-principal"][value="${index}"]`,
 				)
 				numerosParte.push({
 					NroParte: valor,
@@ -325,6 +326,7 @@ export function initUpdateProducto(productId = null) {
 
 		const descripcion = Descripcion.value.trim()
 		const cantidad = parseInt(Cantidad.value) || 0
+		const stockMinimo = parseInt(StockMinimo.value) || 0
 		const precio = parseFloat(Precio.value) || 0
 		const precioCosto = parseFloat(PrecioCosto.value) || 0
 		// Convertir porcentaje a decimal con validación (21 -> 0.21)
@@ -353,7 +355,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Números duplicados',
 				'Hay números de parte duplicados. Cada número debe ser único.',
-				true
+				true,
 			)
 			return
 		}
@@ -363,7 +365,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Campo requerido',
 				'Debes agregar al menos un Número de Parte',
-				true
+				true,
 			)
 			return
 		}
@@ -379,7 +381,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Campo requerido',
 				'La Descripción es obligatoria',
-				true
+				true,
 			)
 			return
 		}
@@ -389,7 +391,17 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Precio inválido',
 				'El Precio de Venta debe ser mayor a 0',
-				true
+				true,
+			)
+			return
+		}
+
+		if (stockMinimo < 0) {
+			mostrarModal(
+				'❌',
+				'Stock mínimo inválido',
+				'El stock mínimo debe ser mayor o igual a 0',
+				true,
 			)
 			return
 		}
@@ -399,7 +411,7 @@ export function initUpdateProducto(productId = null) {
 				'⚠️',
 				'Advertencia',
 				'El Precio de Costo no puede ser mayor al Precio de Venta',
-				true
+				true,
 			)
 			return
 		}
@@ -441,7 +453,7 @@ export function initUpdateProducto(productId = null) {
 							'❌',
 							'Error',
 							`No se pudo copiar la imagen: ${foto.fileName}`,
-							true
+							true,
 						)
 						return
 					}
@@ -456,16 +468,16 @@ export function initUpdateProducto(productId = null) {
 
 			// Establecer foto principal y orden
 			const fotoPrincipalRadio = document.querySelector(
-				'input[name="foto-principal"]:checked'
+				'input[name="foto-principal"]:checked',
 			)
 			if (fotoPrincipalRadio) {
 				const principalIndex = parseInt(fotoPrincipalRadio.value)
 				const fotoSeleccionada = fotosSeleccionadas.find(
-					(f) => f.index === principalIndex
+					(f) => f.index === principalIndex,
 				)
 				if (fotoSeleccionada) {
 					const fotoEnLista = fotosParaGuardar.find(
-						(f) => f.nombreImagen === fotoSeleccionada.fileName
+						(f) => f.nombreImagen === fotoSeleccionada.fileName,
 					)
 					if (fotoEnLista) {
 						fotoEnLista.esPrincipal = 1
@@ -483,6 +495,7 @@ export function initUpdateProducto(productId = null) {
 			const data = {
 				Descripcion: descripcion,
 				Cantidad: cantidad,
+				stockMinimo: stockMinimo,
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
@@ -507,7 +520,7 @@ export function initUpdateProducto(productId = null) {
 				'❌',
 				'Error',
 				`No se pudo actualizar: ${err.message || err}`,
-				true
+				true,
 			)
 		} finally {
 			// Re-habilitar botón submit
@@ -529,7 +542,7 @@ export function initUpdateProducto(productId = null) {
 
 		if (hayDatos) {
 			const confirmar = confirm(
-				'¿Está seguro de limpiar el formulario? Se perderán todos los cambios no guardados.'
+				'¿Está seguro de limpiar el formulario? Se perderán todos los cambios no guardados.',
 			)
 			if (!confirmar) return
 		}
@@ -567,6 +580,10 @@ export function initUpdateProducto(productId = null) {
 		Cantidad.value = prod.Cantidad || 0
 		Precio.value = prod.Precio || 0
 		PrecioCosto.value = prod.precioCosto || 0
+		StockMinimo.value =
+			prod.stockMinimo !== undefined && prod.stockMinimo !== null
+				? prod.stockMinimo
+				: 0
 		// Normalizar tasas: si es > 1 ya está en porcentaje, si no convertir
 		if (prod.Tasas !== undefined && prod.Tasas !== null) {
 			const valorTasas = parseFloat(prod.Tasas)

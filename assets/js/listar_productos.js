@@ -94,18 +94,18 @@ export function initProductList() {
 	function renderEstado(activo) {
 		return activo
 			? `<span class="px-2 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700">${t(
-					'products.list.active'
-			  )}</span>`
+					'products.list.active',
+				)}</span>`
 			: `<span class="px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">${t(
-					'products.list.inactive'
-			  )}</span>`
+					'products.list.inactive',
+				)}</span>`
 	}
 
 	function renderImagen(fotos, id) {
 		// fotos es un array de objetos { nombreImagen, esPrincipal, orden }
 		if (!fotos || fotos.length === 0) {
 			return `<div class="flex items-center justify-center"><span class="text-gray-400 text-sm">${t(
-				'products.list.noImage'
+				'products.list.noImage',
 			)}</span></div>`
 		}
 
@@ -146,14 +146,14 @@ export function initProductList() {
 
 			try {
 				const result = await window.api.producto.getImagenPath(
-					foto.nombreImagen
+					foto.nombreImagen,
 				)
 
 				// Verificar nuevamente después del await
 				if (currentLoadId !== loadId) return
 
 				const imgs = document.querySelectorAll(
-					`img[data-foto-name="${foto.nombreImagen}"]`
+					`img[data-foto-name="${foto.nombreImagen}"]`,
 				)
 
 				if (result.ok && result.exists) {
@@ -171,7 +171,7 @@ export function initProductList() {
 				console.error(
 					'Error cargando ruta de imagen:',
 					foto.nombreImagen,
-					error
+					error,
 				)
 			}
 		}
@@ -226,7 +226,7 @@ export function initProductList() {
 		// Agregar indicador a la columna actual
 		if (sortField) {
 			const currentTh = document.querySelector(
-				`th.sortable[data-field="${sortField}"]`
+				`th.sortable[data-field="${sortField}"]`,
 			)
 			if (currentTh) {
 				currentTh.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc')
@@ -266,7 +266,7 @@ export function initProductList() {
 
 				modalTimeout = null
 			},
-			yaVisible ? CONFIG.MODAL_TIMEOUT : CONFIG.FADE_IN_DELAY
+			yaVisible ? CONFIG.MODAL_TIMEOUT : CONFIG.FADE_IN_DELAY,
 		)
 	}
 
@@ -283,7 +283,7 @@ export function initProductList() {
 		currentCarouselImages = todasLasFotos
 		// Encontrar el índice de la imagen seleccionada
 		currentCarouselIndex = todasLasFotos.findIndex(
-			(f) => f.nombreImagen === nombreImagen
+			(f) => f.nombreImagen === nombreImagen,
 		)
 		if (currentCarouselIndex === -1) currentCarouselIndex = 0
 
@@ -341,7 +341,7 @@ export function initProductList() {
 					showModal(
 						'❌',
 						'Imagen no disponible',
-						'No se pudo cargar la imagen solicitada.'
+						'No se pudo cargar la imagen solicitada.',
 					)
 				}
 			})
@@ -465,7 +465,7 @@ export function initProductList() {
 		// Mostrar indicador de carga
 		tablaBody.innerHTML = `
 			<tr>
-				<td colspan="11" class="text-center py-8">
+				<td colspan="12" class="text-center py-8">
 					<div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full"></div>
 					<p class="mt-2 text-gray-600 font-semibold">${
 						t('products.list.loading') || 'Cargando productos...'
@@ -504,8 +504,8 @@ export function initProductList() {
 			if (!listaOrdenada || listaOrdenada.length === 0) {
 				tablaBody.innerHTML = `
 			<tr>
-					<td colspan="11" class="text-center py-6 text-gray-500 font-semibold">${t(
-						'products.list.noProducts'
+					<td colspan="12" class="text-center py-6 text-gray-500 font-semibold">${t(
+						'products.list.noProducts',
 					)}</td>
 			</tr>`
 				paginaActualSpan.textContent = formatPageLabel(pagina, totalPaginas)
@@ -532,7 +532,7 @@ export function initProductList() {
 					cantidadNumerosParte > 1
 						? `${nroPartePrincipal} <span class="text-xs text-gray-500">(+${
 								cantidadNumerosParte - 1
-						  })</span>`
+							})</span>`
 						: nroPartePrincipal
 				tr.innerHTML = `
 				<td class="py-3 px-4 text-sm font-bold text-gray-800">${numeroParteDisplay}</td>
@@ -540,14 +540,17 @@ export function initProductList() {
 				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.ubicacion || '—'}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-700">${p.Cantidad}</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${
+					Number.isFinite(Number(p.stockMinimo)) ? Number(p.stockMinimo) : 0
+				}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">${formatMoney(
-					p.Precio
+					p.Precio,
 				)}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-700">${formatMoney(
-					Number.isFinite(Number(p.precioCosto)) ? Number(p.precioCosto) : 0
+					Number.isFinite(Number(p.precioCosto)) ? Number(p.precioCosto) : 0,
 				)}</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-700">${formatPercent(
-					p.Tasas
+					p.Tasas,
 				)}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${renderImagen(p.fotos, p.id)}</td>
 				<td class="py-3 px-4 text-center">${renderEstado(p.activo)}</td>
@@ -555,13 +558,13 @@ export function initProductList() {
 					<button id="btn_upd_${
 						p.id
 					}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow">${t(
-					'common.edit'
-				)}</button>
+						'common.edit',
+					)}</button>
 					<button id="btn_del_${
 						p.id
 					}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-semibold shadow">${t(
-					'common.delete'
-				)}</button>
+						'common.delete',
+					)}</button>
 				</td>
 			`
 
@@ -585,7 +588,7 @@ export function initProductList() {
 			console.error('Error al cargar productos:', error)
 			tablaBody.innerHTML = `
 				<tr>
-					<td colspan="11" class="text-center py-8 text-red-600">
+					<td colspan="12" class="text-center py-8 text-red-600">
 						<div class="text-4xl mb-2">❌</div>
 						<p class="font-semibold">${
 							t('products.list.loadError') || 'Error al cargar productos'
@@ -636,7 +639,7 @@ export function initProductList() {
 		debounce(() => {
 			pagina = 1
 			cargarProductos()
-		}, 300)
+		}, 300),
 	)
 
 	// Delegación de eventos para botones e imágenes (evita memory leaks)
@@ -659,7 +662,7 @@ export function initProductList() {
 				'⚠️',
 				t('products.list.deleteConfirmTitle'),
 				t('products.list.deleteConfirmMessage'),
-				{ confirm: true }
+				{ confirm: true },
 			)
 			return
 		}
@@ -719,7 +722,7 @@ export function initProductList() {
 
 		if (hayFiltros) {
 			const confirmar = confirm(
-				'¿Desea limpiar todos los filtros y ordenamiento para recargar la lista completa?'
+				'¿Desea limpiar todos los filtros y ordenamiento para recargar la lista completa?',
 			)
 			if (!confirmar) return
 		}

@@ -5,8 +5,9 @@ export function initCreateProducto() {
 	const inputTasas = document.getElementById('Tasas')
 	const marcaSelect = document.getElementById('marcaSelect')
 	const ubicacionInput = document.getElementById('Ubicacion')
+	const stockMinimoInput = document.getElementById('StockMinimo')
 	const numerosParteContainer = document.getElementById(
-		'numeros-parte-container'
+		'numeros-parte-container',
 	)
 	const btnAddNroParte = document.getElementById('btn-add-nroParte')
 	const fotosContainer = document.getElementById('fotos-container')
@@ -78,8 +79,8 @@ export function initCreateProducto() {
 				}" />
 				<label class="flex items-center gap-1 text-sm">
 					<input type="radio" name="foto-principal" value="${currentIndex}" ${
-				isPrincipal ? 'checked' : ''
-			} class="foto-radio" />
+						isPrincipal ? 'checked' : ''
+					} class="foto-radio" />
 					<span data-i18n="products.create.principal">Principal</span>
 				</label>
 				<button type="button" class="btn-remove-foto bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg font-semibold transition">
@@ -202,11 +203,11 @@ export function initCreateProducto() {
 	document.getElementById('btn-guardar').addEventListener('click', async () => {
 		// Recolectar números de parte
 		const numerosParteInputs = numerosParteContainer.querySelectorAll(
-			'.numero-parte-input'
+			'.numero-parte-input',
 		)
 		const numerosParte = []
 		const principalRadio = document.querySelector(
-			'input[name="nroParte-principal"]:checked'
+			'input[name="nroParte-principal"]:checked',
 		)
 		const principalIndex = principalRadio ? parseInt(principalRadio.value) : 0
 
@@ -222,6 +223,7 @@ export function initCreateProducto() {
 
 		const descripcion = document.getElementById('Descripcion').value.trim()
 		const cantidad = parseInt(document.getElementById('Cantidad').value) || 0
+		const stockMinimo = parseInt(stockMinimoInput.value) || 0
 		const precio = parseFloat(document.getElementById('Precio').value) || 0
 		const precioCosto =
 			parseFloat(document.getElementById('PrecioCosto').value) || 0
@@ -236,7 +238,7 @@ export function initCreateProducto() {
 				'❌',
 				'Campo Requerido',
 				'Debe agregar al menos un Número de Parte',
-				true
+				true,
 			)
 			return
 		}
@@ -246,7 +248,7 @@ export function initCreateProducto() {
 				'❌',
 				'Campo Requerido',
 				'La Descripción es obligatoria',
-				true
+				true,
 			)
 			return
 		}
@@ -256,7 +258,17 @@ export function initCreateProducto() {
 				'❌',
 				'Precio Inválido',
 				'El Precio de Venta debe ser mayor a 0',
-				true
+				true,
+			)
+			return
+		}
+
+		if (stockMinimo < 0) {
+			mostrarModal(
+				'❌',
+				'Stock mínimo inválido',
+				'El stock mínimo debe ser mayor o igual a 0',
+				true,
 			)
 			return
 		}
@@ -271,7 +283,7 @@ export function initCreateProducto() {
 				'⚠️',
 				'Advertencia',
 				'El Precio de Costo no puede ser mayor al Precio de Venta',
-				true
+				true,
 			)
 			return
 		}
@@ -281,7 +293,7 @@ export function initCreateProducto() {
 			const fotos = []
 			if (fotosSeleccionadas.length > 0) {
 				const principalFotoRadio = document.querySelector(
-					'input[name="foto-principal"]:checked'
+					'input[name="foto-principal"]:checked',
 				)
 				const principalFotoIndex = principalFotoRadio
 					? parseInt(principalFotoRadio.value)
@@ -300,7 +312,7 @@ export function initCreateProducto() {
 
 				// Reordenar para que la principal sea la primera
 				const principalFoto = fotosSeleccionadas.find(
-					(f) => f.index === principalFotoIndex
+					(f) => f.index === principalFotoIndex,
 				)
 				if (principalFoto) {
 					const principalIndex = fotos.indexOf(principalFoto.fileName)
@@ -315,6 +327,7 @@ export function initCreateProducto() {
 				numerosParte: numerosParte,
 				Descripcion: descripcion,
 				Cantidad: cantidad,
+				stockMinimo: stockMinimo,
 				Precio: precio,
 				Tasas: tasas,
 				precioCosto: precioCosto,
@@ -328,7 +341,7 @@ export function initCreateProducto() {
 			mostrarModal(
 				'✅',
 				'Éxito',
-				`Producto "${numerosParte[0].nroParte}" creado correctamente`
+				`Producto "${numerosParte[0].nroParte}" creado correctamente`,
 			)
 
 			// Limpiar formulario

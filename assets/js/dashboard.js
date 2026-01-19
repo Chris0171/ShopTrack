@@ -82,7 +82,7 @@ export async function initDashboard() {
 				<div class="flex flex-col items-center justify-center h-64 text-center">
 					<i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
 					<p class="text-gray-700 font-semibold mb-2">${t(
-						'dashboard.errorLoadingData'
+						'dashboard.errorLoadingData',
 					)}</p>
 					<p class="text-gray-500 text-sm">${mensaje}</p>
 					<button id="btnReintentarCarga" class="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
@@ -99,8 +99,8 @@ export async function initDashboard() {
 						btnActivo?.id === 'btn7Dias'
 							? 7
 							: btnActivo?.id === 'btn15Dias'
-							? 15
-							: 30
+								? 15
+								: 30
 					actualizarGráfico(días)
 				})
 			}
@@ -212,15 +212,15 @@ export async function initDashboard() {
 
 				if (ventasPorMes[key]) {
 					const detallesDeVenta = detallesVenta.filter(
-						(d) => d.idVenta === venta.id
+						(d) => d.idVenta === venta.id,
 					)
 					const { beneficio, costoTotal } = calcularBeneficioYRentabilidad(
 						detallesDeVenta,
-						productos
+						productos,
 					)
 					const cantidadProductos = detallesDeVenta.reduce(
 						(sum, d) => sum + d.cantidad,
-						0
+						0,
 					)
 
 					ventasPorMes[key].ingresos += venta.total
@@ -266,13 +266,13 @@ export async function initDashboard() {
 		// Contar productos por día
 		ventasÚltimoPeríodo.forEach((venta) => {
 			const detallesDeVenta = detallesVenta.filter(
-				(d) => d.idVenta === venta.id
+				(d) => d.idVenta === venta.id,
 			)
 			const fecha = normalizarFecha(venta.fecha)
 			if (fecha) {
 				productosPorDía[fecha] += detallesDeVenta.reduce(
 					(sum, d) => sum + (d.cantidad || 0),
-					0
+					0,
 				)
 			}
 		})
@@ -310,13 +310,13 @@ export async function initDashboard() {
 		// Contar productos por día
 		ventasÚltimoPeríodo.forEach((venta) => {
 			const detallesDeVenta = detallesVenta.filter(
-				(d) => d.idVenta === venta.id
+				(d) => d.idVenta === venta.id,
 			)
 			const fecha = normalizarFecha(venta.fecha)
 			if (fecha) {
 				productosPorDía[fecha] += detallesDeVenta.reduce(
 					(sum, d) => sum + (d.cantidad || 0),
-					0
+					0,
 				)
 			}
 		})
@@ -391,13 +391,13 @@ export async function initDashboard() {
 
 				ventasDelMes.forEach((venta) => {
 					const detallesDeVenta = cache.detalles.filter(
-						(d) => d.idVenta === venta.id
+						(d) => d.idVenta === venta.id,
 					)
 					const fecha = normalizarFecha(venta.fecha)
 					if (fecha) {
 						productosPorDía[fecha] += detallesDeVenta.reduce(
 							(sum, d) => sum + (d.cantidad || 0),
-							0
+							0,
 						)
 					}
 				})
@@ -454,7 +454,7 @@ export async function initDashboard() {
 					topClientTotal = total
 					topClientId = idCliente
 					topClientCount = ventasÚltimoPeríodo.filter(
-						(v) => v.idCliente === parseInt(idCliente)
+						(v) => v.idCliente === parseInt(idCliente),
 					).length
 				}
 			})
@@ -475,7 +475,7 @@ export async function initDashboard() {
 				if (mesEspecifico) {
 					tituloElement.textContent = t('dashboard.avgSalesMonth').replace(
 						'{month}',
-						mesEspecifico.label
+						mesEspecifico.label,
 					)
 				} else {
 					tituloElement.textContent = t('dashboard.avgSalesLast30')
@@ -484,7 +484,7 @@ export async function initDashboard() {
 
 			const totalIngresos = ventasÚltimoPeríodo.reduce(
 				(sum, v) => sum + v.total,
-				0
+				0,
 			)
 
 			// Promedio diario
@@ -493,11 +493,10 @@ export async function initDashboard() {
 			const avgMonthly = (totalIngresos / días) * 30
 
 			document.getElementById('avgDaily').textContent = `$${avgDaily.toFixed(
-				2
+				2,
 			)}`
-			document.getElementById(
-				'avgMonthly'
-			).textContent = `$${avgMonthly.toFixed(2)}`
+			document.getElementById('avgMonthly').textContent =
+				`$${avgMonthly.toFixed(2)}`
 		} catch (error) {
 			console.error('Error al actualizar tarjetas:', error)
 		}
@@ -534,17 +533,20 @@ export async function initDashboard() {
 			if (ventasDiaIngreso)
 				ventasDiaIngreso.textContent = `$${ingresoHoy.toFixed(0)}`
 
-			// KPI 2: Stock bajo (menos de 10 unidades)
-			const stockBajo = productos.filter(
-				(p) => p.Cantidad < 10 && p.activo === 1
-			).length
+			// KPI 2: Stock bajo (según stock mínimo por producto)
+			const stockBajo = productos.filter((p) => {
+				if (p.activo !== 1) return false
+				const min = Number(p.stockMinimo ?? 0)
+				const qty = Number(p.Cantidad ?? 0)
+				return qty <= min
+			}).length
 			const stockBajoEl = document.querySelector('#stockBajo')
 			if (stockBajoEl) stockBajoEl.textContent = stockBajo
 
 			// KPI 3: Ingresos del período (últimos 30 días)
 			const hace30Dias = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 			const ventasPeríodo = ventas.filter(
-				(v) => new Date(v.fecha) >= hace30Dias
+				(v) => new Date(v.fecha) >= hace30Dias,
 			)
 			const ingresosPeríodo = ventasPeríodo.reduce((sum, v) => sum + v.total, 0)
 
@@ -566,7 +568,7 @@ export async function initDashboard() {
 		const { ventasPorMes, mesesLabels } = procesarVentasPorMes(
 			cache.ventas,
 			cache.detalles,
-			cache.productos
+			cache.productos,
 		)
 
 		const chartDom = document.getElementById('chartIngresos')
@@ -639,20 +641,20 @@ export async function initDashboard() {
 						}</div>
 						<div style="line-height:1.8">
 							<div><span style="color:#6d3aef">●</span> <b>${t(
-								'dashboard.ingresos'
+								'dashboard.ingresos',
 							)}:</b> ${formatCurrency(datos.ingresos)}</div>
 							<div><span style="color:#22c55e">●</span> <b>${t(
-								'dashboard.beneficio'
+								'dashboard.beneficio',
 							)}:</b> ${formatCurrency(datos.beneficio)}</div>
 							<div><span style="color:#f59e0b">●</span> <b>${t(
-								'dashboard.rentabilidad'
+								'dashboard.rentabilidad',
 							)}:</b> ${rentabilidad.toFixed(1)}%</div>
 							<div style="margin-top:5px; padding-top:5px; border-top:1px solid #e5e7eb">
 								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
 								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
 								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
-						ticketPromedio
-					)}</div>
+									ticketPromedio,
+								)}</div>
 							</div>
 							${variacionHTML}
 						</div>
@@ -794,15 +796,15 @@ export async function initDashboard() {
 			}
 
 			const detallesDeVenta = detallesVenta.filter(
-				(d) => d.idVenta === venta.id
+				(d) => d.idVenta === venta.id,
 			)
 			const { beneficio, costoTotal } = calcularBeneficioYRentabilidad(
 				detallesDeVenta,
-				productos
+				productos,
 			)
 			const cantidadProductos = detallesDeVenta.reduce(
 				(sum, d) => sum + d.cantidad,
-				0
+				0,
 			)
 
 			ventasPorDia[fecha].ingresos += venta.total
@@ -915,27 +917,27 @@ export async function initDashboard() {
 							weekday: 'long',
 							day: 'numeric',
 							month: 'long',
-						}
+						},
 					)
 
 					return `
 						<div style="font-weight:bold; margin-bottom:10px; font-size:14px; text-transform:capitalize">${fechaFormateada}</div>
 						<div style="line-height:1.8">
 							<div><span style="color:#6d3aef">●</span> <b>${t(
-								'dashboard.ingresos'
+								'dashboard.ingresos',
 							)}:</b> ${formatCurrency(datos.ingresos)}</div>
 							<div><span style="color:#22c55e">●</span> <b>${t(
-								'dashboard.beneficio'
+								'dashboard.beneficio',
 							)}:</b> ${formatCurrency(datos.beneficio)}</div>
 							<div><span style="color:#f59e0b">●</span> <b>${t(
-								'dashboard.rentabilidad'
+								'dashboard.rentabilidad',
 							)}:</b> ${rentabilidad.toFixed(1)}%</div>
 							<div style="margin-top:5px; padding-top:5px; border-top:1px solid #e5e7eb">
 								<div>📦 <b>${t('dashboard.orders')}:</b> ${datos.ordenes}</div>
 								<div>🛒 <b>${t('dashboard.products')}:</b> ${datos.productos}</div>
 								<div>💵 <b>${t('dashboard.ticketPromedio')}:</b> ${formatCurrency(
-						ticketPromedio
-					)}</div>
+									ticketPromedio,
+								)}</div>
 							</div>
 						</div>
 					`

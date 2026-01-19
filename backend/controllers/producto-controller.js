@@ -48,9 +48,9 @@ module.exports = {
 								if (completed === rows.length) {
 									callback(null, productos)
 								}
-							}
+							},
 						)
-					}
+					},
 				)
 			})
 		})
@@ -62,6 +62,7 @@ module.exports = {
 			numerosParte = [], // Array de objetos { nroParte, esPrincipal }
 			Descripcion,
 			Cantidad = 0,
+			stockMinimo = 0,
 			Precio = 0,
 			Tasas = 0,
 			precioCosto = 0,
@@ -69,7 +70,7 @@ module.exports = {
 			ubicacion = null,
 			fotos = [], // Array de nombres de archivo
 		},
-		callback
+		callback,
 	) {
 		// Validación: debe haber al menos un número de parte
 		if (
@@ -79,7 +80,7 @@ module.exports = {
 			!marcaId
 		) {
 			return callback(
-				new Error('numerosParte, Descripcion y marcaId son obligatorios')
+				new Error('numerosParte, Descripcion y marcaId son obligatorios'),
 			)
 		}
 
@@ -88,8 +89,8 @@ module.exports = {
 			numerosParte.find((n) => n.esPrincipal === 1) || numerosParte[0]
 
 		const sql = `
-			INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, Tasas, precioCosto, marcaId, ubicacion)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			INSERT INTO Producto (NroParte, Descripcion, Cantidad, stockMinimo, Precio, Tasas, precioCosto, marcaId, ubicacion)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`
 
 		db.run(
@@ -98,6 +99,7 @@ module.exports = {
 				nroPartePrincipal.nroParte,
 				Descripcion,
 				Cantidad,
+				stockMinimo,
 				Precio,
 				Tasas,
 				precioCosto,
@@ -122,7 +124,7 @@ module.exports = {
 								if (insertedNumeros === numerosParte.length) {
 									insertarFotos()
 								}
-							}
+							},
 						)
 					})
 				} else {
@@ -144,14 +146,14 @@ module.exports = {
 									if (insertedFotos === fotos.length) {
 										callback(null, { id: idProducto })
 									}
-								}
+								},
 							)
 						})
 					} else {
 						callback(null, { id: idProducto })
 					}
 				}
-			}
+			},
 		)
 	},
 
@@ -161,6 +163,7 @@ module.exports = {
 			numerosParte = [],
 			Descripcion,
 			Cantidad,
+			stockMinimo,
 			Precio,
 			Tasas,
 			precioCosto,
@@ -179,7 +182,7 @@ module.exports = {
 
 		const sql = `
 			UPDATE Producto 
-			SET NroParte = ?, Descripcion = ?, Cantidad = ?, Precio = ?, Tasas = ?, precioCosto = ?, marcaId = ?, ubicacion = ?
+			SET NroParte = ?, Descripcion = ?, Cantidad = ?, stockMinimo = ?, Precio = ?, Tasas = ?, precioCosto = ?, marcaId = ?, ubicacion = ?
 			WHERE id = ?
 		`
 
@@ -189,6 +192,7 @@ module.exports = {
 				nroParteValor,
 				Descripcion,
 				Cantidad,
+				stockMinimo,
 				Precio,
 				Tasas,
 				precioCosto,
@@ -223,13 +227,13 @@ module.exports = {
 										if (insertedNumeros === numerosParte.length) {
 											actualizarFotos()
 										}
-									}
+									},
 								)
 							})
 						} else {
 							actualizarFotos()
 						}
-					}
+					},
 				)
 
 				function actualizarFotos() {
@@ -260,16 +264,16 @@ module.exports = {
 											if (insertedFotos === fotos.length) {
 												callback(null)
 											}
-										}
+										},
 									)
 								})
 							} else {
 								callback(null)
 							}
-						}
+						},
 					)
 				}
-			}
+			},
 		)
 	},
 
@@ -315,9 +319,9 @@ module.exports = {
 									numerosParte: numerosParte || [],
 									fotos: fotos || [],
 								})
-							}
+							},
 						)
-					}
+					},
 				)
 			} else {
 				// Si no se encontró, buscar en la tabla de números de parte alternos
@@ -353,9 +357,9 @@ module.exports = {
 										numerosParte: numerosParte || [],
 										fotos: fotos || [],
 									})
-								}
+								},
 							)
-						}
+						},
 					)
 				})
 			}
@@ -439,12 +443,12 @@ module.exports = {
 									if (completed === rows.length) {
 										callback(null, productos)
 									}
-								}
+								},
 							)
-						}
+						},
 					)
 				})
-			}
+			},
 		)
 	},
 
@@ -554,14 +558,14 @@ module.exports = {
 													totalPaginas: Math.ceil(total / limite),
 												})
 											}
-										}
+										},
 									)
-								}
+								},
 							)
 						})
-					}
+					},
 				)
-			}
+			},
 		)
 	},
 }
