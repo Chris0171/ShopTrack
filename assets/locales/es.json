@@ -232,6 +232,7 @@
 				"nroParte": "Nro de Parte",
 				"description": "Descripción",
 				"brand": "Marca",
+				"location": "Ubicación",
 				"quantity": "Cantidad",
 				"iva": "IVA",
 				"unitPrice": "Precio Unit.",

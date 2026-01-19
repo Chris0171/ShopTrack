@@ -232,6 +232,7 @@
 				"nroParte": "Part Number",
 				"description": "Description",
 				"brand": "Brand",
+				"location": "Location",
 				"quantity": "Quantity",
 				"iva": "TAX",
 				"unitPrice": "Unit Price",

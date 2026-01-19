@@ -3,8 +3,12 @@ const db = require('../db/initDatabase')
 module.exports = {
 	// 🔹 Generar número de factura automático
 	generateNumeroFactura: function (callback) {
-		const hoy = new Date().toISOString().split('T')[0].replace(/-/g, '') // YYYYMMDD
-		const prefijo = `FAC-${hoy}-`
+		const hoy = new Date()
+		const mm = String(hoy.getMonth() + 1).padStart(2, '0')
+		const dd = String(hoy.getDate()).padStart(2, '0')
+		const yyyy = hoy.getFullYear()
+		const fechaUS = `${mm}${dd}${yyyy}` // MMDDYYYY
+		const prefijo = `FAC-${fechaUS}-`
 
 		const sql = `
             SELECT numeroFactura 
@@ -56,11 +60,11 @@ module.exports = {
 			estado = 'emitida',
 			rutaPDF = null,
 		},
-		callback
+		callback,
 	) {
 		if (!idVenta || subtotal == null || impuestos == null || total == null) {
 			return callback(
-				new Error('idVenta, subtotal, impuestos y total son obligatorios')
+				new Error('idVenta, subtotal, impuestos y total son obligatorios'),
 			)
 		}
 
@@ -87,7 +91,7 @@ module.exports = {
 				function (err) {
 					if (err) return callback(err)
 					callback(null, { id: this.lastID, numeroFactura: numFacturaFinal })
-				}
+				},
 			)
 			stmt.finalize()
 		}
@@ -136,7 +140,7 @@ module.exports = {
 			function (err) {
 				if (err) return callback(err)
 				callback(null, { success: true, changes: this.changes })
-			}
+			},
 		)
 	},
 

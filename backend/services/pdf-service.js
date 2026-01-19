@@ -12,7 +12,7 @@ function loadLocale(language = 'es') {
 		try {
 			const localePath = path.join(
 				__dirname,
-				`../../assets/locales/${language}.json`
+				`../../assets/locales/${language}.json`,
 			)
 			const content = fs.readFileSync(localePath, 'utf-8')
 			locales[language] = JSON.parse(content)
@@ -107,15 +107,15 @@ class PDFService {
 					.fillColor(COLORS.black)
 					.text(
 						`${getText('invoice.date')}: ${this.formatearFecha(
-							datos.fechaEmision
+							datos.fechaEmision,
 						)}`,
 						40,
-						posY
+						posY,
 					)
 				doc.text(
 					`${getText('invoice.invoiceNumber')}: ${datos.numeroFactura}`,
 					40,
-					posY + 18
+					posY + 18,
 				)
 
 				// Nombre del cliente con menos margen antes de la siguiente línea
@@ -136,22 +136,22 @@ class PDFService {
 				doc.text(
 					`${getText('invoice.customer')}: ${datos.cliente.nombre}`,
 					40,
-					posY
+					posY,
 				)
 				doc.text(
 					`${getText('common.address')}: ${datos.cliente.direccion || 'N/A'}`,
 					40,
-					posY + 18
+					posY + 18,
 				)
 				doc.text(
 					`${getText('common.phone')}: ${datos.cliente.telefono || 'N/A'}`,
 					40,
-					posY + 36
+					posY + 36,
 				)
 				doc.text(
 					`${getText('common.email')}: ${datos.cliente.email || 'N/A'}`,
 					40,
-					posY + 54
+					posY + 54,
 				)
 
 				// Tabla manual estilizada con gradiente y bordes redondeados
@@ -226,7 +226,7 @@ class PDFService {
 						tableX + tableWidth,
 						tableY,
 						tableX + tableWidth,
-						tableY + radius
+						tableY + radius,
 					) // Esquina sup. derecha
 					.lineTo(tableX + tableWidth, tableY + headerHeight) // Bajar
 					.lineTo(tableX, tableY + headerHeight) // Cerrar figura
@@ -340,7 +340,7 @@ class PDFService {
 				// Calcular precio base (sin tasas)
 				const precioBase = datos.detalles.reduce(
 					(sum, d) => sum + d.precioUnitario * d.cantidad,
-					0
+					0,
 				)
 
 				// Dinero por tasas (impuestos)
@@ -372,7 +372,7 @@ class PDFService {
 					{
 						width: 100,
 						align: 'right',
-					}
+					},
 				)
 				doc.text(`$${dineroTasas.toFixed(2)}`, 450, posY, {
 					width: 100,
@@ -411,10 +411,10 @@ class PDFService {
 				doc.fillColor(COLORS.black).fontSize(10).font('Helvetica')
 				doc.text(
 					`${getText(
-						'sales.new.invoice.paymentMethod'
+						'sales.new.invoice.paymentMethod',
 					)}: ${datos.metodoPago.toUpperCase()}`,
 					40,
-					posY + 50
+					posY + 50,
 				)
 
 				if (datos.observaciones) {
@@ -426,7 +426,7 @@ class PDFService {
 						posY + 70,
 						{
 							width: 515,
-						}
+						},
 					)
 				}
 
@@ -458,12 +458,10 @@ class PDFService {
 	// Formatear fecha
 	static formatearFecha(fechaISO) {
 		const fecha = new Date(fechaISO)
-		return fecha.toLocaleDateString('es-ES', {
+		return fecha.toLocaleDateString('en-US', {
 			year: 'numeric',
 			month: '2-digit',
 			day: '2-digit',
-			hour: '2-digit',
-			minute: '2-digit',
 		})
 	}
 }

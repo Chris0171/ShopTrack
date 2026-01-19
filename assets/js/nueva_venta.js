@@ -135,7 +135,7 @@ export function initNuevaVenta() {
 	async function showModalConfirm(
 		message,
 		title = 'Confirmar',
-		variant = 'confirm'
+		variant = 'confirm',
 	) {
 		return await openModal({
 			title,
@@ -275,7 +275,7 @@ export function initNuevaVenta() {
 			if (productosSugeridos.length > 0) {
 				selectedIndex = Math.min(
 					selectedIndex + 1,
-					productosSugeridos.length - 1
+					productosSugeridos.length - 1,
 				)
 				actualizarSeleccion()
 			}
@@ -310,7 +310,7 @@ export function initNuevaVenta() {
 				if (filtrados.length === 0) {
 					await showModalInfo(
 						'El producto no coincide con la marca filtrada',
-						'Aviso'
+						'Aviso',
 					)
 					buscarInput.focus()
 					return
@@ -358,8 +358,8 @@ export function initNuevaVenta() {
 				producto.Cantidad > 10
 					? 'text-green-600'
 					: producto.Cantidad > 0
-					? 'text-yellow-600'
-					: 'text-red-600'
+						? 'text-yellow-600'
+						: 'text-red-600'
 
 			div.innerHTML = `
 				<div class="flex items-center justify-between">
@@ -372,10 +372,10 @@ export function initNuevaVenta() {
 					</div>
 					<div class="flex items-center gap-4">
 						<span class="text-sm font-semibold ${stockColor}">Stock: ${
-				producto.Cantidad
-			}</span>
+							producto.Cantidad
+						}</span>
 						<span class="text-sm font-bold text-gray-700">$${producto.Precio.toFixed(
-							2
+							2,
 						)}</span>
 					</div>
 				</div>
@@ -420,7 +420,7 @@ export function initNuevaVenta() {
 			await showModalInfo(
 				`El producto "${producto.NroParte}" no tiene stock disponible.`,
 				'Sin stock',
-				'warning'
+				'warning',
 			)
 			return
 		}
@@ -433,7 +433,7 @@ export function initNuevaVenta() {
 				await showModalInfo(
 					`Stock insuficiente. Solo hay ${producto.Cantidad} unidades disponibles.`,
 					'Stock insuficiente',
-					'warning'
+					'warning',
 				)
 				return
 			}
@@ -443,8 +443,8 @@ export function initNuevaVenta() {
 			const numerosParte = Array.isArray(producto.numerosParte)
 				? producto.numerosParte
 				: producto.NroParte
-				? [producto.NroParte]
-				: []
+					? [producto.NroParte]
+					: []
 			const nroPartePrincipal =
 				numerosParte.find((np) => np.esPrincipal)?.numero ||
 				numerosParte[0]?.numero ||
@@ -454,8 +454,8 @@ export function initNuevaVenta() {
 			const fotos = Array.isArray(producto.fotos)
 				? producto.fotos
 				: producto.nombreImagen
-				? [{ nombre: producto.nombreImagen, esPrincipal: true }]
-				: []
+					? [{ nombre: producto.nombreImagen, esPrincipal: true }]
+					: []
 			const fotoPrincipal =
 				fotos.find((f) => f.esPrincipal)?.nombre ||
 				fotos[0]?.nombre ||
@@ -467,6 +467,7 @@ export function initNuevaVenta() {
 				NroParte: nroPartePrincipal,
 				Descripcion: producto.Descripcion ?? 'Sin descripción',
 				marcaNombre: producto.marcaNombre || '—',
+				ubicacion: producto.ubicacion || '—',
 				precio: producto.Precio,
 				tasa: producto.Tasas,
 				cantidad: 1,
@@ -487,7 +488,7 @@ export function initNuevaVenta() {
 		if (productosVenta.length === 0) {
 			tablaVenta.innerHTML = `
 				<tr>
-					<td colspan="9" class="text-center py-8 text-gray-500 font-semibold">
+					<td colspan="10" class="text-center py-8 text-gray-500 font-semibold">
 						🛒 No hay productos agregados. Busca y agrega productos a la venta.
 					</td>
 				</tr>`
@@ -498,7 +499,7 @@ export function initNuevaVenta() {
 		const imagenesPromises = productosVenta.map((p) =>
 			p.nombreImagen
 				? window.api.producto.getImagenPath(p.nombreImagen)
-				: Promise.resolve(null)
+				: Promise.resolve(null),
 		)
 		const rutasImagenes = await Promise.all(imagenesPromises)
 
@@ -521,15 +522,16 @@ export function initNuevaVenta() {
 				<td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
 				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
+				<td class="py-3 px-4 text-sm text-gray-700">${p.ubicacion || '—'}</td>
 				<td class="py-3 px-4 text-right">
 					<input type="number" min="1" value="${p.cantidad}" 
 						class="cantidad-input w-20 p-2 text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-600 outline-none font-semibold">
 				</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-700">${(p.tasa * 100).toFixed(
-					0
+					0,
 				)}%</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">$${p.precio.toFixed(
-					2
+					2,
 				)}</td>
 				<td class="py-3 px-4 text-sm text-right font-bold text-indigo-700">$${total}</td>
 				<td class="py-3 px-4 text-center">
@@ -583,7 +585,7 @@ export function initNuevaVenta() {
 				await showModalInfo(
 					`Stock insuficiente. Solo hay ${p.stockActual} unidades disponibles.`,
 					'Stock insuficiente',
-					'warning'
+					'warning',
 				)
 				await renderTabla()
 				return
@@ -599,11 +601,11 @@ export function initNuevaVenta() {
 	function actualizarTotales() {
 		const subtotal = productosVenta.reduce(
 			(acc, p) => acc + p.precio * p.cantidad,
-			0
+			0,
 		)
 		const impuestos = productosVenta.reduce(
 			(acc, p) => acc + p.precio * p.cantidad * p.tasa,
-			0
+			0,
 		)
 		const descuento = parseFloat(descuentoInput.value) || 0
 		const total = subtotal + impuestos - descuento
@@ -641,7 +643,7 @@ export function initNuevaVenta() {
 		// Confirmación antes de generar factura
 		const confirmar = await showModalConfirm(
 			'¿Deseas generar la factura con los datos ingresados?',
-			'Confirmar acción'
+			'Confirmar acción',
 		)
 		if (!confirmar) return
 
@@ -700,7 +702,7 @@ export function initNuevaVenta() {
 					telefono: clienteTelefono.value.trim(),
 					email: clienteEmail.value.trim(),
 					direccion: clienteDireccion.value.trim(),
-			  }
+				}
 
 		// Almacenar datos de la venta actual para generar PDF
 		ventaActual = {
@@ -728,7 +730,7 @@ export function initNuevaVenta() {
 		await showModalInfo(
 			'Venta y factura registradas correctamente. Ya puedes descargar el PDF.',
 			'Éxito',
-			'success'
+			'success',
 		)
 
 		// Mostrar botón de descargar PDF
@@ -801,7 +803,7 @@ export function initNuevaVenta() {
 			await showModalInfo(
 				`Error al generar PDF: ${error.message}`,
 				'Error',
-				'error'
+				'error',
 			)
 		} finally {
 			btnDescargarPDF.disabled = false
