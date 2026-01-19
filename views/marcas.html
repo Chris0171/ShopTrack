@@ -1,0 +1,75 @@
+<div class="p-4">
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="brands.title">Marcas</h1>
+
+  <div class="bg-white rounded-xl shadow-lg p-5 mb-6 flex flex-wrap gap-4 items-end">
+    <div class="flex-1 min-w-[220px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="brands.name">Nombre</label>
+      <input id="marcaNombre" type="text" placeholder="Ej: Shell Rotella"
+        data-i18n="[placeholder]brands.placeholderName"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+    </div>
+    <div class="flex gap-3">
+      <button id="btnCrearMarca"
+        class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-bold shadow transition transform hover:scale-105"
+        data-i18n="brands.create">Crear</button>
+      <button id="btnLimpiarMarca"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105"
+        data-i18n="common.clear">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+    <table class="min-w-full">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-4 text-left" data-i18n="brands.name">Nombre</th>
+          <th class="py-3 px-4 text-center" data-i18n="brands.status">Estado</th>
+          <th class="py-3 px-4 text-center" data-i18n="brands.actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaMarcasBody" class="divide-y divide-gray-200">
+        <!-- Filas generadas dinámicamente -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal de edición -->
+  <div id="marcaModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md p-8 space-y-4">
+      <div class="text-center">
+        <div id="marcaModalIcon" class="text-5xl mb-4">✏️</div>
+        <h2 id="marcaModalTitle" class="text-2xl font-bold text-gray-800 mb-2" data-i18n="brands.editTitle">Editar Marca
+        </h2>
+      </div>
+      <div>
+        <label class="block font-bold text-gray-700 mb-2" data-i18n="brands.name">Nombre</label>
+        <input id="marcaEditNombre" type="text"
+          class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+      </div>
+      <div class="flex gap-3 justify-center">
+        <button id="btnGuardarMarca"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.save">Guardar</button>
+        <button id="btnCancelarMarca"
+          class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de feedback -->
+  <div id="appModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md p-8 space-y-4">
+      <div class="text-center">
+        <div id="modalIcon" class="text-5xl mb-4"></div>
+        <h2 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h2>
+        <p id="modalMessage" class="text-gray-600 text-center"></p>
+      </div>
+      <div class="flex gap-3 justify-center">
+        <button id="btn-modal-ok"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-semibold transition transform hover:scale-105"
+          data-i18n="common.accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>

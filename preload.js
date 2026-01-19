@@ -94,5 +94,11 @@ contextBridge.exposeInMainWorld('api', {
 
 	marca: {
 		getAll: () => ipcRenderer.invoke('marca:getAll'),
+		getAllWithInactive: () => ipcRenderer.invoke('marca:getAllWithInactive'),
+		create: (data) => ipcRenderer.invoke('marca:create', data),
+		update: (id, data) => ipcRenderer.invoke('marca:update', { id, data }),
+		delete: (id) => ipcRenderer.invoke('marca:delete', id),
+		setActive: (id, activo) =>
+			ipcRenderer.invoke('marca:setActive', { id, activo }),
 	},
 })

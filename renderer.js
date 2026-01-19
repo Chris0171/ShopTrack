@@ -6,6 +6,7 @@ import { initProductList } from './assets/js/listar_productos.js'
 import { initUpdateProducto } from './assets/js/actualizar_producto.js'
 import { initCreateProducto } from './assets/js/crear_producto.js'
 import { initConfiguracion } from './assets/js/configuracion.js'
+import { initMarcas } from './assets/js/marcas.js'
 
 window.addEventListener('DOMContentLoaded', async () => {
 	const content = document.getElementById('mainContent')
@@ -67,6 +68,9 @@ function loadInitFunctionView(viewName) {
 			break
 		case 'configuracion.html':
 			initConfiguracion()
+			break
+		case 'marcas.html':
+			initMarcas()
 			break
 	}
 }
