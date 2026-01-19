@@ -106,6 +106,9 @@
       <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.lowStock">Stock Bajo</h3>
       <p id="stockBajo" class="text-3xl md:text-4xl font-bold text-red-600">--</p>
       <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.critical">productos críticos</p>
+      <button id="btnVerCriticos"
+        class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105"
+        data-i18n="dashboard.viewCriticals">Ver críticos</button>
     </div>
     <!-- Tarjeta 3: Ingresos del período -->
     <div class="tarjetas p-4 md:p-6 flex flex-col justify-between">
@@ -119,36 +122,10 @@
       <h3 class="text-gray-600 text-base md:text-lg font-bold mb-4" data-i18n="dashboard.inventory">Inventario</h3>
       <p id="inventario" class="text-3xl md:text-4xl font-bold text-blue-600">--</p>
       <p class="text-gray-500 text-xs md:text-sm mt-2" data-i18n="dashboard.available">productos disponibles</p>
+      <button id="btnVerProductos"
+        class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105"
+        data-i18n="dashboard.viewProducts">Ver productos</button>
     </div>
   </div>
 
-  <!-- Tabla: Productos en stock crítico -->
-  <div class="tarjetas p-4 md:p-6">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-gray-600 text-base md:text-lg font-bold" data-i18n="dashboard.criticalTableTitle">
-        Productos en stock crítico
-      </h3>
-      <span id="stockCriticoCount" class="text-xs md:text-sm font-semibold text-red-600">0</span>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full text-sm">
-        <thead class="bg-gray-50 text-gray-600">
-          <tr>
-            <th class="text-left py-2 px-3" data-i18n="dashboard.criticalHeaderProduct">Producto</th>
-            <th class="text-left py-2 px-3" data-i18n="dashboard.criticalHeaderBrand">Marca</th>
-            <th class="text-left py-2 px-3" data-i18n="dashboard.criticalHeaderLocation">Ubicación</th>
-            <th class="text-right py-2 px-3" data-i18n="dashboard.criticalHeaderQty">Stock</th>
-            <th class="text-right py-2 px-3" data-i18n="dashboard.criticalHeaderMin">Mínimo</th>
-          </tr>
-        </thead>
-        <tbody id="tablaStockCriticoBody">
-          <tr>
-            <td colspan="5" class="text-center py-4 text-gray-500" data-i18n="dashboard.criticalEmpty">
-              No hay productos en stock crítico
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>

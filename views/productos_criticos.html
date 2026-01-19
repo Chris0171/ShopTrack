@@ -1,0 +1,76 @@
+<div class="p-4">
+  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="products.critical.title">Productos críticos</h1>
+
+  <div class="bg-white rounded-xl shadow-lg p-5 mb-6 flex flex-wrap gap-4 items-end">
+    <div class="flex-1 min-w-[220px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="dashboard.criticalFilterSearch">Buscar</label>
+      <input id="filtroCriticoTexto" type="text" placeholder="Nro parte o descripción"
+        data-i18n="[placeholder]dashboard.criticalFilterSearchPlaceholder"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition" />
+    </div>
+    <div class="flex-1 min-w-[200px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="dashboard.criticalFilterBrand">Marca</label>
+      <select id="filtroCriticoMarca"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+        <option value="" data-i18n="dashboard.criticalFilterBrandAll">Todas las marcas</option>
+      </select>
+    </div>
+    <div class="flex-1 min-w-[200px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="dashboard.criticalFilterLocation">Ubicación</label>
+      <select id="filtroCriticoUbicacion"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+        <option value="" data-i18n="dashboard.criticalFilterLocationAll">Todas las ubicaciones</option>
+      </select>
+    </div>
+    <div class="flex-1 min-w-[200px]">
+      <label class="block font-bold text-gray-700 mb-2" data-i18n="dashboard.criticalFilterSeverity">Severidad</label>
+      <select id="filtroCriticoSeveridad"
+        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
+        <option value="all" data-i18n="dashboard.criticalFilterSeverityAll">Todas</option>
+        <option value="zero" data-i18n="dashboard.criticalFilterSeverityZero">Sin stock</option>
+        <option value="belowMin" data-i18n="dashboard.criticalFilterSeverityBelowMin">Bajo mínimo</option>
+        <option value="under2" data-i18n="dashboard.criticalFilterSeverityUnder2">≤ 2 unidades</option>
+      </select>
+    </div>
+    <div class="flex gap-3">
+      <button id="btnLimpiarCriticos"
+        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold shadow transition transform hover:scale-105"
+        data-i18n="common.clear">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+    <table class="min-w-full">
+      <thead class="bg-gray-800 text-white">
+        <tr>
+          <th class="py-3 px-4 text-left" data-i18n="dashboard.criticalHeaderProduct">Producto</th>
+          <th class="py-3 px-4 text-left" data-i18n="dashboard.criticalHeaderBrand">Marca</th>
+          <th class="py-3 px-4 text-left" data-i18n="dashboard.criticalHeaderLocation">Ubicación</th>
+          <th class="py-3 px-4 text-right" data-i18n="dashboard.criticalHeaderQty">Stock</th>
+          <th class="py-3 px-4 text-right" data-i18n="dashboard.criticalHeaderMin">Mínimo</th>
+        </tr>
+      </thead>
+      <tbody id="tablaStockCriticoBody" class="divide-y divide-gray-200">
+        <tr>
+          <td colspan="5" class="text-center py-4 text-gray-500" data-i18n="dashboard.criticalEmpty">
+            No hay productos en stock crítico
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex flex-wrap gap-3 justify-between items-center mt-4 bg-white rounded-xl shadow p-4">
+    <span id="stockCriticoCount" class="text-sm font-semibold text-red-600">0</span>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button id="prevCriticos"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition"
+        data-i18n="dashboard.criticalPrev">Anterior</button>
+      <span id="paginaCriticos" class="font-bold text-gray-700">1/1</span>
+      <div id="paginacionCriticos" class="flex items-center gap-2 flex-wrap"></div>
+      <button id="nextCriticos"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-semibold transition"
+        data-i18n="dashboard.criticalNext">Siguiente</button>
+    </div>
+  </div>
+</div>

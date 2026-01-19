@@ -3,6 +3,7 @@ import { initNuevaVenta } from './assets/js/nueva_venta.js'
 import { initHistorialVenta } from './assets/js/historial_venta.js'
 import { initClientsList } from './assets/js/clientes.js'
 import { initProductList } from './assets/js/listar_productos.js'
+import { initProductosCriticos } from './assets/js/productos_criticos.js'
 import { initUpdateProducto } from './assets/js/actualizar_producto.js'
 import { initCreateProducto } from './assets/js/crear_producto.js'
 import { initConfiguracion } from './assets/js/configuracion.js'
@@ -57,6 +58,9 @@ function loadInitFunctionView(viewName) {
 			break
 		case 'listar_productos.html':
 			initProductList()
+			break
+		case 'productos_criticos.html':
+			initProductosCriticos()
 			break
 		case 'actualizar_producto.html':
 			// const urlParams = new URLSearchParams(window.location.search)
