@@ -80,7 +80,7 @@ export function initConfiguracion() {
 			} catch (error) {
 				console.warn(
 					'No se pudo cargar config del backend, usando localStorage:',
-					error
+					error,
 				)
 				config = JSON.parse(localStorage.getItem('appConfig') || '{}')
 			}
@@ -101,7 +101,8 @@ export function initConfiguracion() {
 		// Facturas
 		prefijoFactura.value = config.prefijoFactura || 'FAC'
 		numeroInicial.value = config.numeroInicial || 1000
-		ivaPredeterminado.value = (config.ivaPredeterminado * 100).toFixed(0) || 21
+		ivaPredeterminado.value =
+			(config.ivaPredeterminado * 100).toFixed(2) || '21.00'
 		incluirLogo.checked = config.incluirLogo !== false
 
 		// Empresa
@@ -156,7 +157,7 @@ export function initConfiguracion() {
 		await showModal(
 			'✅',
 			window.i18n.t('config.saved'),
-			window.i18n.t('config.savedMsg')
+			window.i18n.t('config.savedMsg'),
 		)
 	})
 
@@ -171,7 +172,7 @@ export function initConfiguracion() {
 			'📦',
 			window.i18n.t('config.backupTitle'),
 			window.i18n.t('config.backupMsg'),
-			{ confirm: true }
+			{ confirm: true },
 		)
 
 		if (confirmar) {
@@ -179,7 +180,7 @@ export function initConfiguracion() {
 			await showModal(
 				'✅',
 				window.i18n.t('config.backupSuccess'),
-				window.i18n.t('config.backupSuccessMsg')
+				window.i18n.t('config.backupSuccessMsg'),
 			)
 		}
 	})
@@ -190,7 +191,7 @@ export function initConfiguracion() {
 			'♻️',
 			window.i18n.t('config.restoreTitle'),
 			window.i18n.t('config.restoreMsg'),
-			{ confirm: true }
+			{ confirm: true },
 		)
 
 		if (confirmar) {
@@ -198,7 +199,7 @@ export function initConfiguracion() {
 			await showModal(
 				'✅',
 				window.i18n.t('config.restoreSuccess'),
-				window.i18n.t('config.restoreSuccessMsg')
+				window.i18n.t('config.restoreSuccessMsg'),
 			)
 		}
 	})
@@ -209,7 +210,7 @@ export function initConfiguracion() {
 			'⚠️',
 			window.i18n.t('config.resetTitle'),
 			window.i18n.t('config.resetMsg'),
-			{ confirm: true }
+			{ confirm: true },
 		)
 
 		if (confirmar) {
@@ -217,7 +218,7 @@ export function initConfiguracion() {
 				'🚨',
 				window.i18n.t('config.resetConfirm'),
 				window.i18n.t('config.resetConfirmMsg'),
-				{ confirm: true }
+				{ confirm: true },
 			)
 
 			if (confirmar2) {
@@ -225,7 +226,7 @@ export function initConfiguracion() {
 				await showModal(
 					'✅',
 					window.i18n.t('config.resetSuccess'),
-					window.i18n.t('config.resetSuccessMsg')
+					window.i18n.t('config.resetSuccessMsg'),
 				)
 			}
 		}

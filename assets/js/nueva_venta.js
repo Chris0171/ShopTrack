@@ -651,40 +651,42 @@ export function initNuevaVenta() {
 		btnFinalizarVenta.disabled = true
 		btnFinalizarVenta.textContent = '⏳ Procesando...'
 
-		// Crear venta
+		// Crear venta con detalles y actualizar stock (backend)
 		const subtotal = parseFloat(subtotalInput.value)
 		const impuestos = parseFloat(impuestosInput.value)
 		const descuento = parseFloat(descuentoInput.value) || 0
 		const motivoDescuento = motivoDescuentoInput.value.trim()
 		const total = parseFloat(totalInput.value)
 
-		const idVenta = await window.api.venta.create({
+		const ventaRes = await window.api.venta.createWithDetails({
 			idCliente,
 			subtotal: subtotal,
 			impuestos,
 			total,
 			descuento,
 			motivoDescuento,
-		})
-
-		// Crear detalles de venta y actualizar stock
-		for (const p of productosVenta) {
-			await window.api.detalleVenta.create({
-				idVenta: idVenta.id,
+			detalles: productosVenta.map((p) => ({
 				idProducto: p.id,
 				cantidad: p.cantidad,
 				precioUnitario: p.precio,
 				tasaAplicada: p.tasa,
 				totalLinea: p.cantidad * p.precio * (1 + p.tasa),
-			})
-			// Reducir stock
-			const nuevoStock = Math.max(0, p.stockActual - p.cantidad)
-			await window.api.producto.actualizarStock(p.id, nuevoStock)
+			})),
+		})
+		if (!ventaRes?.ok) {
+			await showModalInfo(
+				ventaRes?.error || 'No se pudo completar la venta.',
+				'Error',
+				'error',
+			)
+			btnFinalizarVenta.disabled = false
+			btnFinalizarVenta.textContent = 'Generar Factura'
+			return
 		}
 
 		// Crear factura
 		const facturaRes = await window.api.factura.create({
-			idVenta: idVenta.id,
+			idVenta: ventaRes.id,
 			numeroFactura: numeroFactura.value.trim(),
 			subtotal,
 			impuestos,
@@ -726,7 +728,7 @@ export function initNuevaVenta() {
 			})),
 		}
 
-		console.log(idCliente, ' ', idVenta)
+		console.log(idCliente, ' ', ventaRes)
 		await showModalInfo(
 			'Venta y factura registradas correctamente. Ya puedes descargar el PDF.',
 			'Éxito',

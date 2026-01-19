@@ -9,6 +9,14 @@ module.exports = function registerVentaIPC(ipcMain) {
 			})
 		})
 	})
+	ipcMain.handle('venta:createWithDetails', async (event, data) => {
+		return new Promise((resolve) => {
+			ventaController.createWithDetails(data, (err, result) => {
+				if (err) resolve({ ok: false, error: err.message })
+				else resolve({ ok: true, id: result.id })
+			})
+		})
+	})
 	ipcMain.handle('venta:getAll', async () => {
 		return new Promise((resolve) => {
 			ventaController.getAll((err, rows) => {

@@ -14,12 +14,6 @@ contextBridge.exposeInMainWorld('api', {
 			ipcRenderer.invoke('producto:buscar-producto', nroParte),
 		buscarProductos: (texto) =>
 			ipcRenderer.invoke('producto:buscar-productos', texto),
-		actualizarStock: (idProducto, nuevaCantidad) =>
-			ipcRenderer.invoke(
-				'producto:actualizar-stock',
-				idProducto,
-				nuevaCantidad
-			),
 		getPaginated: (filtros) =>
 			ipcRenderer.invoke('producto:getPaginated', filtros),
 		seleccionarImagen: () => ipcRenderer.invoke('producto:seleccionar-imagen'),
@@ -42,6 +36,8 @@ contextBridge.exposeInMainWorld('api', {
 
 	venta: {
 		create: (data) => ipcRenderer.invoke('venta:create', data),
+		createWithDetails: (data) =>
+			ipcRenderer.invoke('venta:createWithDetails', data),
 		getAll: () => ipcRenderer.invoke('venta:getAll'),
 		update: (id, data) => ipcRenderer.invoke('venta:update', { id, data }),
 		delete: (id) => ipcRenderer.invoke('venta:delete', id),
