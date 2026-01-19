@@ -18,10 +18,10 @@ async function main() {
 		numeroFactura: 'INV-12345',
 		fechaEmision: new Date().toISOString(),
 		cliente: {
-			nombre: 'Example Customer Inc.',
+			nombre: 'Christian Milanes Rodriguez',
 			direccion: '742 Evergreen Terrace',
-			telefono: '+1 555-123-4567',
-			email: 'contact@customer.com',
+			telefono: '+34 695 213 017',
+			email: 'christianmilanes01@gmail.com',
 		},
 		detalles: [
 			{
@@ -62,11 +62,11 @@ async function main() {
 
 	const precioBase = datos.detalles.reduce(
 		(sum, d) => sum + d.precioUnitario * d.cantidad,
-		0
+		0,
 	)
 	const impuestos = datos.detalles.reduce(
 		(sum, d) => sum + d.precioUnitario * d.cantidad * d.tasaAplicada,
-		0
+		0,
 	)
 	datos.impuestos = impuestos
 	datos.total = precioBase + impuestos - (datos.descuento || 0)

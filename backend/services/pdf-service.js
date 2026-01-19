@@ -69,36 +69,49 @@ class PDFService {
 
 				// Paleta de colores Tailwind
 				const COLORS = {
-					indigo700: '#4338CA',
-					indigo800: '#3730A3',
-					cyan600: '#0891B2',
+					indigo700: '#5A67D8',
+					indigo800: '#4C51BF',
+					cyan600: '#7DD3FC',
+					gray900: '#1F2937',
+					slate300: '#CBD5E1',
+					slate100: '#EEF2F7',
 					white: '#FFFFFF',
 					black: '#000000',
 				}
+				const FONT_REGULAR = 'Helvetica'
+				const FONT_BOLD = 'Helvetica-Bold'
+
+				// Fuente base para todo el documento
+				doc.font(FONT_REGULAR)
+				const sectionGap = 24
+				const afterFacturaGap = 32
+				const afterClienteGap = 32
 
 				// Encabezado - Logo/Nombre empresa
 				doc
 					.fontSize(20)
-					.font('Helvetica-Bold')
-					.fillColor(COLORS.indigo700)
+					.font(FONT_BOLD)
+					.fillColor(COLORS.gray900)
 					.text(config.nombre || 'Core transport lLC', { align: 'center' })
-				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
+				doc.fontSize(10).font(FONT_REGULAR).fillColor(COLORS.black)
 				// Layout cabecera correcto: FACTURA, luego fecha y número
 				let posY = 110
 
-				// Estilo de línea divisoria				doc.lineWidth(1.2).strokeColor(COLORS.indigo700).stroke()
+				// Estilo de línea divisoria
+				doc.lineWidth(1).strokeColor(COLORS.slate300).stroke()
 
 				// Título FACTURA en indigo-700
 				doc
 					.fontSize(14)
-					.font('Helvetica-Bold')
-					.fillColor(COLORS.indigo700)
+					.font(FONT_BOLD)
+					.fillColor(COLORS.gray900)
 					.text(getText('invoice.title'), 40, posY)
-				doc.fontSize(10).font('Helvetica')
+				doc.fontSize(10).font(FONT_REGULAR)
 
 				posY += 15
 
 				// Línea divisoria 1
+				doc.strokeColor(COLORS.slate300)
 				doc.moveTo(40, posY).lineTo(555, posY).stroke()
 
 				posY += 10
@@ -119,43 +132,42 @@ class PDFService {
 				)
 
 				// Nombre del cliente con menos margen antes de la siguiente línea
-				posY += 70
+				const endFacturaY = posY + 18
+				posY = endFacturaY + afterFacturaGap
 				doc
 					.fontSize(12)
-					.font('Helvetica-Bold')
-					.fillColor(COLORS.indigo700)
+					.font(FONT_BOLD)
+					.fillColor(COLORS.gray900)
 					.text(`${datos.cliente.nombre}`, 40, posY)
 
 				// Línea divisoria 2 más cercana
+				doc.strokeColor(COLORS.slate300)
 				posY += 15
-				doc.fontSize(10).font('Helvetica').fillColor(COLORS.black)
+				doc.fontSize(10).font(FONT_REGULAR).fillColor(COLORS.black)
 				doc.moveTo(40, posY).lineTo(555, posY).stroke()
 
 				// Datos del cliente debajo de la línea 2
-				posY += 10
+				posY += 6
+				const clienteStartY = posY
 				doc.text(
-					`${getText('invoice.customer')}: ${datos.cliente.nombre}`,
+					`${getText('common.address')}: ${datos.cliente.direccion || 'N/A'}`,
 					40,
 					posY,
 				)
 				doc.text(
-					`${getText('common.address')}: ${datos.cliente.direccion || 'N/A'}`,
-					40,
-					posY + 18,
-				)
-				doc.text(
 					`${getText('common.phone')}: ${datos.cliente.telefono || 'N/A'}`,
 					40,
-					posY + 36,
+					posY + 16,
 				)
 				doc.text(
 					`${getText('common.email')}: ${datos.cliente.email || 'N/A'}`,
 					40,
-					posY + 54,
+					posY + 32,
 				)
 
 				// Tabla manual estilizada con gradiente y bordes redondeados
-				posY += 115
+				const lastClienteY = clienteStartY + 32
+				posY = lastClienteY + afterClienteGap
 				const headers = [
 					getText('products.list.nroParte'),
 					getText('products.list.description'),
@@ -182,7 +194,7 @@ class PDFService {
 				})
 
 				// Calcular altura de cada fila según el contenido de la descripción
-				doc.font('Helvetica').fontSize(9)
+				doc.font(FONT_REGULAR).fontSize(9)
 				const rowHeights = rows.map((row) => {
 					const descHeight = doc.heightOfString(row.descripcion, {
 						width: columnWidths[1] - 12,
@@ -205,14 +217,8 @@ class PDFService {
 						columnWidths[3],
 				]
 
-				// Header con gradiente y solo esquinas superiores redondeadas
+				// Header sólido y solo esquinas superiores redondeadas
 				const radius = 6
-
-				// Crear el gradiente
-				const gradient = doc
-					.linearGradient(tableX, tableY, tableX + tableWidth, tableY)
-					.stop(0, COLORS.indigo800)
-					.stop(1, COLORS.cyan600)
 
 				// Guardar estado
 				doc.save()
@@ -232,14 +238,31 @@ class PDFService {
 					.lineTo(tableX, tableY + headerHeight) // Cerrar figura
 					.clip()
 
-				// Rellenar área recortada con gradiente
-				doc.rect(tableX, tableY, tableWidth, headerHeight).fill(gradient)
+				// Rellenar área recortada con color sólido
+				doc.rect(tableX, tableY, tableWidth, headerHeight).fill(COLORS.gray900)
 
 				// Restaurar estado
 				doc.restore()
 
+				// Borde del encabezado con esquinas superiores redondeadas
+				doc
+					.lineWidth(1)
+					.strokeColor(COLORS.gray900)
+					.moveTo(tableX, tableY + headerHeight)
+					.lineTo(tableX, tableY + radius)
+					.quadraticCurveTo(tableX, tableY, tableX + radius, tableY)
+					.lineTo(tableX + tableWidth - radius, tableY)
+					.quadraticCurveTo(
+						tableX + tableWidth,
+						tableY,
+						tableX + tableWidth,
+						tableY + radius,
+					)
+					.lineTo(tableX + tableWidth, tableY + headerHeight)
+					.stroke()
+
 				// Texto del encabezado
-				doc.fontSize(10).font('Helvetica-Bold').fillColor(COLORS.white)
+				doc.fontSize(10).font(FONT_BOLD).fillColor(COLORS.white)
 
 				// Calcular altura del texto para centrar verticalmente
 				let textHeight = doc.currentLineHeight()
@@ -260,19 +283,21 @@ class PDFService {
 					align: 'center',
 				})
 
-				// Contorno completo de la tabla
-				doc
-					.lineWidth(1)
-					.strokeColor(COLORS.indigo700)
-					.roundedRect(tableX, tableY, tableWidth, tableHeight, 6)
-					.stroke()
-
 				// Filas
-				doc.font('Helvetica').fontSize(9).fillColor(COLORS.black)
+				doc.font(FONT_REGULAR).fontSize(9).fillColor(COLORS.black)
 				let rowY = tableY + headerHeight
 
 				rows.forEach((row, index) => {
 					const currentRowHeight = rowHeights[index]
+
+					// Fondo alternado (primera fila gris)
+					if (index % 2 === 0) {
+						doc
+							.save()
+							.rect(tableX, rowY, tableWidth, currentRowHeight)
+							.fill(COLORS.slate100)
+							.restore()
+					}
 
 					// Calcular altura del texto de descripción para centrado vertical
 					const descHeight = doc.heightOfString(row.descripcion, {
@@ -313,11 +338,27 @@ class PDFService {
 						align: 'right',
 					})
 
+					// Bordes izquierdo y derecho de cada fila
+					if (index < rows.length - 1) {
+						doc
+							.lineWidth(0.75)
+							.strokeColor(COLORS.gray900)
+							.moveTo(tableX, rowY)
+							.lineTo(tableX, rowY + currentRowHeight)
+							.stroke()
+						doc
+							.lineWidth(0.75)
+							.strokeColor(COLORS.gray900)
+							.moveTo(tableX + tableWidth, rowY)
+							.lineTo(tableX + tableWidth, rowY + currentRowHeight)
+							.stroke()
+					}
+
 					rowY += currentRowHeight
 				})
 
 				// Separadores horizontales entre filas
-				doc.lineWidth(0.5).strokeColor(COLORS.indigo700)
+				doc.lineWidth(0.5).strokeColor(COLORS.gray900)
 				let separatorY = tableY + headerHeight
 				for (let i = 0; i < rows.length; i++) {
 					separatorY += rowHeights[i]
@@ -329,13 +370,21 @@ class PDFService {
 					}
 				}
 
+				// Contorno completo de la tabla (al final para respetar redondeado)
+				doc
+					.lineWidth(1)
+					.strokeColor(COLORS.gray900)
+					.roundedRect(tableX, tableY, tableWidth, tableHeight, 6)
+					.stroke()
+
 				posY = tableY + tableHeight + 20
 				// Línea divisoria posterior a la tabla
+				doc.strokeColor(COLORS.slate300)
 				doc.moveTo(40, posY).lineTo(555, posY).stroke()
 
 				// Detalles de precios
 				posY += 20
-				doc.fontSize(11).font('Helvetica')
+				doc.fontSize(11).font(FONT_REGULAR)
 
 				// Calcular precio base (sin tasas)
 				const precioBase = datos.detalles.reduce(
@@ -351,7 +400,7 @@ class PDFService {
 					datos.descuento && datos.descuento > 0 ? datos.descuento : 0
 
 				// Mostrar detalles (más separación entre etiqueta y monto)
-				doc.fontSize(11).font('Helvetica-Bold')
+				doc.fontSize(11).font(FONT_BOLD)
 				doc.text(`${getText('invoice.subtotal')}:`, 250, posY, {
 					width: 100,
 					align: 'right',
@@ -396,7 +445,7 @@ class PDFService {
 				posY += 30
 				doc
 					.fontSize(13)
-					.font('Helvetica-Bold')
+					.font(FONT_BOLD)
 					.fillColor('#2ecc71') // Verde para el total
 					.text(`${getText('invoice.total').toUpperCase()}:`, 150, posY, {
 						width: 200,
@@ -408,7 +457,7 @@ class PDFService {
 				})
 
 				// Método de pago y observaciones
-				doc.fillColor(COLORS.black).fontSize(10).font('Helvetica')
+				doc.fillColor(COLORS.black).fontSize(10).font(FONT_REGULAR)
 				doc.text(
 					`${getText(
 						'sales.new.invoice.paymentMethod',
@@ -431,7 +480,14 @@ class PDFService {
 				}
 
 				// Pie de página
-				doc.fontSize(8).text(getText('invoice.thankYou'), 40, 750, {
+				const footerMargin = 20
+				const lastContentY = posY + (datos.observaciones ? 90 : 60)
+				let thankYouY = lastContentY + footerMargin
+				if (thankYouY > 780) {
+					doc.addPage()
+					thankYouY = 50
+				}
+				doc.fontSize(8).text(getText('invoice.thankYou'), 40, thankYouY, {
 					align: 'center',
 				})
 
