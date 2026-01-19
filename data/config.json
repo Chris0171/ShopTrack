@@ -6,7 +6,7 @@
   "formatoFecha": "DD/MM/YYYY",
   "prefijoFactura": "INV",
   "numeroInicial": 1000,
-  "ivaPredeterminado": 0.21,
+  "ivaPredeterminado": 0.0825,
   "incluirLogo": true,
   "nombre": "Core transport lLC",
   "rfc": "",
