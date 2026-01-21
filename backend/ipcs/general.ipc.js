@@ -3,6 +3,7 @@ const fs = require('fs')
 const { shell, dialog, ipcMain: ipcMainModule } = require('electron')
 const configService = require('../services/config-service')
 const pathService = require('../services/path-service')
+const backupService = require('../services/backup-service')
 
 // Variable global para almacenar el BrowserWindow y poder hacer emit
 let mainWindow = null
@@ -151,6 +152,61 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 			}
 
 			return { ok: true, data: config }
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	// ==================== BACKUP HANDLER ====================
+
+	ipcMain.handle('backup:run', async () => {
+		try {
+			const result = backupService.backupDatabase()
+			return result
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	// ==================== RESTORE HANDLER ====================
+
+	ipcMain.handle('backup:restore', async () => {
+		const { dialog } = require('electron')
+		try {
+			const result = await dialog.showOpenDialog({
+				title: 'Seleccionar archivo de backup',
+				properties: ['openFile'],
+				filters: [{ name: 'Backups', extensions: ['sql', 'db', 'bak'] }],
+			})
+			if (result.canceled || !result.filePaths.length) {
+				return { ok: false, canceled: true }
+			}
+			const backupFilePath = result.filePaths[0]
+			const restoreResult = backupService.restoreDatabase(backupFilePath)
+			return restoreResult
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	// ==================== RESET HANDLER ====================
+
+	ipcMain.handle('backup:reset', async () => {
+		try {
+			const result = backupService.resetDatabase()
+			return result
+		} catch (error) {
+			return { ok: false, error: error.message }
+		}
+	})
+
+	// ==================== RESET HANDLER SQL ====================
+
+	ipcMain.handle('backup:resetSQL', async () => {
+		try {
+			const { resetDatabaseWithSQL } = require('../services/reset-sql-service')
+			const result = resetDatabaseWithSQL()
+			return result
 		} catch (error) {
 			return { ok: false, error: error.message }
 		}

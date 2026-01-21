@@ -176,12 +176,30 @@ export function initConfiguracion() {
 		)
 
 		if (confirmar) {
-			// TODO: Implementar lógica de backup
-			await showModal(
-				'✅',
-				window.i18n.t('config.backupSuccess'),
-				window.i18n.t('config.backupSuccessMsg'),
-			)
+			// Lógica de backup real
+			let result = { ok: false }
+			if (window.api?.invoke) {
+				try {
+					result = await window.api.invoke('backup:run')
+				} catch (e) {
+					result = { ok: false, error: e.message }
+				}
+			}
+
+			if (result.ok) {
+				await showModal(
+					'✅',
+					window.i18n.t('config.backupSuccess'),
+					window.i18n.t('config.backupSuccessMsg') +
+						(result.backupName ? `\n${result.backupName}` : ''),
+				)
+			} else {
+				await showModal(
+					'❌',
+					window.i18n.t('config.backupError') || 'Error al hacer backup',
+					result.error || 'Error desconocido',
+				)
+			}
 		}
 	})
 
@@ -195,12 +213,30 @@ export function initConfiguracion() {
 		)
 
 		if (confirmar) {
-			// TODO: Implementar lógica de restore
-			await showModal(
-				'✅',
-				window.i18n.t('config.restoreSuccess'),
-				window.i18n.t('config.restoreSuccessMsg'),
-			)
+			let result = { ok: false }
+			if (window.api?.invoke) {
+				try {
+					result = await window.api.invoke('backup:restore')
+				} catch (e) {
+					result = { ok: false, error: e.message }
+				}
+			}
+
+			if (result.ok) {
+				await showModal(
+					'✅',
+					window.i18n.t('config.restoreSuccess'),
+					window.i18n.t('config.restoreSuccessMsg'),
+				)
+			} else if (result.canceled) {
+				// No mostrar nada si el usuario canceló
+			} else {
+				await showModal(
+					'❌',
+					window.i18n.t('config.restoreError') || 'Error al restaurar',
+					result.error || 'Error desconocido',
+				)
+			}
 		}
 	})
 
@@ -222,12 +258,28 @@ export function initConfiguracion() {
 			)
 
 			if (confirmar2) {
-				// TODO: Implementar lógica de reset
-				await showModal(
-					'✅',
-					window.i18n.t('config.resetSuccess'),
-					window.i18n.t('config.resetSuccessMsg'),
-				)
+				let result = { ok: false }
+				if (window.api?.invoke) {
+					try {
+						result = await window.api.invoke('backup:resetSQL')
+					} catch (e) {
+						result = { ok: false, error: e.message }
+					}
+				}
+
+				if (result.ok) {
+					await showModal(
+						'✅',
+						window.i18n.t('config.resetSuccess'),
+						window.i18n.t('config.resetSuccessMsg'),
+					)
+				} else {
+					await showModal(
+						'❌',
+						window.i18n.t('config.resetError') || 'Error al resetear',
+						result.error || 'Error desconocido',
+					)
+				}
 			}
 		}
 	})

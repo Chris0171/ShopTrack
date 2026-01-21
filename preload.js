@@ -97,4 +97,7 @@ contextBridge.exposeInMainWorld('api', {
 		setActive: (id, activo) =>
 			ipcRenderer.invoke('marca:setActive', { id, activo }),
 	},
+
+	// Permite invocar cualquier canal IPC personalizado
+	invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
 })
