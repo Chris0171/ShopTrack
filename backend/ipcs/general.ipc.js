@@ -110,7 +110,7 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 			} catch (error) {
 				return { ok: false, error: error.message }
 			}
-		}
+		},
 	)
 
 	// ==================== CONFIG HANDLERS ====================
