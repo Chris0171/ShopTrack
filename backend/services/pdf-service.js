@@ -93,9 +93,40 @@ class PDFService {
 					.font(FONT_BOLD)
 					.fillColor(COLORS.gray900)
 					.text(config.nombre || 'Core transport lLC', { align: 'center' })
+
+				// Agregar email y dirección debajo del nombre de la empresa
+				const emailEmpresa = config.email || ''
+				const direccionEmpresa = config.direccion || ''
+				const telefonoEmpresa = config.telefono || ''
+				let posYEmpresa = doc.y + 2
+				if (emailEmpresa) {
+					doc
+						.fontSize(10)
+						.font(FONT_REGULAR)
+						.fillColor(COLORS.black)
+						.text(emailEmpresa, { align: 'center' })
+					posYEmpresa = doc.y
+				}
+				if (direccionEmpresa) {
+					doc
+						.fontSize(10)
+						.font(FONT_REGULAR)
+						.fillColor(COLORS.black)
+						.text(direccionEmpresa, { align: 'center' })
+					posYEmpresa = doc.y
+				}
+				if (telefonoEmpresa) {
+					doc
+						.fontSize(10)
+						.font(FONT_REGULAR)
+						.fillColor(COLORS.black)
+						.text(telefonoEmpresa, { align: 'center' })
+					posYEmpresa = doc.y
+				}
+				doc.moveDown(0.5)
 				doc.fontSize(10).font(FONT_REGULAR).fillColor(COLORS.black)
 				// Layout cabecera correcto: FACTURA, luego fecha y número
-				let posY = 110
+				let posY = Math.max(posYEmpresa, 110)
 
 				// Estilo de línea divisoria
 				doc.lineWidth(1).strokeColor(COLORS.slate300).stroke()

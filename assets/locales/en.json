@@ -13,7 +13,10 @@
 		"backup": "Backup",
 		"restore": "Restore",
 		"reset": "Reset",
-		"close": "Close"
+		"close": "Close",
+		"email": "Email",
+		"address": "Address",
+		"phone": "Phone"
 	},
 	"nav": {
 		"dashboard": "Dashboard",
