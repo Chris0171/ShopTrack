@@ -1,4 +1,5 @@
 const db = require('../db/initDatabase')
+const configService = require('../services/config-service')
 
 module.exports = {
 	// 🔹 Generar número de factura automático
@@ -8,7 +9,10 @@ module.exports = {
 		const dd = String(hoy.getDate()).padStart(2, '0')
 		const yyyy = hoy.getFullYear()
 		const fechaUS = `${mm}${dd}${yyyy}` // MMDDYYYY
-		const prefijo = `FAC-${fechaUS}-`
+		// Obtener prefijo dinámico desde config
+		const config = configService.getConfig()
+		const prefijoConfig = config.prefijoFactura || 'FAC'
+		const prefijo = `${prefijoConfig}-${fechaUS}-`
 
 		const sql = `
             SELECT numeroFactura 
@@ -25,7 +29,10 @@ module.exports = {
 			if (!row) {
 				nuevoNumero = `${prefijo}0001`
 			} else {
-				const ultimoNumero = parseInt(row.numeroFactura.split('-')[2])
+				// Extraer el número correlativo correctamente
+				const partes = row.numeroFactura.split('-')
+				const correlativo = partes[2] ? partes[2].replace(/\D/g, '') : '0'
+				const ultimoNumero = parseInt(correlativo)
 				nuevoNumero = `${prefijo}${String(ultimoNumero + 1).padStart(4, '0')}`
 			}
 
