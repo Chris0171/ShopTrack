@@ -8,7 +8,8 @@
 		"start": "electron .",
 		"build:css": "npx @tailwindcss/cli -i ./assets/css/styles.css -o ./dist/output.css",
 		"watch:css": "npx @tailwindcss/cli -i ./assets/css/styles.css -o ./dist/output.css --watch",
-		"dev": "npm run watch:css"
+		"dev": "npm run watch:css",
+		"build": "electron-builder"
 	},
 	"keywords": [],
 	"author": "",
@@ -16,6 +17,7 @@
 	"devDependencies": {
 		"@tailwindcss/cli": "^4.1.17",
 		"electron": "^39.2.1",
+		"electron-builder": "^26.4.0",
 		"standard": "^17.1.2",
 		"tailwindcss": "^4.1.17"
 	},
@@ -32,6 +34,9 @@
 		"sqlite3": "^5.1.7"
 	},
 	"build": {
+		"directories": {
+			"output": "release"
+		},
 		"publish": [
 			{
 				"provider": "github",
