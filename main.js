@@ -1,4 +1,22 @@
-const { app, BrowserWindow, Menu, ipcMain, screen } = require('electron')
+const {
+	app,
+	BrowserWindow,
+	Menu,
+	ipcMain,
+	screen,
+	dialog,
+} = require('electron')
+const log = require('electron-log')
+
+// electron-updater para actualizaciones automáticas
+let autoUpdater
+try {
+	autoUpdater = require('electron-updater').autoUpdater
+	autoUpdater.logger = log
+	autoUpdater.logger.transports.file.level = 'info'
+} catch (e) {
+	log.error('No se pudo cargar electron-updater:', e)
+}
 const fs = require('fs')
 const path = require('path')
 
@@ -41,8 +59,38 @@ app.whenReady().then(() => {
 	const { width, height } = primaryDisplay.workAreaSize
 	createWindow(width, height)
 
+	// Lógica de actualización automática
+	if (autoUpdater) {
+		autoUpdater.checkForUpdatesAndNotify()
+
+		autoUpdater.on('update-available', () => {
+			if (mainWindow) {
+				mainWindow.webContents.send('update-available')
+			}
+		})
+
+		autoUpdater.on('update-downloaded', (info) => {
+			dialog
+				.showMessageBox({
+					type: 'info',
+					title: 'Actualización lista',
+					message:
+						'Hay una nueva versión disponible. ¿Reiniciar para actualizar?',
+					buttons: ['Reiniciar', 'Más tarde'],
+				})
+				.then((result) => {
+					if (result.response === 0) autoUpdater.quitAndInstall()
+				})
+		})
+	}
+
 	app.on('activate', () => {
 		if (BrowserWindow.getAllWindows().length === 0) createWindow()
+	})
+
+	// Canal IPC para obtener la versión de la app
+	ipcMain.handle('app:getVersion', () => {
+		return app.getVersion()
 	})
 })
 

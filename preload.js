@@ -100,4 +100,14 @@ contextBridge.exposeInMainWorld('api', {
 
 	// Permite invocar cualquier canal IPC personalizado
 	invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+
+	// Obtener la versión de la app
+	getAppVersion: async () => {
+		return await ipcRenderer.invoke('app:getVersion')
+	},
+
+	// Eventos de actualización automática
+	onUpdateAvailable: (callback) => {
+		ipcRenderer.on('update-available', callback)
+	},
 })
