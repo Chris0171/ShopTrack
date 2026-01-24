@@ -48,6 +48,7 @@ function createWindow(width, height) {
 	mainWindow.maximize()
 	mainWindow.setBounds({ x: 0, y: 0, width, height })
 	mainWindow.loadFile('index.html')
+	mainWindow.setMenu(null) // Quitar menú superior
 	return mainWindow
 }
 
