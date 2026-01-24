@@ -40,7 +40,7 @@
 		"publish": [
 			{
 				"provider": "github",
-				"owner": "Chris_0171",
+				"owner": "Chris0171",
 				"repo": "ShopTrack"
 			}
 		]
