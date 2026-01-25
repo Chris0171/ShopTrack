@@ -46,6 +46,20 @@ window.addEventListener('DOMContentLoaded', async () => {
 			mostrarNotificacionActualizacion()
 		})
 	}
+
+	// Barra de progreso de descarga de actualización
+	if (window.api && window.api.onUpdateDownloadProgress) {
+		window.api.onUpdateDownloadProgress((progressObj) => {
+			mostrarModalProgresoActualizacion(progressObj)
+		})
+	}
+
+	// Mensaje de error en actualización
+	if (window.api && window.api.onUpdateError) {
+		window.api.onUpdateError((errorMsg) => {
+			mostrarModalErrorActualizacion(errorMsg)
+		})
+	}
 })
 
 function mostrarNotificacionActualizacion() {
@@ -80,6 +94,82 @@ function mostrarNotificacionActualizacion() {
 	setTimeout(() => {
 		noti.remove()
 	}, 12000)
+}
+
+// Modal de progreso de actualización
+function mostrarModalProgresoActualizacion(progressObj) {
+	let modal = document.getElementById('update-progress-modal')
+	if (!modal) {
+		modal = document.createElement('div')
+		modal.id = 'update-progress-modal'
+		modal.className = [
+			'fixed',
+			'inset-0',
+			'flex',
+			'items-center',
+			'justify-center',
+			'z-50',
+			'bg-black',
+			'bg-opacity-50',
+		].join(' ')
+		modal.innerHTML = `
+			<div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md flex flex-col items-center border-2 border-indigo-300">
+				<h2 class="text-xl font-bold text-indigo-700 mb-4 flex items-center gap-2">
+					<i class="fas fa-download text-indigo-400 text-2xl"></i>
+					Descargando actualización...
+				</h2>
+				<div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden mb-2">
+					<div id="update-progress-bar" class="h-4 bg-indigo-500 transition-all duration-300" style="width:0%"></div>
+				</div>
+				<div id="update-progress-text" class="text-gray-700 font-mono text-sm mb-2">0%</div>
+				<p class="text-gray-500 text-xs">Por favor espera, la descarga puede tardar unos minutos.</p>
+			</div>
+		`
+		document.body.appendChild(modal)
+	}
+	// Actualizar barra y texto
+	const bar = document.getElementById('update-progress-bar')
+	const text = document.getElementById('update-progress-text')
+	if (bar && text && progressObj) {
+		const percent = Math.floor(progressObj.percent)
+		bar.style.width = percent + '%'
+		const mbTransferred = (progressObj.transferred / 1024 / 1024).toFixed(1)
+		const mbTotal = (progressObj.total / 1024 / 1024).toFixed(1)
+		text.textContent = `${percent}% (${mbTransferred} MB / ${mbTotal} MB)`
+	}
+}
+
+// Modal de error de actualización
+function mostrarModalErrorActualizacion(errorMsg) {
+	let modal = document.getElementById('update-progress-modal')
+	if (!modal) {
+		modal = document.createElement('div')
+		modal.id = 'update-progress-modal'
+		modal.className = [
+			'fixed',
+			'inset-0',
+			'flex',
+			'items-center',
+			'justify-center',
+			'z-50',
+			'bg-black',
+			'bg-opacity-50',
+		].join(' ')
+		document.body.appendChild(modal)
+	}
+	modal.innerHTML = `
+		<div class="bg-red-50 rounded-xl shadow-2xl p-8 w-full max-w-md flex flex-col items-center border-2 border-red-300">
+			<h2 class="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
+				<i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+				Error al descargar actualización
+			</h2>
+			<div class="text-red-700 font-mono text-sm mb-2">${errorMsg}</div>
+			<button id="close-update-error" class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">Cerrar</button>
+		</div>
+	`
+	document.getElementById('close-update-error').onclick = () => {
+		modal.remove()
+	}
 }
 
 async function loadView(viewName) {

@@ -83,6 +83,25 @@ app.whenReady().then(() => {
 					if (result.response === 0) autoUpdater.quitAndInstall()
 				})
 		})
+
+		// Evento de progreso de descarga
+		autoUpdater.on('download-progress', (progressObj) => {
+			if (mainWindow) {
+				mainWindow.webContents.send('update-download-progress', progressObj)
+			}
+		})
+
+		// Evento de error en actualización
+		autoUpdater.on('error', (error) => {
+			if (mainWindow) {
+				mainWindow.webContents.send(
+					'update-error',
+					error == null
+						? 'Error desconocido'
+						: error.message || error.toString(),
+				)
+			}
+		})
 	}
 
 	app.on('activate', () => {
