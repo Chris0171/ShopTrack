@@ -220,6 +220,9 @@ function loadInitFunctionView(viewName) {
 		case 'marcas.html':
 			initMarcas()
 			break
+		case 'ayuda.html':
+			import('./assets/js/ayuda.js').then((mod) => mod.initAyuda())
+			break
 	}
 }
 

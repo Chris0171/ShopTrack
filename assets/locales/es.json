@@ -415,5 +415,22 @@
 		"confirm": "Confirmar",
 		"noStock": "Sin stock",
 		"insufficientStock": "Stock insuficiente"
+	},
+	"help": {
+		"title": "Ayuda",
+		"quickGuide": "Guía rápida de uso",
+		"faq": "Preguntas frecuentes",
+		"shortcuts": "Atajos de teclado",
+		"support": "Soporte y contacto",
+		"about": "Sobre ShopTrack",
+		"searchPlaceholder": "Buscar en la ayuda...",
+		"faqRestore": "¿Cómo restauro un backup?",
+		"faqRestoreAnswer": "Desde la sección Configuración → Restaurar Backup.",
+		"faqBrand": "¿Cómo agrego una marca?",
+		"faqBrandAnswer": "Ve a Marcas y usa el botón \"Crear\".",
+		"faqInvoice": "¿Cómo genero una factura?",
+		"faqInvoiceAnswer": "Al finalizar una venta, selecciona \"Generar Factura\".",
+		"faqLanguage": "¿Cómo cambio el idioma?",
+		"faqLanguageAnswer": "Configuración → Idioma."
 	}
 }
