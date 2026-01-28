@@ -109,6 +109,7 @@ INSERT INTO Marca (nombre) VALUES
 ('Refrigerant National'),
 ('Mobil synthetic oil 75w-90'),
 ('Torque');
+/*
 
 INSERT INTO Producto (NroParte, Descripcion, Cantidad, stockMinimo, Precio, Tasas, activo, marcaId, precioCosto, ubicacion) VALUES
 ('P-001', 'Cables HDMI de alta velocidad', 25, 5, 12.99, 0.21, 1, 1, 7.50, 'Almacén A-01'),
@@ -230,3 +231,5 @@ VALUES
 (3, 'F-0003', 199.98, 42.00, 241.98, 'transferencia', 'Cliente habitual', 'emitita'),
 (4, 'F-0004', 26.50, 3.81, 30.31, 'tarjeta', NULL, 'emitida'),
 (5, 'F-0005', 101.95, 19.91, 121.86, 'efectivo', 'Entregado con embalaje especial', 'emitida');
+
+*/
