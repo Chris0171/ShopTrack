@@ -426,6 +426,13 @@
 		"support": "Support & Contact",
 		"about": "About ShopTrack",
 		"searchPlaceholder": "Search in help...",
+		"quickGuideItems": {
+			"configureSystem": "Set language, currency, taxes, and logo in Settings.",
+			"manageProducts": "Create brands and products with min stock, photos, and main/alt part numbers.",
+			"manageClients": "Register customers with contact info and notes for their purchases.",
+			"manageSales": "Sell: add products, apply discounts/taxes, and generate invoice or ticket.",
+			"backups": "Backups: create or restore the database in Settings → Database."
+		},
 		"faqRestore": "How do I restore a backup?",
 		"faqRestoreAnswer": "From Settings → Restore Backup.",
 		"faqBrand": "How do I add a brand?",
@@ -433,6 +440,27 @@
 		"faqInvoice": "How do I generate an invoice?",
 		"faqInvoiceAnswer": "At the end of a sale, select \"Generate Invoice\".",
 		"faqLanguage": "How do I change the language?",
-		"faqLanguageAnswer": "Settings → Language."
+		"faqLanguageAnswer": "Settings → Language.",
+		"shortcutNewSale": "New sale",
+		"shortcutNewProduct": "New product",
+		"shortcutSearch": "Search",
+		"contactNeedHelp": "Need help? Contact us:",
+		"contactEmail": "Email",
+		"contactWhatsApp": "WhatsApp",
+		"versionLabel": "Version",
+		"lastUpdate": "Last update",
+		"developedBy": "Developed by",
+		"troubleshootingTitle": "Quick troubleshooting",
+		"troubleshooting": {
+			"stock": "Cannot sell due to no stock: update the product and review its min stock.",
+			"backup": "Backup/restore failed: check permissions for data/backups and free disk space.",
+			"pdf": "PDF not generated: ensure company data and invoice prefix in Settings → Invoices are set."
+		},
+		"quickFlowsTitle": "Quick flows",
+		"quickFlows": {
+			"sale": "Sale: open New Sale, search products (Ctrl+F), apply discount, and generate invoice.",
+			"product": "Product: create brand if missing, add product with min stock and photo, save.",
+			"backup": "Backup: Settings → Database → Create backup and store the file externally."
+		}
 	}
 }

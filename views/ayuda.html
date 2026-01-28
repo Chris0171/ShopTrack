@@ -3,58 +3,93 @@
 
   <!-- Buscador de ayuda -->
   <div class="mb-6">
-    <input id="helpSearchInput" type="text" data-i18n="[placeholder]help.searchPlaceholder"
+    <input id="helpSearchInput" type="text" data-i18n="[aria-label]help.searchPlaceholder"
+      data-i18n-placeholder="help.searchPlaceholder" aria-label="Buscar en la ayuda"
       class="w-full max-w-md px-4 py-2 border border-indigo-900 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
   </div>
 
   <!-- Guía rápida -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
     <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.quickGuide">Guía rápida de uso</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Crear productos y gestionar inventario.</li>
-      <li>Registrar y consultar ventas.</li>
-      <li>Administrar clientes y marcas.</li>
-      <li>Configurar preferencias del sistema.</li>
-      <li>Realizar copias de seguridad y restauraciones.</li>
-    </ul>
+    <ol class="list-decimal pl-6 space-y-2 text-gray-700">
+      <li data-i18n="help.quickGuideItems.configureSystem">Configura tu negocio: idioma, moneda, impuestos y logo en
+        Configuración.</li>
+      <li data-i18n="help.quickGuideItems.manageProducts">Crea marcas y carga productos con stock mínimo, fotos y
+        números de parte.</li>
+      <li data-i18n="help.quickGuideItems.manageClients">Registra clientes y mantén sus datos de contacto y compras al
+        día.</li>
+      <li data-i18n="help.quickGuideItems.manageSales">Realiza ventas aplicando descuentos e impuestos, y genera sus
+        facturas.</li>
+      <li data-i18n="help.quickGuideItems.backups">Genera copias de seguridad y restaura la base de datos desde
+        Configuración.</li>
+    </ol>
   </div>
 
   <!-- Preguntas frecuentes -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
     <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.faq">Preguntas frecuentes</h2>
     <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><b data-i18n="help.faqRestore">¿Cómo restauro un backup?</b> <span data-i18n="help.faqRestoreAnswer">Desde la sección Configuración &rarr; Restaurar Backup.</span></li>
-      <li><b data-i18n="help.faqBrand">¿Cómo agrego una marca?</b> <span data-i18n="help.faqBrandAnswer">Ve a Marcas y usa el botón "Crear".</span></li>
-      <li><b data-i18n="help.faqInvoice">¿Cómo genero una factura?</b> <span data-i18n="help.faqInvoiceAnswer">Al finalizar una venta, selecciona "Generar Factura".</span></li>
-      <li><b data-i18n="help.faqLanguage">¿Cómo cambio el idioma?</b> <span data-i18n="help.faqLanguageAnswer">Configuración &rarr; Idioma.</span></li>
+      <li><b data-i18n="help.faqRestore">¿Cómo restauro un backup?</b> <span data-i18n="help.faqRestoreAnswer">Desde la
+          sección Configuración &rarr; Restaurar Backup.</span></li>
+      <li><b data-i18n="help.faqBrand">¿Cómo agrego una marca?</b> <span data-i18n="help.faqBrandAnswer">Ve a Marcas y
+          usa el botón "Crear".</span></li>
+      <li><b data-i18n="help.faqInvoice">¿Cómo genero una factura?</b> <span data-i18n="help.faqInvoiceAnswer">Al
+          finalizar una venta, selecciona "Generar Factura".</span></li>
+      <li><b data-i18n="help.faqLanguage">¿Cómo cambio el idioma?</b> <span
+          data-i18n="help.faqLanguageAnswer">Configuración &rarr; Idioma.</span></li>
     </ul>
   </div>
 
-  <!-- Atajos de teclado -->
+  <!-- Resolución de problemas -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.shortcuts">Atajos de teclado</h2>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.troubleshootingTitle">Resolución rápida de
+      problemas</h2>
     <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><b>Ctrl + N</b>: <span data-i18n="nav.newSale">Nueva venta</span></li>
-      <li><b>Ctrl + P</b>: <span data-i18n="nav.newProduct">Nuevo producto</span></li>
-      <li><b>Ctrl + F</b>: <span data-i18n="common.search">Buscar</span></li>
+      <li data-i18n="help.troubleshooting.stock">No puedes vender porque no hay stock: actualiza el producto y revisa el
+        stock mínimo.</li>
+      <li data-i18n="help.troubleshooting.backup">Falló un backup/restauración: verifica permisos de la carpeta
+        data/backups y espacio en disco.</li>
+      <li data-i18n="help.troubleshooting.pdf">No se genera el PDF: confirma datos de empresa y prefijo de factura en
+        Configuración → Facturas.</li>
     </ul>
   </div>
 
-  <!-- Soporte y contacto -->
+  <!-- Flujos rápidos -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.support">Soporte y contacto</h2>
-    <p class="text-gray-700 mb-2">¿Necesitas ayuda? Contáctanos:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Email: <a href="mailto:soporte@shoptrack.com" class="text-indigo-600 underline">soporte@shoptrack.com</a></li>
-      <li>WhatsApp: <a href="https://wa.me/1234567890" class="text-indigo-600 underline">+1 234 567 890</a></li>
-    </ul>
+    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.quickFlowsTitle">Flujos rápidos</h2>
+    <ol class="list-decimal pl-6 space-y-3 text-gray-700">
+      <li>
+        <div class="font-semibold" data-i18n="help.quickFlows.sale">Venta: abre Nueva venta, busca productos,
+          aplica descuento y genera factura.</div>
+        <button class="mt-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+          data-view="nueva_venta.html" data-i18n="nav.newSale">Nueva venta</button>
+      </li>
+      <li>
+        <div class="font-semibold" data-i18n="help.quickFlows.product">Producto: crea marca si falta, añade producto con
+          stock mínimo y foto, guarda.</div>
+        <div class="flex gap-2 mt-2 flex-wrap">
+          <button class="px-3 py-2 bg-indigo-100 text-indigo-800 rounded hover:bg-indigo-200 transition"
+            data-view="marcas.html" data-i18n="nav.brands">Marcas</button>
+          <button class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+            data-view="crear_producto.html" data-i18n="nav.newProduct">Nuevo producto</button>
+        </div>
+      </li>
+      <li>
+        <div class="font-semibold" data-i18n="help.quickFlows.backup">Backup: Configuración → Base de datos → Crear
+          backup y guarda el archivo externo.</div>
+        <button class="mt-2 px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+          data-view="configuracion.html" data-i18n="nav.settings">Configuración</button>
+      </li>
+    </ol>
   </div>
 
   <!-- Información de la app -->
   <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
     <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="help.about">Sobre ShopTrack</h2>
-    <p class="text-gray-700">Versión: <span id="appVersion">1.0.0</span></p>
-    <p class="text-gray-700">Última actualización: 25/01/2026</p>
-    <p class="text-gray-700">Desarrollado por Christian.</p>
+    <p class="text-gray-700"><span data-i18n="help.versionLabel">Versión</span>: <span id="appVersion">1.0.0</span></p>
+    <p class="text-gray-700"><span data-i18n="help.lastUpdate">Última actualización</span>: <span
+        id="helpLastUpdate">28/01/2026</span></p>
+    <p class="text-gray-700"><span data-i18n="help.developedBy">Desarrollado por</span> <span
+        id="helpAuthor">Christian</span>.</p>
   </div>
 </div>

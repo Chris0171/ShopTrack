@@ -12,9 +12,30 @@ export function initAyuda() {
 	})
 
 	// Mostrar versión de la app dinámicamente si está disponible
-	if (window.api?.general?.getAppVersion) {
-		window.api.general.getAppVersion().then((ver) => {
-			document.getElementById('appVersion').textContent = ver
+	if (window.api?.getAppVersion) {
+		window.api.getAppVersion().then((ver) => {
+			const versionEl = document.getElementById('appVersion')
+			if (versionEl && ver) versionEl.textContent = ver
+		})
+	}
+
+	// Rellenar datos de contacto desde la configuración si existen
+	if (window.api?.config?.get) {
+		window.api.config.get().then((resp) => {
+			const cfg = resp?.data || {}
+			const emailEl = document.getElementById('helpSupportEmail')
+			const waEl = document.getElementById('helpSupportWhatsapp')
+			if (emailEl && cfg.email) {
+				emailEl.textContent = cfg.email
+				emailEl.href = `mailto:${cfg.email}`
+			}
+			if (waEl && cfg.telefono) {
+				const digits = String(cfg.telefono).replace(/[^0-9+]/g, '')
+				waEl.textContent = digits
+				waEl.href = `https://wa.me/${digits.replace(/^\+/, '')}`
+			}
+			const authorEl = document.getElementById('helpAuthor')
+			if (authorEl && cfg.nombre) authorEl.textContent = cfg.nombre
 		})
 	}
 }

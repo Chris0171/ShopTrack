@@ -419,6 +419,13 @@
 		"support": "Suporte e Contato",
 		"about": "Sobre o ShopTrack",
 		"searchPlaceholder": "Pesquisar na ajuda...",
+		"quickGuideItems": {
+			"configureSystem": "Defina idioma, moeda, impostos e logo em Configurações.",
+			"manageProducts": "Crie marcas e produtos com estoque mínimo, fotos e números de peça (principal e alternativos).",
+			"manageClients": "Registre clientes com contato e notas de compra.",
+			"manageSales": "Vendas: adicione produtos, aplique descontos/impostos e gere fatura ou recibo.",
+			"backups": "Backups: crie ou restaure o banco de dados em Configurações → Banco de dados."
+		},
 		"faqRestore": "Como restauro um backup?",
 		"faqRestoreAnswer": "Na seção Configurações → Restaurar Backup.",
 		"faqBrand": "Como adiciono uma marca?",
@@ -426,6 +433,27 @@
 		"faqInvoice": "Como gero uma fatura?",
 		"faqInvoiceAnswer": "Ao finalizar uma venda, selecione \"Gerar Fatura\".",
 		"faqLanguage": "Como altero o idioma?",
-		"faqLanguageAnswer": "Configurações → Idioma."
+		"faqLanguageAnswer": "Configurações → Idioma.",
+		"shortcutNewSale": "Nova venda",
+		"shortcutNewProduct": "Novo produto",
+		"shortcutSearch": "Pesquisar",
+		"contactNeedHelp": "Precisa de ajuda? Fale conosco:",
+		"contactEmail": "Email",
+		"contactWhatsApp": "WhatsApp",
+		"versionLabel": "Versão",
+		"lastUpdate": "Última atualização",
+		"developedBy": "Desenvolvido por",
+		"troubleshootingTitle": "Solução rápida de problemas",
+		"troubleshooting": {
+			"stock": "Não consegue vender por falta de estoque: atualize o produto e revise o estoque mínimo.",
+			"backup": "Backup/restauração falhou: verifique permissões da pasta data/backups e espaço em disco.",
+			"pdf": "PDF não é gerado: confirme dados da empresa e prefixo de fatura em Configurações → Faturas."
+		},
+		"quickFlowsTitle": "Fluxos rápidos",
+		"quickFlows": {
+			"sale": "Venda: abra Nova venda, busque produtos (Ctrl+F), aplique desconto e gere a fatura.",
+			"product": "Produto: crie a marca se faltar, adicione produto com estoque mínimo e foto, salve.",
+			"backup": "Backup: Configurações → Banco de dados → Criar backup e guarde o arquivo fora do app."
+		}
 	}
 }

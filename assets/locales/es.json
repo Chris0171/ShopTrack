@@ -424,6 +424,13 @@
 		"support": "Soporte y contacto",
 		"about": "Sobre ShopTrack",
 		"searchPlaceholder": "Buscar en la ayuda...",
+		"quickGuideItems": {
+			"configureSystem": "Configura idioma, moneda, impuestos y logo en Configuración.",
+			"manageProducts": "Crea marcas y productos con stock mínimo, fotos y números de parte (principal y alternos).",
+			"manageClients": "Registra clientes con contacto y notas para sus compras.",
+			"manageSales": "Vende: agrega productos, aplica descuentos/impuestos y genera factura o ticket.",
+			"backups": "Respaldos: crea o restaura la base de datos en Configuración → Base de datos."
+		},
 		"faqRestore": "¿Cómo restauro un backup?",
 		"faqRestoreAnswer": "Desde la sección Configuración → Restaurar Backup.",
 		"faqBrand": "¿Cómo agrego una marca?",
@@ -431,6 +438,27 @@
 		"faqInvoice": "¿Cómo genero una factura?",
 		"faqInvoiceAnswer": "Al finalizar una venta, selecciona \"Generar Factura\".",
 		"faqLanguage": "¿Cómo cambio el idioma?",
-		"faqLanguageAnswer": "Configuración → Idioma."
+		"faqLanguageAnswer": "Configuración → Idioma.",
+		"shortcutNewSale": "Nueva venta",
+		"shortcutNewProduct": "Nuevo producto",
+		"shortcutSearch": "Buscar",
+		"contactNeedHelp": "¿Necesitas ayuda? Contáctanos:",
+		"contactEmail": "Email",
+		"contactWhatsApp": "WhatsApp",
+		"versionLabel": "Versión",
+		"lastUpdate": "Última actualización",
+		"developedBy": "Desarrollado por",
+		"troubleshootingTitle": "Resolución rápida de problemas",
+		"troubleshooting": {
+			"stock": "No puedes vender porque no hay stock: actualiza el producto y revisa el stock mínimo.",
+			"backup": "Falló un backup/restauración: verifica permisos de la carpeta data/backups y espacio en disco.",
+			"pdf": "No se genera el PDF: confirma datos de empresa y prefijo de factura en Configuración → Facturas."
+		},
+		"quickFlowsTitle": "Flujos rápidos",
+		"quickFlows": {
+			"sale": "Venta: abre Nueva venta, busca productos (Ctrl+F), aplica descuento y genera factura.",
+			"product": "Producto: crea marca si falta, añade producto con stock mínimo y foto, guarda.",
+			"backup": "Backup: Configuración → Base de datos → Crear backup y guarda el archivo externo."
+		}
 	}
 }

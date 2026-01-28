@@ -19,12 +19,13 @@ window.addEventListener('DOMContentLoaded', async () => {
 	// Cargar vista inicial
 	await loadView('dashboard.html')
 
-	// Delegación de clics para botones/menu
-	document.querySelectorAll('[data-view]').forEach((item) => {
-		item.addEventListener('click', async () => {
-			const view = item.getAttribute('data-view')
-			await loadView(view)
-		})
+	// Delegación de clics para cualquier elemento con data-view (incluye vistas cargadas dinámicamente)
+	document.addEventListener('click', async (event) => {
+		const target = event.target.closest('[data-view]')
+		if (!target) return
+		event.preventDefault()
+		const view = target.getAttribute('data-view')
+		if (view) await loadView(view)
 	})
 
 	// Mostrar versión en el header
