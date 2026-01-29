@@ -487,12 +487,25 @@ class PDFService {
 					align: 'right',
 				})
 
-				// Método de pago y observaciones
+				// Método de pago y observaciones (mostrar siempre en inglés)
+				const paymentMethodMapEn = {
+					zelle: 'Zelle',
+					cash_app: 'Cash app',
+					paypal: 'Pay pal',
+					credit_card: 'Credit card',
+					debit_card: 'Debit card',
+					efectivo: 'Cash',
+					transferencia: 'Transfer',
+					tarjeta: 'Card',
+					bizum: 'Bizum',
+				}
+				const metodoPagoEn =
+					paymentMethodMapEn[(datos.metodoPago || '').toLowerCase()] ||
+					datos.metodoPago
+
 				doc.fillColor(COLORS.black).fontSize(10).font(FONT_REGULAR)
 				doc.text(
-					`${getText(
-						'sales.new.invoice.paymentMethod',
-					)}: ${datos.metodoPago.toUpperCase()}`,
+					`${getText('sales.new.invoice.paymentMethod')}: ${metodoPagoEn.toUpperCase()}`,
 					40,
 					posY + 50,
 				)

@@ -17,9 +17,14 @@ export function initHistorialVenta() {
 	function translatePaymentMethod(metodo) {
 		const metodoLower = (metodo || '').toLowerCase()
 		const translations = {
+			zelle: window.i18n.t('sales.new.invoice.zelle'),
+			cash_app: window.i18n.t('sales.new.invoice.cashApp'),
+			paypal: window.i18n.t('sales.new.invoice.paypal'),
+			credit_card: window.i18n.t('sales.new.invoice.creditCard'),
+			debit_card: window.i18n.t('sales.new.invoice.debitCard'),
 			efectivo: window.i18n.t('sales.new.invoice.cash'),
-			tarjeta: window.i18n.t('sales.new.invoice.card'),
 			transferencia: window.i18n.t('sales.new.invoice.transfer'),
+			tarjeta: window.i18n.t('sales.new.invoice.card'),
 			bizum: window.i18n.t('sales.new.invoice.bizum'),
 		}
 		return translations[metodoLower] || metodo
@@ -92,17 +97,17 @@ export function initHistorialVenta() {
 		<td class="px-4 py-3 text-right">${
 			descuento > 0
 				? `<span class="text-red-600 font-medium">-$${descuento.toFixed(
-						2
-				  )}</span>`
+						2,
+					)}</span>`
 				: '—'
 		}</td>
 		<td class="px-4 py-3 text-right font-bold text-green-600">$${total.toFixed(
-			2
+			2,
 		)}</td>		<td class="px-4 py-3 text-center text-gray-600">${fechaFormato}</td>			<td class="px-4 py-3 text-center">
 				<button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm detail-btn"
 						data-id="${v.idVenta}" data-fact="${v.numeroFactura}" data-metodo="${
-				v.metodoPago || 'N/A'
-			}" data-desc="${descuento}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
+							v.metodoPago || 'N/A'
+						}" data-desc="${descuento}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
 				<i class="fas fa-eye"></i> ${window.i18n.t('sales.history.view')}
 				</button>
 			</td>
@@ -140,7 +145,7 @@ export function initHistorialVenta() {
 					} catch (error) {
 						console.error('Error al descargar PDF:', error)
 					}
-				}
+				},
 			)
 		}
 	}
@@ -153,7 +158,7 @@ export function initHistorialVenta() {
 		descuento,
 		subtotal,
 		impuestos,
-		total
+		total,
 	) {
 		const modalContainer = document.getElementById('modalContainer')
 
@@ -172,7 +177,7 @@ export function initHistorialVenta() {
 			<div class="bg-linear-to-r from-cyan-700 to-indigo-800 px-6 py-4 flex items-center justify-between">
 				<h2 class="text-lg font-bold text-white flex items-center gap-2">
 				<i class="fas fa-receipt"></i> ${window.i18n.t(
-					'sales.history.invoiceNumber'
+					'sales.history.invoiceNumber',
 				)} <span class="text-cyan-300">${factura}</span>
 			</h2>
 			<button class="text-white hover:text-cyan-200 transition text-2xl closeModal">
@@ -186,7 +191,7 @@ export function initHistorialVenta() {
 			<div class="mb-6">
 				<h3 class="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2">
 					<i class="fas fa-box text-indigo-600"></i> ${window.i18n.t(
-						'sales.history.modal.detailedProducts'
+						'sales.history.modal.detailedProducts',
 					)}
 				</h3>
 				<div class="max-h-64 overflow-y-auto border border-gray-200 rounded-xl shadow-sm">
@@ -194,16 +199,16 @@ export function initHistorialVenta() {
 						<thead>
 							<tr class="bg-linear-to-r from-slate-800 via-gray-800 to-gray-900 text-white sticky top-0 z-10">
 								<th class="px-4 py-3 text-left font-semibold">${window.i18n.t(
-									'sales.history.modal.product'
+									'sales.history.modal.product',
 								)}</th>
 								<th class="px-4 py-3 text-center font-semibold w-20">${window.i18n.t(
-									'sales.history.modal.quantity'
+									'sales.history.modal.quantity',
 								)}</th>
 								<th class="px-4 py-3 text-right font-semibold w-24">${window.i18n.t(
-									'sales.history.modal.unitPrice'
+									'sales.history.modal.unitPrice',
 								)}</th>
 								<th class="px-4 py-3 text-right font-semibold w-24">${window.i18n.t(
-									'sales.history.modal.total'
+									'sales.history.modal.total',
 								)}</th>
 							</tr>
 						</thead>
@@ -221,7 +226,7 @@ export function initHistorialVenta() {
 										Number(d.totalLinea) || 0
 									).toFixed(2)}</td>
 								</tr>
-								`
+								`,
 								)
 								.join('')}
 						</tbody>
@@ -234,23 +239,23 @@ export function initHistorialVenta() {
 				<div class="space-y-2">
 					<p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
 						<i class="fas fa-credit-card text-indigo-600 mr-2"></i>${window.i18n.t(
-							'sales.history.modal.paymentMethod'
+							'sales.history.modal.paymentMethod',
 						)}
 					</p>
 				<p class="text-lg font-bold text-gray-800 capitalize">${translatePaymentMethod(
-					metodo
+					metodo,
 				)}</p>
 				</div>
 				<div class="space-y-2 text-right">
 					<div class="flex justify-end gap-4 text-sm">
 						<span class="text-gray-600">${window.i18n.t(
-							'sales.history.modal.subtotal'
+							'sales.history.modal.subtotal',
 						)}:</span>
 						<span class="font-semibold text-gray-800 w-20">$${subtotal.toFixed(2)}</span>
 					</div>
 					<div class="flex justify-end gap-4 text-sm">
 						<span class="text-gray-600">${window.i18n.t(
-							'sales.history.modal.taxes'
+							'sales.history.modal.taxes',
 						)}:</span>
 						<span class="font-semibold text-gray-800 w-20">$${impuestos.toFixed(2)}</span>
 					</div>
@@ -258,7 +263,7 @@ export function initHistorialVenta() {
 						descuento > 0
 							? `<div class="flex justify-end gap-4 text-sm">
 								<span class="text-gray-600">${window.i18n.t(
-									'sales.history.modal.discount'
+									'sales.history.modal.discount',
 								)}:</span>
 								<span class="font-semibold text-red-600 w-20">-$${descuento.toFixed(2)}</span>
 							</div>`
@@ -266,7 +271,7 @@ export function initHistorialVenta() {
 					}
 					<div class="flex justify-end gap-4 text-sm pt-2 border-t border-gray-300">
 						<span class="text-gray-800 font-bold">${window.i18n.t(
-							'sales.history.modal.total'
+							'sales.history.modal.total',
 						)}:</span>
 						<span class="font-bold text-green-600 text-lg w-20">$${total.toFixed(2)}</span>
 					</div>
