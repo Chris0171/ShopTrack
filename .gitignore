@@ -8,6 +8,8 @@ release/
 # No ignorar la carpeta build/ porque contiene recursos para el empaquetado
 # build/ 
 
+data/shoptrack.db
+
 # Binarios grandes
 *.exe
 *.dll
