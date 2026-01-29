@@ -6,6 +6,77 @@ export function initHistorialVenta() {
 	const inputCliente = document.getElementById('filtroCliente')
 	const selectMetodo = document.getElementById('filtroMetodo')
 
+	const pdfModalId = 'pdf-status-modal'
+	function notifyPdf(message, variant = 'info') {
+		const existing = document.getElementById(pdfModalId)
+		if (existing) existing.remove()
+
+		const overlay = document.createElement('div')
+		overlay.id = pdfModalId
+		overlay.style.position = 'fixed'
+		overlay.style.inset = '0'
+		overlay.style.background = 'rgba(0,0,0,0.4)'
+		overlay.style.display = 'flex'
+		overlay.style.alignItems = 'center'
+		overlay.style.justifyContent = 'center'
+		overlay.style.zIndex = '9999'
+
+		const box = document.createElement('div')
+		box.style.minWidth = '280px'
+		box.style.maxWidth = '360px'
+		box.style.background = '#fff'
+		box.style.borderRadius = '12px'
+		box.style.boxShadow = '0 20px 50px rgba(0,0,0,0.18)'
+		box.style.padding = '18px 20px'
+		box.style.border = '3px solid transparent'
+
+		const colors = {
+			info: '#2563eb',
+			success: '#16a34a',
+			error: '#dc2626',
+		}
+		const border = colors[variant] || colors.info
+		box.style.borderColor = border
+
+		const title = document.createElement('div')
+		title.style.fontWeight = '700'
+		title.style.marginBottom = '8px'
+		title.style.color = '#111827'
+		title.textContent =
+			variant === 'success'
+				? 'Success'
+				: variant === 'error'
+					? 'Error'
+					: 'Notice'
+
+		const msg = document.createElement('div')
+		msg.style.color = '#374151'
+		msg.style.fontSize = '14px'
+		msg.textContent = message
+
+		const closeBtn = document.createElement('button')
+		closeBtn.textContent = 'Close'
+		closeBtn.style.marginTop = '14px'
+		closeBtn.style.background = border
+		closeBtn.style.color = '#fff'
+		closeBtn.style.border = 'none'
+		closeBtn.style.padding = '8px 12px'
+		closeBtn.style.borderRadius = '8px'
+		closeBtn.style.fontWeight = '600'
+		closeBtn.style.cursor = 'pointer'
+		closeBtn.addEventListener('click', () => overlay.remove())
+
+		box.appendChild(title)
+		box.appendChild(msg)
+		box.appendChild(closeBtn)
+		overlay.appendChild(box)
+		document.body.appendChild(overlay)
+
+		overlay.addEventListener('click', (e) => {
+			if (e.target === overlay) overlay.remove()
+		})
+	}
+
 	let limit = 20
 	let offset = 0
 	let cargando = false
@@ -138,12 +209,15 @@ export function initHistorialVenta() {
 			tr.querySelector('.download-pdf-btn').addEventListener(
 				'click',
 				async (e) => {
-					const numeroFactura = e.currentTarget.dataset.fact
 					const idVenta = e.currentTarget.dataset.id
 					try {
-						await window.api.factura.generatePDF(idVenta)
+						notifyPdf('Generando/abriendo PDF de factura...', 'info')
+						const res = await window.api.factura.generatePDF(idVenta)
+						if (res?.ok) notifyPdf('PDF listo.', 'success')
+						else notifyPdf(res?.error || 'No se pudo generar el PDF.', 'error')
 					} catch (error) {
 						console.error('Error al descargar PDF:', error)
+						notifyPdf('Error al generar el PDF.', 'error')
 					}
 				},
 			)
