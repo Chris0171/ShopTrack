@@ -281,7 +281,7 @@
 				"creditCard": "Credit card",
 				"debitCard": "Debit card",
 				"invoiceNumber": "Invoice Number",
-				"observations": "Observations",
+				"observations": "Notes",
 				"generate": "Generate Invoice",
 				"downloadPDF": "Download PDF",
 				"placeholderInvoiceNumber": "Ex: F-2025-001",
@@ -349,7 +349,7 @@
 		"discountReason": "Reason",
 		"total": "Total",
 		"paymentMethod": "Payment Method",
-		"observations": "Observations",
+		"observations": "Notes",
 		"thankYou": "Thank you for your purchase!"
 	},
 	"config": {
