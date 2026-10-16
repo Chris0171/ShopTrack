@@ -98,8 +98,9 @@ FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
 
 
--- Insertar marcas
-INSERT INTO Marca (nombre) VALUES
+-- Marcas iniciales: solo se añaden las que faltan, así el script es idempotente.
+-- Sin OR IGNORE: cualquier error distinto de "ya existe" sigue propagándose.
+WITH marcas_iniciales(nombre) AS (VALUES
 ('Shell Rotella'),
 ('Mobil Delvac'),
 ('Delo 400'),
@@ -110,7 +111,10 @@ INSERT INTO Marca (nombre) VALUES
 ('Luber Finer'),
 ('Refrigerant National'),
 ('Mobil synthetic oil 75w-90'),
-('Torque');
+('Torque'))
+INSERT INTO Marca (nombre)
+SELECT nombre FROM marcas_iniciales
+WHERE nombre NOT IN (SELECT nombre FROM Marca);
 /*
 
 INSERT INTO Producto (NroParte, Descripcion, Cantidad, stockMinimo, Precio, Tasas, activo, marcaId, precioCosto, ubicacion) VALUES
