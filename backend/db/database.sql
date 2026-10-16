@@ -60,6 +60,8 @@ impuestos REAL NOT NULL,
 total REAL NOT NULL,
 descuento REAL NOT NULL DEFAULT 0,
 motivoDescuento TEXT,
+labor REAL NOT NULL DEFAULT 0,
+tasaImpuesto REAL,
 
 FOREIGN KEY (idCliente) REFERENCES Clientes(id)
 );

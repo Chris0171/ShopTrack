@@ -442,18 +442,29 @@ class PDFService {
 				})
 
 				posY += 25
-				// Obtener IVA predeterminado de configuración para mostrar en porcentaje
-				const ivaPredeterminado = config.ivaPredeterminado || 0.21
-				const ivaPorcentaje = ivaPredeterminado * 100
-				doc.text(
-					`${getText('invoice.taxes')} (${ivaPorcentaje}%):`,
-					250,
-					posY,
-					{
+				// Labor solo se muestra si es mayor que cero (ventas antiguas: sin valor)
+				const laborMostrado = PDFService.normalizarLabor(datos.labor)
+				if (laborMostrado > 0) {
+					doc.text(`${getText('invoice.labor')}:`, 250, posY, {
 						width: 100,
 						align: 'right',
-					},
+					})
+					doc.text(`$${laborMostrado.toFixed(2)}`, 450, posY, {
+						width: 100,
+						align: 'right',
+					})
+					posY += 25
+				}
+
+				// Tasa registrada en la venta; nunca la configuración actual
+				const ivaPorcentaje = PDFService.porcentajeImpuesto(
+					datos,
+					(Number(datos.subtotal) || precioBase) + laborMostrado,
 				)
+				doc.text(`${getText('invoice.tax')} (${ivaPorcentaje}%):`, 250, posY, {
+					width: 100,
+					align: 'right',
+				})
 				doc.text(`$${dineroTasas.toFixed(2)}`, 450, posY, {
 					width: 100,
 					align: 'right',
@@ -553,6 +564,25 @@ class PDFService {
 				reject(error)
 			}
 		})
+	}
+
+	// Porcentaje de impuestos: el guardado en la venta; en ventas antiguas (sin tasa) el efectivo
+	// impuestos / base, sin consultar la configuración actual
+	static porcentajeImpuesto(datos, base) {
+		const guardada = datos.tasaImpuesto
+		let pct
+		if (guardada !== null && guardada !== undefined && Number.isFinite(Number(guardada))) {
+			pct = Number(guardada) * 100
+		} else {
+			pct = base > 0 ? (Number(datos.impuestos) / base) * 100 : 0
+		}
+		return Number(pct.toFixed(2))
+	}
+
+	// Labor ausente, nulo o no válido => 0
+	static normalizarLabor(valor) {
+		const n = Number(valor)
+		return Number.isFinite(n) && n > 0 ? n : 0
 	}
 
 	// Formatear fecha

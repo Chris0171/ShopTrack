@@ -1,3 +1,5 @@
+import { crearDescargaPDF } from './descarga_pdf.js'
+
 export function initNuevaVenta() {
 	// Lista temporal de productos agregados a la venta
 	let productosVenta = []
@@ -23,6 +25,12 @@ export function initNuevaVenta() {
 	const impuestosInput = document.getElementById('impuestosVenta')
 	const totalInput = document.getElementById('totalVenta')
 	const descuentoInput = document.getElementById('descuentoVenta')
+	const laborInput = document.getElementById('laborVenta')
+	const laborWrapper = document.getElementById('laborWrapper')
+	const laborResumen = document.getElementById('laborResumen')
+	const laborResumenValor = document.getElementById('laborResumenValor')
+	const taxRateLabel = document.getElementById('taxRateLabel')
+	let tasaImpuesto = 0 // fracción; se carga desde Configuración
 	const motivoDescuentoInput = document.getElementById('motivoDescuento')
 
 	const metodoPago = document.getElementById('metodoPago')
@@ -31,6 +39,12 @@ export function initNuevaVenta() {
 
 	const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
 	const btnDescargarPDF = document.getElementById('btnDescargarPDF')
+	const descargaPDF = crearDescargaPDF({
+		boton: btnDescargarPDF,
+		generar: (venta) => window.api.factura.generarPDF(venta),
+		abrir: (ruta) => window.api.general.abrirArchivo(ruta),
+		avisar: (msg, titulo, variante) => showModalInfo(msg, titulo, variante),
+	})
 	let marcasCargadas = false
 
 	// Referencias del modal reutilizable
@@ -203,6 +217,9 @@ export function initNuevaVenta() {
 	cargarClientes()
 	cargarNumeroFactura()
 	cargarMarcasFiltro()
+	cargarTasaImpuesto()
+		.then(actualizarTotales)
+		.catch((error) => showModalInfo(error.message, 'Error', 'error'))
 
 	// Cargar número de factura automático
 	async function cargarNumeroFactura() {
@@ -218,6 +235,14 @@ export function initNuevaVenta() {
 	// Event listener para descuento
 	descuentoInput.addEventListener('change', () => {
 		actualizarTotales()
+	})
+
+	// Labor: actualizar total al escribir y avisar al confirmar un valor inválido
+	laborInput.addEventListener('input', actualizarTotales)
+	laborInput.addEventListener('change', async () => {
+		actualizarTotales()
+		const labor = leerMonto(laborInput, 'Labor')
+		if (!labor.ok) await showModalInfo(labor.error, 'Aviso', 'warning')
 	})
 
 	// Reaplicar búsqueda al cambiar marca
@@ -507,7 +532,7 @@ export function initNuevaVenta() {
 			const tr = document.createElement('tr')
 			tr.className = 'hover:bg-gray-50'
 			tr.dataset.index = index
-			const total = (p.precio * p.cantidad * (1 + p.tasa)).toFixed(2)
+			const total = (p.precio * p.cantidad * (1 + tasaImpuesto)).toFixed(2)
 
 			const imagePath = rutasImagenes[index]
 			const imageUrl = imagePath?.ok ? imagePath.path : null
@@ -527,9 +552,7 @@ export function initNuevaVenta() {
 					<input type="number" min="1" value="${p.cantidad}" 
 						class="cantidad-input w-20 p-2 text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-600 outline-none font-semibold">
 				</td>
-				<td class="py-3 px-4 text-sm text-right text-gray-700">${(p.tasa * 100).toFixed(
-					0,
-				)}%</td>
+				<td class="py-3 px-4 text-sm text-right text-gray-700">${Number((tasaImpuesto * 100).toFixed(2))}%</td>
 				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">$${p.precio.toFixed(
 					2,
 				)}</td>
@@ -597,28 +620,108 @@ export function initNuevaVenta() {
 		}
 	})
 
+	// Importe opcional: vacío => 0; negativo o no numérico => error
+	function leerMonto(input, nombre) {
+		const raw = input.value.trim()
+		if (input.validity?.badInput) {
+			return { ok: false, error: `${nombre} no es un importe válido.` }
+		}
+		if (raw === '') return { ok: true, value: 0 }
+		const n = Number(raw)
+		if (!Number.isFinite(n)) {
+			return { ok: false, error: `${nombre} no es un importe válido.` }
+		}
+		if (n < 0) {
+			return { ok: false, error: `${nombre} no puede ser negativo.` }
+		}
+		return { ok: true, value: Math.round(n * 100) / 100 }
+	}
+
+	// Total = Subtotal + Labor + Tax - Descuento; Tax = redondear((Subtotal + Labor) × tasa, 2)
+	// (aritmética en céntimos; misma fórmula que backend/services/money-utils.js)
+	function calcularImportes() {
+		const subtotalC = Math.round(
+			productosVenta.reduce((acc, p) => acc + p.precio * p.cantidad, 0) * 100,
+		)
+		const labor = leerMonto(laborInput, 'Labor')
+		const descuento = leerMonto(descuentoInput, 'El descuento')
+		const laborC = labor.ok ? Math.round(labor.value * 100) : 0
+		const descuentoC = descuento.ok ? Math.round(descuento.value * 100) : 0
+		const impuestosC = Math.round(
+			((subtotalC + laborC) * Math.round(tasaImpuesto * 1e6)) / 1e6,
+		)
+		const totalC = subtotalC + laborC + impuestosC - descuentoC
+		return {
+			labor,
+			descuento,
+			subtotal: subtotalC / 100,
+			impuestos: impuestosC / 100,
+			totalSinNegativo: Math.max(0, totalC) / 100,
+			totalNegativo: totalC < 0,
+		}
+	}
+
+	// La tasa viene de Configuración (fracción: 0.1 = 10 %); no hay otra fuente
+	async function cargarTasaImpuesto() {
+		const res = await window.api.config.get()
+		const tasa = Number(res?.data?.ivaPredeterminado)
+		if (!res?.ok || !Number.isFinite(tasa) || tasa < 0 || tasa > 1) {
+			throw new Error('No se pudo leer la tasa de impuestos de Configuración.')
+		}
+		tasaImpuesto = tasa
+		taxRateLabel.textContent = `(${Number((tasa * 100).toFixed(2))}%)`
+	}
+
 	// CALCULAR TOTALES
 	function actualizarTotales() {
-		const subtotal = productosVenta.reduce(
-			(acc, p) => acc + p.precio * p.cantidad,
-			0,
-		)
-		const impuestos = productosVenta.reduce(
-			(acc, p) => acc + p.precio * p.cantidad * p.tasa,
-			0,
-		)
-		const descuento = parseFloat(descuentoInput.value) || 0
-		const total = subtotal + impuestos - descuento
-
-		subtotalInput.value = subtotal.toFixed(2)
-		impuestosInput.value = impuestos.toFixed(2)
-		totalInput.value = total.toFixed(2)
+		const r = calcularImportes()
+		subtotalInput.value = r.subtotal.toFixed(2)
+		impuestosInput.value = r.impuestos.toFixed(2)
+		totalInput.value = r.totalSinNegativo.toFixed(2)
+		const laborValor = r.labor.ok ? r.labor.value : 0
+		laborResumen.classList.toggle('hidden', !(laborValor > 0))
+		laborResumenValor.value = laborValor.toFixed(2)
+		laborWrapper.classList.toggle('border-red-500', !r.labor.ok)
+		laborWrapper.classList.toggle('border-indigo-300', r.labor.ok)
 	}
 
 	// FINALIZAR VENTA
 	btnFinalizarVenta.addEventListener('click', async () => {
 		if (productosVenta.length === 0) {
 			await showModalInfo('Agregue productos a la venta.', 'Aviso')
+			return
+		}
+
+		// Releer la tasa: si cambió en Configuración, mostrar los nuevos importes antes de guardar
+		const tasaAnterior = tasaImpuesto
+		try {
+			await cargarTasaImpuesto()
+		} catch (error) {
+			await showModalInfo(error.message, 'Error', 'error')
+			return
+		}
+		if (tasaImpuesto !== tasaAnterior) {
+			await renderTabla()
+			actualizarTotales()
+			await showModalInfo(
+				'La tasa de impuestos de Configuración cambió. Revise los importes actualizados.',
+				'Aviso',
+				'warning',
+			)
+			return
+		}
+
+		// Validar importes antes de crear cliente o venta
+		const importes = calcularImportes()
+		const errorImporte = !importes.labor.ok
+			? importes.labor.error
+			: !importes.descuento.ok
+				? importes.descuento.error
+				: importes.totalNegativo
+					? 'El descuento no puede superar el total de la venta.'
+					: null
+		if (errorImporte) {
+			await showModalInfo(errorImporte, 'Aviso', 'warning')
 			return
 		}
 
@@ -652,11 +755,12 @@ export function initNuevaVenta() {
 		btnFinalizarVenta.textContent = '⏳ Procesando...'
 
 		// Crear venta con detalles y actualizar stock (backend)
-		const subtotal = parseFloat(subtotalInput.value)
-		const impuestos = parseFloat(impuestosInput.value)
-		const descuento = parseFloat(descuentoInput.value) || 0
+		const subtotal = importes.subtotal
+		const impuestos = importes.impuestos
+		const descuento = importes.descuento.value
+		const labor = importes.labor.value
 		const motivoDescuento = motivoDescuentoInput.value.trim()
-		const total = parseFloat(totalInput.value)
+		const total = importes.totalSinNegativo
 
 		const ventaRes = await window.api.venta.createWithDetails({
 			idCliente,
@@ -665,12 +769,15 @@ export function initNuevaVenta() {
 			total,
 			descuento,
 			motivoDescuento,
+			labor,
+			tasaImpuesto,
 			detalles: productosVenta.map((p) => ({
 				idProducto: p.id,
 				cantidad: p.cantidad,
 				precioUnitario: p.precio,
-				tasaAplicada: p.tasa,
-				totalLinea: p.cantidad * p.precio * (1 + p.tasa),
+				tasaAplicada: tasaImpuesto,
+				totalLinea:
+					Math.round(p.cantidad * p.precio * (1 + tasaImpuesto) * 100) / 100,
 			})),
 		})
 		if (!ventaRes?.ok) {
@@ -714,6 +821,8 @@ export function initNuevaVenta() {
 				subtotal,
 				impuestos,
 				descuento,
+				labor,
+				tasaImpuesto,
 				total,
 				metodoPago: metodoPago.value,
 				observaciones: observaciones.value.trim(),
@@ -724,7 +833,7 @@ export function initNuevaVenta() {
 				descripcion: p.Descripcion,
 				cantidad: p.cantidad,
 				precioUnitario: p.precio,
-				tasaAplicada: p.tasa,
+				tasaAplicada: tasaImpuesto,
 			})),
 		}
 
@@ -736,7 +845,7 @@ export function initNuevaVenta() {
 		)
 
 		// Mostrar botón de descargar PDF
-		btnDescargarPDF.classList.remove('hidden')
+		descargaPDF.setVenta(ventaActual)
 
 		// Limpiar pantalla para nueva venta (excepto factura)
 		productosVenta = []
@@ -748,6 +857,7 @@ export function initNuevaVenta() {
 		clienteEmail.value = ''
 		clienteDireccion.value = ''
 		descuentoInput.value = ''
+		laborInput.value = ''
 		motivoDescuentoInput.value = ''
 		observaciones.value = ''
 		// Generar nuevo número de factura para siguiente venta
@@ -782,34 +892,5 @@ export function initNuevaVenta() {
 	})
 
 	// ** Descargar PDF de factura
-	btnDescargarPDF.addEventListener('click', async () => {
-		if (!ventaActual) {
-			await showModalInfo('No hay factura para descargar.', 'Aviso')
-			return
-		}
-
-		btnDescargarPDF.disabled = true
-		btnDescargarPDF.textContent = '⏳ Generando PDF...'
-
-		try {
-			const resultado = await window.api.factura.generarPDF(ventaActual)
-
-			if (resultado.ok) {
-				await showModalInfo('PDF generado exitosamente.', 'Éxito', 'success')
-				// Abrir archivo en explorador
-				await window.api.general.abrirArchivo(resultado.ruta)
-			} else {
-				await showModalInfo(`Error: ${resultado.error}`, 'Error', 'error')
-			}
-		} catch (error) {
-			await showModalInfo(
-				`Error al generar PDF: ${error.message}`,
-				'Error',
-				'error',
-			)
-		} finally {
-			btnDescargarPDF.disabled = false
-			btnDescargarPDF.textContent = '📄 Descargar Factura PDF'
-		}
-	})
+	btnDescargarPDF.addEventListener('click', () => descargaPDF.descargar())
 }

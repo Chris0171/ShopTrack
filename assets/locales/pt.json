@@ -257,6 +257,8 @@
 				"taxes": "Impostos (IVA)",
 				"discount": "Desconto",
 				"discountReason": "Motivo do Desconto",
+				"labor": "Labor",
+				"tax": "Tax",
 				"total": "Total Final",
 				"placeholderDiscount": "0.00",
 				"placeholderDiscountReason": "Ex: Promoção, cliente frequente..."
@@ -308,7 +310,8 @@
 				"paymentMethod": "Método de Pagamento",
 				"subtotal": "Subtotal",
 				"taxes": "Impostos",
-				"discount": "Desconto"
+				"discount": "Desconto",
+				"labor": "Labor"
 			}
 		}
 	},
@@ -339,6 +342,8 @@
 		"subtotal": "Subtotal",
 		"taxes": "Impostos",
 		"discount": "Desconto",
+		"labor": "Labor",
+		"tax": "Tax",
 		"discountReason": "Motivo",
 		"total": "Total",
 		"paymentMethod": "Método de Pagamento",

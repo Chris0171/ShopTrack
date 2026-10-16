@@ -123,7 +123,9 @@ export function initConfiguracion() {
 			formatoFecha: formatoFechaSelect.value,
 			prefijoFactura: prefijoFactura.value.trim(),
 			numeroInicial: parseInt(numeroInicial.value) || 1000,
-			ivaPredeterminado: parseFloat(ivaPredeterminado.value) / 100 || 0.21,
+			ivaPredeterminado: Number.isFinite(parseFloat(ivaPredeterminado.value))
+				? parseFloat(ivaPredeterminado.value) / 100
+				: 0.21,
 			incluirLogo: incluirLogo.checked,
 			nombre: nombreEmpresa.value.trim(),
 			rfc: rfcEmpresa.value.trim(),

@@ -112,6 +112,8 @@ module.exports = {
             v.subtotal,
             v.impuestos,
             v.total,
+            v.descuento,
+            v.labor,
             c.nombre AS clienteNombre,
             c.telefono AS clienteTelefono,
             c.email AS clienteEmail,

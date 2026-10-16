@@ -264,6 +264,8 @@
 				"taxes": "Taxes (TAX)",
 				"discount": "Discount",
 				"discountReason": "Discount Reason",
+				"labor": "Labor",
+				"tax": "Tax",
 				"total": "Final Total",
 				"placeholderDiscount": "0.00",
 				"placeholderDiscountReason": "Ex: Promotion, frequent customer..."
@@ -315,7 +317,8 @@
 				"paymentMethod": "Payment Method",
 				"subtotal": "Subtotal",
 				"taxes": "Taxes",
-				"discount": "Discount"
+				"discount": "Discount",
+				"labor": "Labor"
 			}
 		}
 	},
@@ -346,6 +349,8 @@
 		"subtotal": "Subtotal",
 		"taxes": "Taxes",
 		"discount": "Discount",
+		"labor": "Labor",
+		"tax": "Tax",
 		"discountReason": "Reason",
 		"total": "Total",
 		"paymentMethod": "Payment Method",

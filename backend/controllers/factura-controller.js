@@ -103,15 +103,34 @@ module.exports = {
 			stmt.finalize()
 		}
 
-		if (!numeroFactura) {
-			// Generar número automáticamente
-			module.exports.generateNumeroFactura((err, nuevoNumero) => {
-				if (err) return callback(err)
-				procesarCreacion(nuevoNumero)
-			})
-		} else {
-			procesarCreacion(numeroFactura)
-		}
+		// La factura debe coincidir con los importes guardados en la venta
+		db.get(
+			'SELECT subtotal, impuestos, total FROM Venta WHERE id = ?',
+			[idVenta],
+			(ventaErr, venta) => {
+				if (ventaErr) return callback(ventaErr)
+				if (!venta) return callback(new Error('Venta no encontrada'))
+				const cent = (n) => Math.round(Number(n) * 100)
+				if (
+					cent(venta.subtotal) !== cent(subtotal) ||
+					cent(venta.impuestos) !== cent(impuestos) ||
+					cent(venta.total) !== cent(total)
+				) {
+					return callback(
+						new Error('Los importes de la factura no coinciden con la venta.'),
+					)
+				}
+				if (!numeroFactura) {
+					// Generar número automáticamente
+					module.exports.generateNumeroFactura((err, nuevoNumero) => {
+						if (err) return callback(err)
+						procesarCreacion(nuevoNumero)
+					})
+				} else {
+					procesarCreacion(numeroFactura)
+				}
+			},
+		)
 	},
 
 	// 🔹 Actualizar factura

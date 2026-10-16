@@ -147,10 +147,15 @@ export function initHistorialVenta() {
 			const tr = document.createElement('tr')
 			tr.className = 'hover:bg-gray-100 transition'
 
-			const descuento = v.descuento || 0
+			const descuento = parseFloat(v.descuento) || 0
+			const labor = parseFloat(v.labor) || 0
 			const subtotal = parseFloat(v.subtotal) || 0
 			const impuestos = parseFloat(v.impuestos) || 0
-			const total = subtotal + impuestos - descuento
+			// Total guardado en la venta (coincide con la factura); ventas antiguas: labor = 0
+			const totalGuardado = parseFloat(v.total)
+			const total = Number.isFinite(totalGuardado)
+				? totalGuardado
+				: Math.round((subtotal + impuestos + labor - descuento) * 100) / 100
 
 			// Formatear fecha a MM/DD/YYYY
 			const fechaObj = new Date(v.fecha)
@@ -178,7 +183,7 @@ export function initHistorialVenta() {
 				<button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm detail-btn"
 						data-id="${v.idVenta}" data-fact="${v.numeroFactura}" data-metodo="${
 							v.metodoPago || 'N/A'
-						}" data-desc="${descuento}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
+						}" data-desc="${descuento}" data-labor="${labor}" data-sub="${subtotal}" data-imp="${impuestos}" data-tot="${total}">
 				<i class="fas fa-eye"></i> ${window.i18n.t('sales.history.view')}
 				</button>
 			</td>
@@ -202,7 +207,17 @@ export function initHistorialVenta() {
 				const subtotal = parseFloat(e.target.dataset.sub) || 0
 				const impuestos = parseFloat(e.target.dataset.imp) || 0
 				const total = parseFloat(e.target.dataset.tot) || 0
-				abrirModal(id, factura, metodo, descuento, subtotal, impuestos, total)
+				const labor = parseFloat(e.currentTarget.dataset.labor) || 0
+				abrirModal(
+					id,
+					factura,
+					metodo,
+					descuento,
+					subtotal,
+					impuestos,
+					total,
+					labor,
+				)
 			})
 
 			// Evento descargar PDF
@@ -233,6 +248,7 @@ export function initHistorialVenta() {
 		subtotal,
 		impuestos,
 		total,
+		labor = 0,
 	) {
 		const modalContainer = document.getElementById('modalContainer')
 
@@ -327,6 +343,16 @@ export function initHistorialVenta() {
 						)}:</span>
 						<span class="font-semibold text-gray-800 w-20">$${subtotal.toFixed(2)}</span>
 					</div>
+					${
+						labor > 0
+							? `<div class="flex justify-end gap-4 text-sm">
+								<span class="text-gray-600">${window.i18n.t(
+									'sales.history.modal.labor',
+								)}:</span>
+								<span class="font-semibold text-gray-800 w-20">$${labor.toFixed(2)}</span>
+							</div>`
+							: ''
+					}
 					<div class="flex justify-end gap-4 text-sm">
 						<span class="text-gray-600">${window.i18n.t(
 							'sales.history.modal.taxes',

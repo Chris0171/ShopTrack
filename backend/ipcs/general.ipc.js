@@ -4,25 +4,25 @@ const { shell, dialog, ipcMain: ipcMainModule } = require('electron')
 const configService = require('../services/config-service')
 const pathService = require('../services/path-service')
 const backupService = require('../services/backup-service')
+const { abrirArchivo } = require('../services/file-opener')
 
-// Variable global para almacenar el BrowserWindow y poder hacer emit
-let mainWindow = null
-
-module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
-	mainWindow = mainWindowRef
+// `getMainWindow` devuelve la ventana actual (o null): el registro IPC ocurre antes de crearla
+module.exports = function registerGeneralIPC(ipcMain, getMainWindow = () => null) {
+	const notificarConfig = (config) => {
+		const win = getMainWindow()
+		if (!win || win.isDestroyed() || win.webContents.isDestroyed()) return
+		try {
+			win.webContents.send('config:changed', config)
+		} catch (e) {
+			console.error('No se pudo emitir config:changed:', e.message)
+		}
+	}
 	ipcMain.handle('load-view', (event, viewName) => {
 		const viewPath = path.join(__dirname, '../../views', viewName)
 		return fs.readFileSync(viewPath, 'utf8')
 	})
 
-	ipcMain.handle('abrirArchivo', async (event, ruta) => {
-		try {
-			await shell.openPath(ruta)
-			return { ok: true }
-		} catch (error) {
-			return { ok: false, error: error.message }
-		}
-	})
+	ipcMain.handle('abrirArchivo', async (event, ruta) => abrirArchivo(ruta))
 
 	// Abrir imagen de producto por nombre (usando pathService)
 	ipcMain.handle('producto:abrir-imagen', async (event, nombreImagen) => {
@@ -35,7 +35,8 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 			if (!fs.existsSync(imagePath)) {
 				return { ok: false, error: 'Archivo no encontrado' }
 			}
-			await shell.openPath(imagePath)
+			const abierto = await abrirArchivo(imagePath)
+			if (!abierto.ok) return abierto
 			return { ok: true, path: imagePath }
 		} catch (error) {
 			return { ok: false, error: error.message }
@@ -130,10 +131,7 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 		try {
 			const config = configService.updateConfig(updates)
 
-			// Notificar a todos los renderers
-			if (mainWindow) {
-				mainWindow.webContents.send('config:changed', config)
-			}
+			notificarConfig(config)
 
 			console.log('✓ Configuración actualizada')
 			return { ok: true, data: config }
@@ -147,9 +145,7 @@ module.exports = function registerGeneralIPC(ipcMain, mainWindowRef = null) {
 		try {
 			const config = configService.resetConfig()
 
-			if (mainWindow) {
-				mainWindow.webContents.send('config:changed', config)
-			}
+			notificarConfig(config)
 
 			return { ok: true, data: config }
 		} catch (error) {

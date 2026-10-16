@@ -3,7 +3,7 @@ const PDFService = require('../services/pdf-service')
 const detalleVentaController = require('../controllers/detalleVenta-controller')
 const ventaController = require('../controllers/venta-controller')
 const clienteController = require('../controllers/cliente-controller')
-const { shell } = require('electron')
+const { abrirArchivo } = require('../services/file-opener')
 const fs = require('fs')
 const path = require('path')
 
@@ -77,6 +77,8 @@ module.exports = function registerFacturaIPC(ipcMain) {
 					subtotal: factura.subtotal,
 					impuestos: factura.impuestos,
 					descuento: factura.descuento || 0,
+					labor: factura.labor || 0,
+					tasaImpuesto: factura.tasaImpuesto ?? null,
 					total: factura.total,
 					metodoPago: factura.metodoPago,
 					observaciones: factura.observaciones,
@@ -110,7 +112,14 @@ module.exports = function registerFacturaIPC(ipcMain) {
 			// 2. Verificar si ya existe rutaPDF y el archivo existe
 			if (factura.rutaPDF && fs.existsSync(factura.rutaPDF)) {
 				// Abrir PDF existente
-				await shell.openPath(factura.rutaPDF)
+				const abierto = await abrirArchivo(factura.rutaPDF)
+				if (!abierto.ok) {
+					return {
+						ok: false,
+						error: `El PDF existe pero no se pudo abrir: ${abierto.error}`,
+						ruta: factura.rutaPDF,
+					}
+				}
 				return { ok: true, ruta: factura.rutaPDF, nuevo: false }
 			}
 
@@ -164,6 +173,8 @@ module.exports = function registerFacturaIPC(ipcMain) {
 				subtotal: factura.subtotal,
 				impuestos: factura.impuestos,
 				descuento: venta.descuento || 0,
+				labor: venta.labor || 0,
+				tasaImpuesto: venta.tasaImpuesto ?? null,
 				total: factura.total,
 				metodoPago: factura.metodoPago,
 				observaciones: factura.observaciones,
@@ -189,8 +200,14 @@ module.exports = function registerFacturaIPC(ipcMain) {
 			})
 
 			// 5. Abrir PDF
-			await shell.openPath(resultado.ruta)
-
+			const abierto = await abrirArchivo(resultado.ruta)
+			if (!abierto.ok) {
+				return {
+					ok: false,
+					error: `El PDF se generó pero no se pudo abrir: ${abierto.error}`,
+					ruta: resultado.ruta,
+				}
+			}
 			return { ok: true, ruta: resultado.ruta, nuevo: true }
 		} catch (error) {
 			return { ok: false, error: error.message }

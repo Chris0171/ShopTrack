@@ -33,7 +33,10 @@ const db = require('./backend/db/initDatabase') // * Inicializa DB
 
 let mainWindow
 
-function createWindow(width, height) {
+function createWindow(
+	width = screen.getPrimaryDisplay().workAreaSize.width,
+	height = screen.getPrimaryDisplay().workAreaSize.height,
+) {
 	mainWindow = new BrowserWindow({
 		minWidth: width,
 		minHeight: height,
@@ -49,6 +52,10 @@ function createWindow(width, height) {
 	mainWindow.setBounds({ x: 0, y: 0, width, height })
 	mainWindow.loadFile('index.html')
 	mainWindow.setMenu(null) // Quitar menú superior
+	const ventana = mainWindow
+	ventana.on('closed', () => {
+		if (mainWindow === ventana) mainWindow = null
+	})
 	return mainWindow
 }
 
@@ -124,5 +131,5 @@ registerClienteIPC(ipcMain)
 registerVentaIPC(ipcMain)
 registerDetalleVentaIPC(ipcMain)
 registerFacturaIPC(ipcMain)
-registerGeneralIPC(ipcMain, mainWindow)
+registerGeneralIPC(ipcMain, () => mainWindow)
 registerMarcaIPC(ipcMain)

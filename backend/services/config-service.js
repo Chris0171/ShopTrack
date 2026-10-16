@@ -141,10 +141,23 @@ function getConfig() {
 	return loadConfig()
 }
 
+/**
+ * Tasa de impuestos configurada, como fracción (0.0825 = 8,25 %)
+ * @returns {number}
+ */
+function getTasaImpuesto() {
+	const tasa = Number(loadConfig().ivaPredeterminado)
+	if (!Number.isFinite(tasa) || tasa < 0 || tasa > 1) {
+		throw new Error('La tasa de impuestos configurada no es válida.')
+	}
+	return tasa
+}
+
 module.exports = {
 	loadConfig,
 	saveConfig,
 	getConfig,
+	getTasaImpuesto,
 	getConfigValue,
 	setConfigValue,
 	updateConfig,
