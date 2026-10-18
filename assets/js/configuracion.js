@@ -228,8 +228,12 @@ export function initConfiguracion() {
 				await showModal(
 					'✅',
 					window.i18n.t('config.restoreSuccess'),
-					window.i18n.t('config.restoreSuccessMsg'),
+					window.i18n.t('config.restoreSuccessMsg') +
+						' ' +
+						window.i18n.t('config.restoreRestartMsg'),
 				)
+				// La base ya está sustituida; se reinicia para abrirla y migrarla
+				window.api.invoke('app:relaunch').catch(() => {})
 			} else if (result.canceled) {
 				// No mostrar nada si el usuario canceló
 			} else {
@@ -238,6 +242,10 @@ export function initConfiguracion() {
 					window.i18n.t('config.restoreError') || 'Error al restaurar',
 					result.error || 'Error desconocido',
 				)
+				// La conexión ya se había cerrado: hay que reiniciar para recuperar la base actual
+				if (result.restartRequired) {
+					window.api.invoke('app:relaunch').catch(() => {})
+				}
 			}
 		}
 	})

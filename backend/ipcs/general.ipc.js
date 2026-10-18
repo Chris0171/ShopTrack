@@ -178,8 +178,16 @@ module.exports = function registerGeneralIPC(ipcMain, getMainWindow = () => null
 				return { ok: false, canceled: true }
 			}
 			const backupFilePath = result.filePaths[0]
-			const restoreResult = backupService.restoreDatabase(backupFilePath)
-			return restoreResult
+			// Cierra la conexión compartida antes de sustituir el archivo; la app debe reiniciarse después
+			const closeConnection = () =>
+				new Promise((resolve, reject) =>
+					require('../db/initDatabase').close((err) =>
+						err ? reject(err) : resolve(),
+					),
+				)
+			return await backupService.restoreDatabase(backupFilePath, {
+				closeConnection,
+			})
 		} catch (error) {
 			return { ok: false, error: error.message }
 		}

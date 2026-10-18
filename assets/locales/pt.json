@@ -402,6 +402,7 @@
 		"restoreMsg": "Deseja restaurar o banco de dados de um arquivo de backup? Esta ação sobrescreverá os dados atuais.",
 		"restoreSuccess": "Banco de Dados Restaurado",
 		"restoreSuccessMsg": "O banco de dados foi restaurado com sucesso.",
+		"restoreRestartMsg": "O aplicativo será reiniciado para aplicar o backup restaurado.",
 		"resetTitle": "AVISO!",
 		"resetMsg": "Esta ação deletará TODOS os dados da aplicação e não pode ser desfeita. Tem certeza?",
 		"resetConfirm": "Confirmação Final",

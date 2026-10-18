@@ -119,6 +119,12 @@ app.whenReady().then(() => {
 	ipcMain.handle('app:getVersion', () => {
 		return app.getVersion()
 	})
+
+	// Reinicio controlado tras restaurar una copia de la base de datos
+	ipcMain.handle('app:relaunch', () => {
+		app.relaunch()
+		app.exit(0)
+	})
 })
 
 app.on('window-all-closed', () => {

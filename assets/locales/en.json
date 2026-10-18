@@ -409,6 +409,7 @@
 		"restoreMsg": "Do you want to restore the database from a backup file? This action will overwrite current data.",
 		"restoreSuccess": "Database Restored",
 		"restoreSuccessMsg": "The database was restored successfully.",
+		"restoreRestartMsg": "The application will restart to apply the restored backup.",
 		"resetTitle": "WARNING!",
 		"resetMsg": "This action will delete ALL application data and cannot be undone. Are you sure?",
 		"resetConfirm": "Final Confirmation",
