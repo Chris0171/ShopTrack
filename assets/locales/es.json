@@ -222,7 +222,9 @@
 	"sales": {
 		"new": {
 			"title": "Nueva Venta",
-			"searchProduct": "Buscar producto por Número de Parte",
+			"subtitle": "Selecciona los productos y revisa los datos de la factura",
+			"clearSearch": "Limpiar búsqueda",
+			"searchProduct": "Buscar producto (Nº de parte o descripción)",
 			"brandFilter": "Marca",
 			"brandAll": "Todas las marcas",
 			"searchPlaceholder": "Ej: P-001",
@@ -243,7 +245,7 @@
 				"noProducts": "No hay productos agregados. Busca y agrega productos a la venta."
 			},
 			"customer": {
-				"title": "Datos del Cliente",
+				"title": "Datos del cliente",
 				"existing": "Cliente existente",
 				"selectClient": "-- Selecciona un cliente --",
 				"newClient": "O ingresa datos de un nuevo cliente:",
@@ -269,7 +271,7 @@
 				"placeholderDiscountReason": "Ej: Promoción, cliente frecuente..."
 			},
 			"invoice": {
-				"title": "Datos de Factura",
+				"title": "Datos de la factura",
 				"paymentMethod": "Método de Pago",
 				"cash": "Efectivo",
 				"card": "Tarjeta",

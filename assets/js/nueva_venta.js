@@ -27,6 +27,8 @@ export function initNuevaVenta() {
 	const descuentoInput = document.getElementById('descuentoVenta')
 	const laborInput = document.getElementById('laborVenta')
 	const laborWrapper = document.getElementById('laborWrapper')
+	const laborError = document.getElementById('laborError')
+	const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda')
 	const laborResumen = document.getElementById('laborResumen')
 	const laborResumenValor = document.getElementById('laborResumenValor')
 	const taxRateLabel = document.getElementById('taxRateLabel')
@@ -38,6 +40,7 @@ export function initNuevaVenta() {
 	const observaciones = document.getElementById('observaciones')
 
 	const btnFinalizarVenta = document.getElementById('btnFinalizarVenta')
+	const htmlFinalizarOriginal = btnFinalizarVenta.innerHTML
 	const btnDescargarPDF = document.getElementById('btnDescargarPDF')
 	const descargaPDF = crearDescargaPDF({
 		boton: btnDescargarPDF,
@@ -217,6 +220,7 @@ export function initNuevaVenta() {
 	cargarClientes()
 	cargarNumeroFactura()
 	cargarMarcasFiltro()
+	renderTabla()
 	cargarTasaImpuesto()
 		.then(actualizarTotales)
 		.catch((error) => showModalInfo(error.message, 'Error', 'error'))
@@ -294,6 +298,17 @@ export function initNuevaVenta() {
 		}, 300)
 	})
 
+	// Mostrar el botón de limpiar solo cuando hay texto
+	buscarInput.addEventListener('input', () => {
+		btnLimpiarBusqueda.classList.toggle('hidden', buscarInput.value === '')
+	})
+	btnLimpiarBusqueda.addEventListener('click', () => {
+		buscarInput.value = ''
+		btnLimpiarBusqueda.classList.add('hidden')
+		ocultarDropdown()
+		buscarInput.focus()
+	})
+
 	buscarInput.addEventListener('keydown', async (e) => {
 		if (e.key === 'ArrowDown') {
 			e.preventDefault()
@@ -368,7 +383,7 @@ export function initNuevaVenta() {
 			div.className =
 				'px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-100 transition'
 			div.dataset.productId = producto.id
-
+			div.setAttribute('role', 'option')
 			// Obtener número de parte principal
 			const numerosParte = Array.isArray(producto.numerosParte)
 				? producto.numerosParte
@@ -513,8 +528,10 @@ export function initNuevaVenta() {
 		if (productosVenta.length === 0) {
 			tablaVenta.innerHTML = `
 				<tr>
-					<td colspan="10" class="text-center py-8 text-gray-500 font-semibold">
-						🛒 No hay productos agregados. Busca y agrega productos a la venta.
+					<td colspan="10" class="nueva-venta__empty">
+						<i class="fas fa-cart-shopping mr-2" aria-hidden="true"></i>${window.i18n.t(
+							'sales.new.table.noProducts',
+						)}
 					</td>
 				</tr>`
 			return
@@ -530,36 +547,36 @@ export function initNuevaVenta() {
 
 		productosVenta.forEach((p, index) => {
 			const tr = document.createElement('tr')
-			tr.className = 'hover:bg-gray-50'
 			tr.dataset.index = index
 			const total = (p.precio * p.cantidad * (1 + tasaImpuesto)).toFixed(2)
 
 			const imagePath = rutasImagenes[index]
 			const imageUrl = imagePath?.ok ? imagePath.path : null
 			const imagenHtml = imageUrl
-				? `<img data-imagen="${p.nombreImagen}" src="${imageUrl}" alt="${p.NroParte}" class="producto-imagen w-12 h-12 object-cover rounded border border-gray-300 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition" title="Click para ver" />`
+				? `<img data-imagen="${p.nombreImagen}" src="${imageUrl}" alt="${p.NroParte}" class="producto-imagen nueva-venta__thumb" title="Click para ver" />`
 				: '<span class="text-gray-400 text-xs">Sin imagen</span>'
 
 			tr.innerHTML = `
-				<td class="py-3 px-4 text-center">
+				<td class="text-center">
 					<div class="flex items-center justify-center">${imagenHtml}</div>
 				</td>
-				<td class="py-3 px-4 text-sm font-bold text-gray-800">${p.NroParte}</td>
-				<td class="py-3 px-4 text-sm text-gray-700">${p.Descripcion}</td>
-				<td class="py-3 px-4 text-sm text-gray-700">${p.marcaNombre || '—'}</td>
-				<td class="py-3 px-4 text-sm text-gray-700">${p.ubicacion || '—'}</td>
-				<td class="py-3 px-4 text-right">
-					<input type="number" min="1" value="${p.cantidad}" 
-						class="cantidad-input w-20 p-2 text-center border-2 border-indigo-300 rounded-lg focus:border-indigo-600 outline-none font-semibold">
+				<td class="font-bold text-slate-900 whitespace-nowrap">${p.NroParte}</td>
+				<td class="min-w-[14rem]">${p.Descripcion}</td>
+				<td>${p.marcaNombre || '—'}</td>
+				<td>${p.ubicacion || '—'}</td>
+				<td class="text-center">
+					<input type="number" min="1" value="${p.cantidad}"
+						aria-label="${window.i18n.t('sales.new.table.quantity')}: ${p.NroParte}"
+						class="cantidad-input nueva-venta__control nueva-venta__qty">
 				</td>
-				<td class="py-3 px-4 text-sm text-right text-gray-700">${Number((tasaImpuesto * 100).toFixed(2))}%</td>
-				<td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">$${p.precio.toFixed(
-					2,
-				)}</td>
-				<td class="py-3 px-4 text-sm text-right font-bold text-indigo-700">$${total}</td>
-				<td class="py-3 px-4 text-center">
-					<button class="btn-eliminar bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow transition transform hover:scale-105">
-						🗑️ Eliminar
+				<td class="nueva-venta__num">${Number((tasaImpuesto * 100).toFixed(2))}%</td>
+				<td class="nueva-venta__num">$${p.precio.toFixed(2)}</td>
+				<td class="nueva-venta__num font-bold text-slate-900">$${total}</td>
+				<td class="text-center">
+					<button type="button" class="btn-eliminar nueva-venta__btn nueva-venta__btn--danger"
+						aria-label="${window.i18n.t('sales.new.table.remove')}: ${p.NroParte}">
+						<i class="fas fa-trash-can" aria-hidden="true"></i>
+						<span>${window.i18n.t('sales.new.table.remove')}</span>
 					</button>
 				</td>
 			`
@@ -681,8 +698,10 @@ export function initNuevaVenta() {
 		const laborValor = r.labor.ok ? r.labor.value : 0
 		laborResumen.classList.toggle('hidden', !(laborValor > 0))
 		laborResumenValor.value = laborValor.toFixed(2)
-		laborWrapper.classList.toggle('border-red-500', !r.labor.ok)
-		laborWrapper.classList.toggle('border-indigo-300', r.labor.ok)
+		laborWrapper.classList.toggle('nueva-venta__group--error', !r.labor.ok)
+		laborInput.setAttribute('aria-invalid', String(!r.labor.ok))
+		laborError.textContent = r.labor.ok ? '' : r.labor.error
+		laborError.classList.toggle('hidden', r.labor.ok)
 	}
 
 	// FINALIZAR VENTA
@@ -787,7 +806,7 @@ export function initNuevaVenta() {
 				'error',
 			)
 			btnFinalizarVenta.disabled = false
-			btnFinalizarVenta.textContent = 'Generar Factura'
+			btnFinalizarVenta.innerHTML = htmlFinalizarOriginal
 			return
 		}
 
@@ -860,12 +879,13 @@ export function initNuevaVenta() {
 		laborInput.value = ''
 		motivoDescuentoInput.value = ''
 		observaciones.value = ''
+		actualizarTotales()
 		// Generar nuevo número de factura para siguiente venta
 		await cargarNumeroFactura()
 
 		// Rehabilitar botón
 		btnFinalizarVenta.disabled = false
-		btnFinalizarVenta.textContent = 'Generar Factura'
+		btnFinalizarVenta.innerHTML = htmlFinalizarOriginal
 	})
 
 	// ** Agregar evento change al serector

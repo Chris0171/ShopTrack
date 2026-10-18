@@ -218,7 +218,9 @@
 	"sales": {
 		"new": {
 			"title": "Nova Venda",
-			"searchProduct": "Pesquisar produto por Número da Peça",
+			"subtitle": "Selecione os produtos e revise os dados da fatura",
+			"clearSearch": "Limpar pesquisa",
+			"searchProduct": "Pesquisar produto (número da peça ou descrição)",
 			"brandFilter": "Marca",
 			"brandAll": "Todas as marcas",
 			"searchPlaceholder": "Ex: P-001",

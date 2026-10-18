@@ -251,3 +251,419 @@ th.sort-desc::after {
 	color: #fff;
 	font-weight: bold;
 }
+
+/* ===== Vista Nueva Venta =====
+   Todo bajo .nueva-venta; sin !important. Las reglas sin capa ganan a los
+   estilos globales de input/select/button definidos arriba. */
+.nueva-venta {
+	background: #f1f5f9;
+	border-radius: 16px;
+	padding: 1.5rem;
+	color: #1e293b;
+}
+.nueva-venta__title {
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #0f172a;
+}
+.nueva-venta__subtitle {
+	margin-top: 0.25rem;
+	font-size: 0.9375rem;
+	color: #64748b;
+}
+.nueva-venta__card {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+.nueva-venta__card-header {
+	display: flex;
+	align-items: center;
+	gap: 0.625rem;
+	padding: 0.875rem 1.25rem;
+	border-bottom: 1px solid #e2e8f0;
+}
+.nueva-venta__card-icon {
+	color: #4f46e5;
+}
+.nueva-venta__card-title {
+	font-size: 1rem;
+	font-weight: 600;
+	color: #0f172a;
+}
+.nueva-venta__card-body {
+	padding: 1.25rem;
+}
+.nueva-venta__label {
+	display: block;
+	margin-bottom: 0.375rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #334155;
+}
+.nueva-venta__hint {
+	font-size: 0.8125rem;
+	color: #64748b;
+}
+.nueva-venta__kbd {
+	padding: 0.05rem 0.4rem;
+	font-size: 0.75rem;
+	background: #f1f5f9;
+	border: 1px solid #cbd5e1;
+	border-radius: 4px;
+}
+.nueva-venta__error {
+	margin-top: 0.25rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #b91c1c;
+}
+.nueva-venta__divider {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 1.25rem 0;
+	font-size: 0.8125rem;
+	color: #64748b;
+}
+.nueva-venta__divider::before,
+.nueva-venta__divider::after {
+	content: '';
+	flex: 1;
+	border-top: 1px solid #e2e8f0;
+}
+
+/* Controles de formulario */
+.nueva-venta .nueva-venta__control {
+	width: 100%;
+	height: 2.5rem;
+	padding: 0 0.75rem;
+	font-size: 0.9375rem;
+	line-height: 1.25;
+	color: #0f172a;
+	background: #fff;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	box-shadow: none;
+	transition:
+		border-color 0.15s,
+		box-shadow 0.15s;
+}
+.nueva-venta .nueva-venta__control::placeholder {
+	color: #94a3b8;
+}
+.nueva-venta .nueva-venta__control:focus {
+	outline: none;
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+.nueva-venta .nueva-venta__control[readonly] {
+	color: #475569;
+	background: #f8fafc;
+}
+.nueva-venta .nueva-venta__textarea {
+	height: auto;
+	padding: 0.5rem 0.75rem;
+	resize: vertical;
+}
+.nueva-venta .nueva-venta__lg {
+	height: 2.75rem;
+}
+.nueva-venta .nueva-venta__search-input {
+	padding-left: 2.5rem;
+	padding-right: 2.5rem;
+	font-size: 1rem;
+}
+.nueva-venta__field-icon {
+	position: absolute;
+	top: 50%;
+	left: 0.875rem;
+	transform: translateY(-50%);
+	color: #94a3b8;
+	pointer-events: none;
+}
+.nueva-venta .nueva-venta__icon-btn {
+	position: absolute;
+	top: 50%;
+	right: 0.375rem;
+	transform: translateY(-50%);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2rem;
+	height: 2rem;
+	color: #64748b;
+	background: transparent;
+	border-radius: 6px;
+	box-shadow: none;
+}
+.nueva-venta .nueva-venta__icon-btn:hover {
+	color: #0f172a;
+	background: #f1f5f9;
+	box-shadow: none;
+}
+.nueva-venta .nueva-venta__icon-btn:focus-visible {
+	outline: 3px solid rgba(79, 70, 229, 0.45);
+}
+.nueva-venta__dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 50;
+	margin-top: 0.25rem;
+	max-height: 20rem;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+}
+
+/* Campo numérico con prefijo de moneda */
+.nueva-venta__group {
+	display: flex;
+	align-items: stretch;
+	height: 2.5rem;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	transition:
+		border-color 0.15s,
+		box-shadow 0.15s;
+}
+.nueva-venta__group:focus-within {
+	border-color: #4f46e5;
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+.nueva-venta__group--error,
+.nueva-venta__group--error:focus-within {
+	border-color: #dc2626;
+	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+.nueva-venta__group--compact {
+	width: 9rem;
+}
+.nueva-venta__group-prefix {
+	display: flex;
+	align-items: center;
+	padding: 0 0.75rem;
+	font-weight: 600;
+	color: #64748b;
+	background: #f8fafc;
+	border-right: 1px solid #e2e8f0;
+}
+.nueva-venta .nueva-venta__group input {
+	width: 100%;
+	min-width: 0;
+	height: 100%;
+	padding: 0 0.75rem;
+	font-size: 0.9375rem;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	color: #0f172a;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	outline: none;
+}
+
+/* Resumen económico */
+.nueva-venta__summary-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid #f1f5f9;
+}
+.nueva-venta__summary-label {
+	font-size: 0.9375rem;
+	color: #475569;
+}
+.nueva-venta__amount {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.25rem;
+	font-weight: 600;
+	color: #0f172a;
+}
+.nueva-venta .nueva-venta__readout {
+	width: auto;
+	min-width: 3ch;
+	field-sizing: content;
+	padding: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	color: inherit;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	outline: none;
+	appearance: textfield;
+	-moz-appearance: textfield;
+}
+.nueva-venta .nueva-venta__readout::-webkit-inner-spin-button,
+.nueva-venta .nueva-venta__readout::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.nueva-venta .nueva-venta__readout:focus-visible {
+	outline: 2px solid rgba(79, 70, 229, 0.45);
+}
+.nueva-venta__total {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	margin-top: 1rem;
+	padding: 0.875rem 1rem;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 10px;
+}
+.nueva-venta__total-label {
+	font-weight: 700;
+	color: #166534;
+}
+.nueva-venta__amount--total {
+	color: #15803d;
+}
+.nueva-venta .nueva-venta__amount--total .nueva-venta__readout {
+	font-size: 1.75rem;
+	font-weight: 700;
+}
+
+/* Botones */
+.nueva-venta .nueva-venta__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	width: 100%;
+	height: 2.75rem;
+	padding: 0 1.25rem;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	cursor: pointer;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	box-shadow: none;
+	transition:
+		background-color 0.15s,
+		border-color 0.15s,
+		color 0.15s;
+}
+.nueva-venta .nueva-venta__btn:hover,
+.nueva-venta .nueva-venta__btn:active {
+	box-shadow: none;
+}
+.nueva-venta .nueva-venta__btn:focus-visible {
+	outline: 3px solid rgba(79, 70, 229, 0.45);
+	outline-offset: 2px;
+}
+.nueva-venta .nueva-venta__btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.65;
+}
+.nueva-venta .nueva-venta__btn--primary {
+	color: #fff;
+	background: #4f46e5;
+}
+.nueva-venta .nueva-venta__btn--primary:hover:not(:disabled) {
+	background: #4338ca;
+}
+.nueva-venta .nueva-venta__btn--primary:active:not(:disabled) {
+	background: #3730a3;
+}
+.nueva-venta .nueva-venta__btn--secondary {
+	color: #3730a3;
+	background: #fff;
+	border-color: #c7d2fe;
+}
+.nueva-venta .nueva-venta__btn--secondary:hover:not(:disabled) {
+	background: #eef2ff;
+}
+.nueva-venta .nueva-venta__btn--danger {
+	width: auto;
+	height: 2rem;
+	padding: 0 0.625rem;
+	gap: 0.375rem;
+	font-size: 0.8125rem;
+	color: #b91c1c;
+	background: #fff;
+	border-color: #fecaca;
+}
+.nueva-venta .nueva-venta__btn--danger:hover:not(:disabled) {
+	background: #fef2f2;
+}
+
+/* Tabla de productos */
+.nueva-venta__table-wrap {
+	overflow-x: auto;
+}
+.nueva-venta__table {
+	width: 100%;
+	min-width: 62rem;
+	border-collapse: collapse;
+	font-size: 0.875rem;
+}
+.nueva-venta__table thead th {
+	padding: 0.75rem 1rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	color: #475569;
+	background: #f8fafc;
+	border-bottom: 1px solid #e2e8f0;
+}
+.nueva-venta__table tbody tr {
+	border-bottom: 1px solid #f1f5f9;
+}
+.nueva-venta__table tbody tr:hover {
+	background: #f8fafc;
+}
+.nueva-venta__table td {
+	padding: 0.625rem 1rem;
+	vertical-align: middle;
+	color: #334155;
+}
+.nueva-venta__num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+}
+.nueva-venta__thumb {
+	width: 3rem;
+	height: 3rem;
+	object-fit: cover;
+	cursor: pointer;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+}
+.nueva-venta__thumb:hover {
+	border-color: #4f46e5;
+}
+.nueva-venta .nueva-venta__qty {
+	width: 4.5rem;
+	height: 2.25rem;
+	padding: 0 0.5rem;
+	text-align: center;
+	font-weight: 600;
+}
+.nueva-venta__empty {
+	padding: 2.5rem 1rem;
+	text-align: center;
+	color: #64748b;
+}
+
+/* Debe ir al final del bloque: iguala la especificidad de las reglas de display anteriores y gana por orden */
+.nueva-venta .hidden {
+	display: none;
+}

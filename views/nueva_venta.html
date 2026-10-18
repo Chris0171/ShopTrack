@@ -1,232 +1,258 @@
-<div class="p-4">
-  <h1 class="text-3xl font-bold text-white mb-6" data-i18n="sales.new.title">💰 Nueva Venta</h1>
+<div class="nueva-venta mx-auto max-w-[1600px]">
+  <!-- ** CABECERA ** -->
+  <header class="nueva-venta__header mb-6">
+    <h1 class="nueva-venta__title" data-i18n="sales.new.title">Nueva Venta</h1>
+    <p class="nueva-venta__subtitle" data-i18n="sales.new.subtitle">Selecciona los productos y revisa los datos de la
+      factura</p>
+  </header>
 
   <!-- ** BUSCADOR ** -->
-  <div class="bg-white rounded-xl shadow-lg p-5 mb-6 relative">
-    <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.searchProduct">🔍 Buscar producto (Número de
-      Parte o Descripción)</label>
-    <input id="buscarInput" type="text" placeholder="Ej: P-001 o 'Cable HDMI'" autocomplete="off"
-      class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-
-    <div class="mt-3">
-      <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.brandFilter">Marca</label>
-      <select id="filtroMarcaVenta"
-        class="w-full border-2 border-indigo-300 p-2 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-        <option value="" data-i18n="sales.new.brandAll">Todas las marcas</option>
-      </select>
+  <section class="nueva-venta__card mb-6" aria-labelledby="ventaBuscarTitulo">
+    <div class="nueva-venta__card-header">
+      <i class="fas fa-magnifying-glass nueva-venta__card-icon" aria-hidden="true"></i>
+      <h2 id="ventaBuscarTitulo" class="nueva-venta__card-title" data-i18n="sales.new.searchProduct">Buscar producto
+        (Nº de parte o descripción)</h2>
     </div>
+    <div class="nueva-venta__card-body">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end">
+        <div class="relative flex-1">
+          <label class="sr-only" for="buscarInput" data-i18n="sales.new.searchProduct">Buscar producto
+            (Nº de parte o descripción)</label>
+          <div class="relative">
+            <i class="fas fa-magnifying-glass nueva-venta__field-icon" aria-hidden="true"></i>
+            <input id="buscarInput" type="text" placeholder="Ej: P-001 o 'Cable HDMI'" autocomplete="off"
+              aria-autocomplete="list" aria-controls="autocompleteDropdown"
+              class="nueva-venta__control nueva-venta__lg nueva-venta__search-input">
+            <button id="btnLimpiarBusqueda" type="button" class="nueva-venta__icon-btn hidden"
+              aria-label="Limpiar búsqueda" data-i18n="[aria-label]sales.new.clearSearch">
+              <i class="fas fa-xmark" aria-hidden="true"></i>
+            </button>
 
-    <!-- Dropdown de autocompletado -->
-    <div id="autocompleteDropdown"
-      class="absolute left-5 right-5 bg-white border-2 border-indigo-300 rounded-lg shadow-2xl mt-1 max-h-80 overflow-y-auto z-50 hidden">
-      <!-- Resultados generados dinámicamente -->
+            <!-- Dropdown de autocompletado -->
+            <div id="autocompleteDropdown" role="listbox" class="nueva-venta__dropdown hidden">
+              <!-- Resultados generados dinámicamente -->
+            </div>
+          </div>
+        </div>
+
+        <div class="md:w-72">
+          <label class="nueva-venta__label" for="filtroMarcaVenta" data-i18n="sales.new.brandFilter">Marca</label>
+          <select id="filtroMarcaVenta" class="nueva-venta__control nueva-venta__select nueva-venta__lg">
+            <option value="" data-i18n="sales.new.brandAll">Todas las marcas</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="nueva-venta__hint mt-3">
+        <kbd class="nueva-venta__kbd">Enter</kbd> agregar
+        <span class="mx-2" aria-hidden="true">|</span>
+        <kbd class="nueva-venta__kbd">↑↓</kbd> navegar
+      </p>
     </div>
-
-    <p class="text-sm text-gray-500 mt-2">
-      <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded">Enter</kbd> agregar
-      <span class="mx-2">|</span>
-      <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded">↑↓</kbd> navegar
-    </p>
-  </div>
+  </section>
 
   <!-- ** TABLA DE PRODUCTOS ** -->
-  <div class="bg-white rounded-xl shadow-lg mb-6 overflow-hidden">
-    <div class="bg-linear-to-r from-indigo-600 to-indigo-700 px-6 py-4">
-      <h2 class="text-xl font-bold text-white" data-i18n="sales.new.tableTitle">📋 Productos de la Venta</h2>
+  <section class="nueva-venta__card mb-6 overflow-hidden" aria-labelledby="ventaProductosTitulo">
+    <div class="nueva-venta__card-header">
+      <i class="fas fa-box-open nueva-venta__card-icon" aria-hidden="true"></i>
+      <h2 id="ventaProductosTitulo" class="nueva-venta__card-title" data-i18n="sales.new.tableTitle">Productos de la
+        venta</h2>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-gray-800 text-white">
+    <div class="nueva-venta__table-wrap">
+      <table class="nueva-venta__table">
+        <thead>
           <tr>
-            <th class="py-3 px-4 text-center" data-i18n="sales.new.table.image">Imagen</th>
-            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.nroParte">Nro de Parte</th>
-            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.description">Descripción</th>
-            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.brand">Marca</th>
-            <th class="py-3 px-4 text-left" data-i18n="sales.new.table.location">Ubicación</th>
-            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.quantity">Cantidad</th>
-            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.iva">IVA</th>
-            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.unitPrice">Precio Unit.</th>
-            <th class="py-3 px-4 text-right" data-i18n="sales.new.table.total">Total</th>
-            <th class="py-3 px-4 text-center" data-i18n="sales.new.table.actions">Acciones</th>
+            <th scope="col" class="text-center" data-i18n="sales.new.table.image">Imagen</th>
+            <th scope="col" class="text-left" data-i18n="sales.new.table.nroParte">Nro de Parte</th>
+            <th scope="col" class="text-left" data-i18n="sales.new.table.description">Descripción</th>
+            <th scope="col" class="text-left" data-i18n="sales.new.table.brand">Marca</th>
+            <th scope="col" class="text-left" data-i18n="sales.new.table.location">Ubicación</th>
+            <th scope="col" class="text-center" data-i18n="sales.new.table.quantity">Cantidad</th>
+            <th scope="col" class="text-right" data-i18n="sales.new.table.iva">IVA</th>
+            <th scope="col" class="text-right" data-i18n="sales.new.table.unitPrice">Precio Unit.</th>
+            <th scope="col" class="text-right" data-i18n="sales.new.table.total">Total</th>
+            <th scope="col" class="text-center" data-i18n="sales.new.table.actions">Acciones</th>
           </tr>
         </thead>
-        <tbody id="tablaVenta" class="divide-y divide-gray-200">
+        <tbody id="tablaVenta">
           <!-- Filas generadas dinámicamente -->
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
 
-  <!-- ** SECCIÓN: DATOS DEL CLIENTE ** -->
-  <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.customer.title">👤 Datos del Cliente</h2>
+  <div class="grid grid-cols-1 items-start gap-6 xl:grid-cols-3">
+    <div class="flex flex-col gap-6 xl:col-span-2">
+      <!-- ** SECCIÓN: DATOS DEL CLIENTE ** -->
+      <section class="nueva-venta__card" aria-labelledby="ventaClienteTitulo">
+        <div class="nueva-venta__card-header">
+          <i class="fas fa-user nueva-venta__card-icon" aria-hidden="true"></i>
+          <h2 id="ventaClienteTitulo" class="nueva-venta__card-title" data-i18n="sales.new.customer.title">Datos del
+            cliente</h2>
+        </div>
+        <div class="nueva-venta__card-body">
+          <div>
+            <label class="nueva-venta__label" for="clienteSelect" data-i18n="sales.new.customer.existing">Cliente
+              existente</label>
+            <select id="clienteSelect" class="nueva-venta__control nueva-venta__select">
+              <option value="" data-i18n="sales.new.customer.selectClient">-- Selecciona un cliente --</option>
+            </select>
+          </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.existing">Cliente
-          existente</label>
-        <select id="clienteSelect"
-          class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="" data-i18n="sales.new.customer.selectClient">-- Selecciona un cliente --</option>
-        </select>
-      </div>
+          <div class="nueva-venta__divider">
+            <span data-i18n="sales.new.customer.newClient">O ingresa datos de un nuevo cliente:</span>
+          </div>
 
-      <div class="md:col-span-2">
-        <hr class="my-4 border-gray-300">
-        <p class="text-sm text-gray-600 mb-3" data-i18n="sales.new.customer.newClient">O ingresa datos de un nuevo
-          cliente:</p>
-      </div>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <label class="nueva-venta__label" for="clienteNombre" data-i18n="sales.new.customer.name">Nombre</label>
+              <input id="clienteNombre" type="text" placeholder="Nombre completo"
+                data-i18n="[placeholder]sales.new.customer.placeholderName" class="nueva-venta__control">
+            </div>
 
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.name">Nombre</label>
-        <input id="clienteNombre" type="text" placeholder="Nombre completo"
-          data-i18n="[placeholder]sales.new.customer.placeholderName"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-      </div>
+            <div>
+              <label class="nueva-venta__label" for="clienteTelefono"
+                data-i18n="sales.new.customer.phone">Teléfono</label>
+              <input id="clienteTelefono" type="text" placeholder="Ej: +1234567890"
+                data-i18n="[placeholder]sales.new.customer.placeholderPhone" class="nueva-venta__control">
+            </div>
 
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.phone">Teléfono</label>
-        <input id="clienteTelefono" type="text" placeholder="Ej: +1234567890"
-          data-i18n="[placeholder]sales.new.customer.placeholderPhone"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-      </div>
+            <div>
+              <label class="nueva-venta__label" for="clienteEmail" data-i18n="sales.new.customer.email">Email</label>
+              <input id="clienteEmail" type="email" placeholder="correo@ejemplo.com"
+                data-i18n="[placeholder]sales.new.customer.placeholderEmail" class="nueva-venta__control">
+            </div>
 
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.email">Email</label>
-        <input id="clienteEmail" type="email" placeholder="correo@ejemplo.com"
-          data-i18n="[placeholder]sales.new.customer.placeholderEmail"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-      </div>
+            <div class="md:col-span-2">
+              <label class="nueva-venta__label" for="clienteDireccion"
+                data-i18n="sales.new.customer.address">Dirección</label>
+              <textarea id="clienteDireccion" placeholder="Dirección completa"
+                data-i18n="[placeholder]sales.new.customer.placeholderAddress" rows="2"
+                class="nueva-venta__control nueva-venta__textarea"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.customer.address">Dirección</label>
-        <textarea id="clienteDireccion" placeholder="Dirección completa"
-          data-i18n="[placeholder]sales.new.customer.placeholderAddress" rows="2"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-none"></textarea>
-      </div>
+      <!-- ** SECCIÓN: PAGO Y FACTURA ** -->
+      <section class="nueva-venta__card" aria-labelledby="ventaFacturaTitulo">
+        <div class="nueva-venta__card-header">
+          <i class="fas fa-file-invoice nueva-venta__card-icon" aria-hidden="true"></i>
+          <h2 id="ventaFacturaTitulo" class="nueva-venta__card-title" data-i18n="sales.new.invoice.title">Datos de la
+            factura</h2>
+        </div>
+        <div class="nueva-venta__card-body">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            <div>
+              <label class="nueva-venta__label" for="metodoPago" data-i18n="sales.new.invoice.paymentMethod">Método de
+                pago</label>
+              <select id="metodoPago" class="nueva-venta__control nueva-venta__select">
+                <option value="zelle" data-i18n="sales.new.invoice.zelle">Zelle</option>
+                <option value="cash_app" data-i18n="sales.new.invoice.cashApp">Cash app</option>
+                <option value="paypal" data-i18n="sales.new.invoice.paypal">Pay pal</option>
+                <option value="credit_card" data-i18n="sales.new.invoice.creditCard">Credit card</option>
+                <option value="debit_card" data-i18n="sales.new.invoice.debitCard">Debit card</option>
+                <option value="efectivo" data-i18n="sales.new.invoice.cash">Efectivo</option>
+                <option value="transferencia" data-i18n="sales.new.invoice.transfer">Transferencia</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="nueva-venta__label" for="numeroFactura" data-i18n="sales.new.invoice.invoiceNumber">Número
+                de factura</label>
+              <input id="numeroFactura" type="text" readonly placeholder="Se generará automáticamente..."
+                aria-describedby="numeroFacturaAyuda" class="nueva-venta__control">
+              <p id="numeroFacturaAyuda" class="nueva-venta__hint mt-1">Generado automáticamente · Formato:
+                INV-MMDDYYYY-####</p>
+            </div>
+
+            <div>
+              <label class="nueva-venta__label" for="laborVenta" data-i18n="sales.new.summary.labor">Labor</label>
+              <div id="laborWrapper" class="nueva-venta__group">
+                <span class="nueva-venta__group-prefix" aria-hidden="true">$</span>
+                <input id="laborVenta" type="number" min="0" step="0.01" placeholder="0.00"
+                  aria-describedby="laborError" data-i18n="[placeholder]sales.new.summary.placeholderDiscount">
+              </div>
+              <p id="laborError" class="nueva-venta__error hidden" role="alert"></p>
+            </div>
+
+            <div class="md:col-span-2 2xl:col-span-3">
+              <label class="nueva-venta__label" for="observaciones"
+                data-i18n="sales.new.invoice.observations">Observaciones</label>
+              <textarea id="observaciones" rows="3" placeholder="Notas adicionales para la factura..."
+                data-i18n="[placeholder]sales.new.invoice.placeholderObservations"
+                class="nueva-venta__control nueva-venta__textarea"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
 
-  <!-- ** SECCIÓN: RESUMEN ECONÓMICO ** -->
-  <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.summary.title">💵 Resumen de la Venta</h2>
+    <!-- ** SECCIÓN: RESUMEN ECONÓMICO Y ACCIONES ** -->
+    <aside class="nueva-venta__card xl:sticky xl:top-4" aria-labelledby="ventaResumenTitulo">
+      <div class="nueva-venta__card-header">
+        <i class="fas fa-receipt nueva-venta__card-icon" aria-hidden="true"></i>
+        <h2 id="ventaResumenTitulo" class="nueva-venta__card-title" data-i18n="sales.new.summary.title">Resumen de la
+          venta</h2>
+      </div>
+      <div class="nueva-venta__card-body">
+        <div class="nueva-venta__summary-row">
+          <label class="nueva-venta__summary-label" for="subtotalVenta"
+            data-i18n="sales.new.summary.subtotal">Subtotal</label>
+          <span class="nueva-venta__amount"><span aria-hidden="true">$</span><input id="subtotalVenta" type="number"
+              readonly tabindex="-1" class="nueva-venta__readout"></span>
+        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.subtotal">Subtotal</label>
-        <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-          <span class="px-3 font-semibold text-gray-600">$</span>
-          <input id="subtotalVenta" type="number" readonly
-            class="w-full p-3 text-right outline-none bg-gray-50 font-semibold text-gray-800">
+        <div id="laborResumen" class="nueva-venta__summary-row hidden">
+          <label class="nueva-venta__summary-label" for="laborResumenValor"
+            data-i18n="sales.new.summary.labor">Labor</label>
+          <span class="nueva-venta__amount"><span aria-hidden="true">$</span><input id="laborResumenValor"
+              type="number" readonly tabindex="-1" class="nueva-venta__readout"></span>
+        </div>
+
+        <div class="nueva-venta__summary-row">
+          <label class="nueva-venta__summary-label" for="impuestosVenta"><span
+              data-i18n="sales.new.summary.tax">Tax</span> <span id="taxRateLabel"></span></label>
+          <span class="nueva-venta__amount"><span aria-hidden="true">$</span><input id="impuestosVenta" type="number"
+              readonly tabindex="-1" class="nueva-venta__readout"></span>
+        </div>
+
+        <div class="nueva-venta__summary-row">
+          <label class="nueva-venta__summary-label" for="descuentoVenta"
+            data-i18n="sales.new.summary.discount">Descuento</label>
+          <div class="nueva-venta__group nueva-venta__group--compact">
+            <span class="nueva-venta__group-prefix" aria-hidden="true">$</span>
+            <input id="descuentoVenta" type="number" min="0" step="0.01" placeholder="0.00"
+              data-i18n="[placeholder]sales.new.summary.placeholderDiscount">
+          </div>
+        </div>
+
+        <div class="mt-1">
+          <label class="nueva-venta__label" for="motivoDescuento" data-i18n="sales.new.summary.discountReason">Motivo
+            del descuento</label>
+          <input id="motivoDescuento" type="text" placeholder="Ej: Promoción, cliente frecuente..."
+            data-i18n="[placeholder]sales.new.summary.placeholderDiscountReason" class="nueva-venta__control">
+        </div>
+
+        <div class="nueva-venta__total">
+          <label class="nueva-venta__total-label" for="totalVenta" data-i18n="sales.new.summary.total">Total Final</label>
+          <span class="nueva-venta__amount nueva-venta__amount--total"><span aria-hidden="true">$</span><input
+              id="totalVenta" type="number" readonly tabindex="-1" class="nueva-venta__readout"></span>
+        </div>
+
+        <!-- ** BOTONES DE ACCIÓN ** -->
+        <div class="mt-5 flex flex-col gap-3">
+          <button id="btnFinalizarVenta" type="button" class="nueva-venta__btn nueva-venta__btn--primary">
+            <i class="fas fa-file-circle-check" aria-hidden="true"></i>
+            <span data-i18n="sales.new.invoice.generate">Generar Factura</span>
+          </button>
+          <button id="btnDescargarPDF" type="button" class="nueva-venta__btn nueva-venta__btn--secondary hidden">
+            <i class="fas fa-file-pdf" aria-hidden="true"></i>
+            <span data-i18n="sales.new.invoice.downloadPDF">Descargar PDF</span>
+          </button>
         </div>
       </div>
-
-      <div id="laborResumen" class="hidden">
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.labor">Labor</label>
-        <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-          <span class="px-3 font-semibold text-gray-600">$</span>
-          <input id="laborResumenValor" type="number" readonly
-            class="w-full p-3 text-right outline-none bg-gray-50 font-semibold text-gray-800">
-        </div>
-      </div>
-
-      <div>
-        <label class="block font-bold text-gray-700 mb-2"><span data-i18n="sales.new.summary.tax">Tax</span> <span
-            id="taxRateLabel"></span></label>
-        <div class="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-          <span class="px-3 font-semibold text-gray-600">$</span>
-          <input id="impuestosVenta" type="number" readonly
-            class="w-full p-3 text-right outline-none bg-gray-50 font-semibold text-gray-800">
-        </div>
-      </div>
-
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.discount">Descuento</label>
-        <div class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
-          <span class="px-3 font-semibold text-gray-600">$</span>
-          <input id="descuentoVenta" type="number" min="0" step="0.01" placeholder="0.00"
-            data-i18n="[placeholder]sales.new.summary.placeholderDiscount"
-            class="w-full p-3 text-right outline-none focus:border-indigo-600">
-        </div>
-      </div>
-
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.discountReason">Motivo del
-          Descuento</label>
-        <input id="motivoDescuento" type="text" placeholder="Ej: Promoción, cliente frecuente..."
-          data-i18n="[placeholder]sales.new.summary.placeholderDiscountReason"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.summary.total">Total Final</label>
-        <div class="flex items-center border-4 border-green-500 rounded-lg overflow-hidden bg-green-50">
-          <span class="px-4 font-bold text-green-700 text-lg">$</span>
-          <input id="totalVenta" type="number" readonly
-            class="w-full p-4 text-right outline-none bg-green-50 font-bold text-green-700 text-2xl">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ** SECCIÓN: PAGO Y FACTURA ** -->
-  <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-    <h2 class="text-xl font-bold text-indigo-800 mb-4" data-i18n="sales.new.invoice.title">📄 Datos de Factura</h2>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.invoice.paymentMethod">Método de
-          Pago</label>
-        <select id="metodoPago"
-          class="w-full border-2 border-indigo-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition">
-          <option value="zelle" data-i18n="sales.new.invoice.zelle">Zelle</option>
-          <option value="cash_app" data-i18n="sales.new.invoice.cashApp">Cash app</option>
-          <option value="paypal" data-i18n="sales.new.invoice.paypal">Pay pal</option>
-          <option value="credit_card" data-i18n="sales.new.invoice.creditCard">Credit card</option>
-          <option value="debit_card" data-i18n="sales.new.invoice.debitCard">Debit card</option>
-          <option value="efectivo" data-i18n="sales.new.invoice.cash">💵 Efectivo</option>
-          <option value="transferencia" data-i18n="sales.new.invoice.transfer">🏦 Transferencia</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block font-bold text-gray-700 mb-2" data-i18n="sales.new.invoice.invoiceNumber">Número de Factura
-          <span class="text-green-600 text-sm font-normal">(Generado automáticamente)</span></label>
-        <input id="numeroFactura" type="text" readonly placeholder="Se generará automáticamente..."
-          class="w-full border-2 border-gray-300 p-3 rounded-lg bg-gray-50 text-gray-700 font-semibold cursor-not-allowed">
-        <p class="text-xs text-gray-500 mt-1">📋 Formato: INV-MMDDYYYY-####</p>
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2" for="laborVenta" data-i18n="sales.new.summary.labor">Labor</label>
-        <div id="laborWrapper" class="flex items-center border-2 border-indigo-300 rounded-lg overflow-hidden">
-          <span class="px-3 font-semibold text-gray-600">$</span>
-          <input id="laborVenta" type="number" min="0" step="0.01" placeholder="0.00"
-            data-i18n="[placeholder]sales.new.summary.placeholderDiscount"
-            class="w-full p-3 text-right outline-none focus:border-indigo-600">
-        </div>
-      </div>
-
-      <div class="md:col-span-2">
-        <label class="block font-bold text-gray-700 mb-2"
-          data-i18n="sales.new.invoice.observations">Observaciones</label>
-        <textarea id="observaciones" rows="3" placeholder="Notas adicionales para la factura..."
-          data-i18n="[placeholder]sales.new.invoice.placeholderObservations"
-          class="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 outline-none transition resize-none"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- ** BOTONES DE ACCIÓN ** -->
-  <div class="flex justify-end gap-4">
-    <button id="btnDescargarPDF"
-      class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105 hidden">
-      <span data-i18n="sales.new.invoice.downloadPDF">📄 Descargar PDF</span>
-    </button>
-    <button id="btnFinalizarVenta"
-      class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg transition transform hover:scale-105">
-      <span data-i18n="sales.new.invoice.generate">✅ Generar Factura</span>
-    </button>
+    </aside>
   </div>
 </div>
 

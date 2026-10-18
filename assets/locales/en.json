@@ -224,7 +224,9 @@
 	"sales": {
 		"new": {
 			"title": "New Sale",
-			"searchProduct": "Search product by Part Number",
+			"subtitle": "Select the products and review the invoice details",
+			"clearSearch": "Clear search",
+			"searchProduct": "Search product (part number or description)",
 			"brandFilter": "Brand",
 			"brandAll": "All brands",
 			"searchPlaceholder": "Ex: P-001",
