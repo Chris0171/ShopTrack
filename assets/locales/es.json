@@ -237,7 +237,7 @@
 				"brand": "Marca",
 				"location": "Ubicación",
 				"quantity": "Cantidad",
-				"iva": "IVA",
+				"iva": "TAX",
 				"unitPrice": "Precio Unit.",
 				"total": "Total",
 				"actions": "Acciones",
