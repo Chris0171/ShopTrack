@@ -17,9 +17,11 @@ const exec = (db, sql) =>
 
 // Columnas añadidas a Venta en bases existentes.
 // labor: ventas antiguas => 0. tasaImpuesto: ventas antiguas => NULL (tasa no registrada).
+// descuentoPorcentaje: ventas antiguas => NULL (el descuento histórico es solo un importe).
 const COLUMNAS_VENTA = [
 	['labor', 'REAL NOT NULL DEFAULT 0'],
 	['tasaImpuesto', 'REAL'],
+	['descuentoPorcentaje', 'REAL'],
 ]
 
 // Ejecuta el script completo en una transacción: o se aplica entero o no se aplica nada.
@@ -35,13 +37,24 @@ async function aplicarEsquema(db, sql) {
 	}
 }
 
+// Todas las columnas pendientes se añaden en una sola transacción; si falla, no queda nada a medias.
 async function migrarVenta(db) {
 	const cols = await all(db, 'PRAGMA table_info(Venta)')
-	for (const [nombre, definicion] of COLUMNAS_VENTA) {
-		if (cols.some((c) => c.name === nombre)) continue
-		await run(db, `ALTER TABLE Venta ADD COLUMN ${nombre} ${definicion}`)
-		console.log(`✔ Columna Venta.${nombre} añadida`)
+	const pendientes = COLUMNAS_VENTA.filter(
+		([nombre]) => !cols.some((c) => c.name === nombre),
+	)
+	if (!pendientes.length) return
+	await exec(db, 'BEGIN IMMEDIATE')
+	try {
+		for (const [nombre, definicion] of pendientes) {
+			await run(db, `ALTER TABLE Venta ADD COLUMN ${nombre} ${definicion}`)
+		}
+		await exec(db, 'COMMIT')
+	} catch (error) {
+		await exec(db, 'ROLLBACK').catch(() => {})
+		throw error
 	}
+	for (const [nombre] of pendientes) console.log(`✔ Columna Venta.${nombre} añadida`)
 }
 
 module.exports = { aplicarEsquema, migrarVenta }

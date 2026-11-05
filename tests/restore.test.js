@@ -30,6 +30,7 @@ const close = (db) => new Promise((res) => db.close(res))
 // Base con el esquema de la 1.0.4 (sin labor ni tasaImpuesto) y datos de ejemplo
 async function crearBaseLegacy(file) {
 	const sql = SQL.replace(/^labor REAL NOT NULL DEFAULT 0,\r?\n/m, '').replace(/^tasaImpuesto REAL,\r?\n/m, '')
+		.replace(/^descuentoPorcentaje REAL,\r?\n/m, '')
 	const db = new sqlite3.Database(file)
 	await exec(db, sql)
 	await run(db, "INSERT INTO Clientes (nombre, telefono) VALUES ('Cliente A','111'),('Cliente B','222')")

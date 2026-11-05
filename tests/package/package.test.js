@@ -76,6 +76,7 @@ test('La app empaquetada arranca sin archivos de desarrollo y migra una base de 
 	fs.mkdirSync(userData, { recursive: true })
 	const sql = fs.readFileSync(path.join(ROOT, 'backend/db/database.sql'), 'utf8')
 		.replace(/^labor REAL NOT NULL DEFAULT 0,\r?\n/m, '').replace(/^tasaImpuesto REAL,\r?\n/m, '')
+		.replace(/^descuentoPorcentaje REAL,\r?\n/m, '')
 	const legacy = new sqlite3.Database(path.join(userData, 'shoptrack.db'))
 	await new Promise((res, rej) => legacy.exec(sql + "INSERT INTO Clientes (nombre) VALUES ('X'); INSERT INTO Venta (idCliente, subtotal, impuestos, total) VALUES (1, 10, 1, 11);", (e) => (e ? rej(e) : res())))
 	await new Promise((res) => legacy.close(res))

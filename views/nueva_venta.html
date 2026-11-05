@@ -220,12 +220,15 @@
         <div class="nueva-venta__summary-row">
           <label class="nueva-venta__summary-label" for="descuentoVenta"
             data-i18n="sales.new.summary.discount">Descuento</label>
-          <div class="nueva-venta__group nueva-venta__group--compact">
-            <span class="nueva-venta__group-prefix" aria-hidden="true">$</span>
-            <input id="descuentoVenta" type="number" min="0" step="0.01" placeholder="0.00"
+          <div id="descuentoWrapper" class="nueva-venta__group nueva-venta__group--compact">
+            <span class="nueva-venta__group-prefix" aria-hidden="true">%</span>
+            <input id="descuentoVenta" type="number" min="0" max="100" step="0.01" placeholder="0.00"
+              aria-describedby="descuentoError descuentoImporte"
               data-i18n="[placeholder]sales.new.summary.placeholderDiscount">
           </div>
         </div>
+        <p id="descuentoImporte" class="nueva-venta__hint text-right" aria-live="polite"></p>
+        <p id="descuentoError" class="nueva-venta__error text-right hidden" role="alert"></p>
 
         <div class="mt-1">
           <label class="nueva-venta__label" for="motivoDescuento" data-i18n="sales.new.summary.discountReason">Motivo

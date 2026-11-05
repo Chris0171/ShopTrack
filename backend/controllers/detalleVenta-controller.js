@@ -113,6 +113,7 @@ module.exports = {
             v.impuestos,
             v.total,
             v.descuento,
+            v.descuentoPorcentaje,
             v.labor,
             c.nombre AS clienteNombre,
             c.telefono AS clienteTelefono,

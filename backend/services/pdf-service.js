@@ -152,6 +152,7 @@ class PDFService {
 					.text(
 						`${getText('invoice.date')}: ${this.formatearFecha(
 							datos.fechaEmision,
+							config.zonaHoraria,
 						)}`,
 						40,
 						posY,
@@ -470,19 +471,27 @@ class PDFService {
 					align: 'right',
 				})
 
-				posY += 25
-				doc.text(`${getText('invoice.discount')}:`, 250, posY, {
-					width: 100,
-					align: 'right',
-				})
+				// Descuento solo si su importe es mayor que cero; el % solo si la venta lo registró
 				if (descuentoMostrado > 0) {
+					posY += 25
+					const pctDescuento = PDFService.normalizarPorcentaje(
+						datos.descuentoPorcentaje,
+					)
+					const etiquetaDescuento =
+						pctDescuento > 0
+							? `${getText('invoice.discount')} (${pctDescuento}%):`
+							: `${getText('invoice.discount')}:`
+					doc.text(etiquetaDescuento, 200, posY, {
+						width: 150,
+						align: 'right',
+					})
 					doc.fillColor('red')
+					doc.text(`-$${descuentoMostrado.toFixed(2)}`, 450, posY, {
+						width: 100,
+						align: 'right',
+					})
+					doc.fillColor(COLORS.black)
 				}
-				doc.text(`-$${descuentoMostrado.toFixed(2)}`, 450, posY, {
-					width: 100,
-					align: 'right',
-				})
-				doc.fillColor(COLORS.black)
 
 				posY += 30
 				doc
@@ -536,7 +545,28 @@ class PDFService {
 
 				// Pie de página
 				const footerMargin = 20
-				const lastContentY = posY + (datos.observaciones ? 90 : 60)
+				let lastContentY = posY + (datos.observaciones ? 90 : 60)
+
+				// Términos y condiciones: texto único de la configuración (vacío = no se imprime)
+				const terminos = String(config.terminosCondiciones || '').trim()
+				if (terminos) {
+					doc.fontSize(8).font(FONT_BOLD)
+					const alturaTitulo = doc.heightOfString(getText('invoice.terms'), {
+						width: 515,
+					})
+					doc.font(FONT_REGULAR)
+					const alturaTexto = doc.heightOfString(terminos, { width: 515 })
+					if (lastContentY + alturaTitulo + alturaTexto > 760) {
+						doc.addPage()
+						lastContentY = 50
+					}
+					doc
+						.font(FONT_BOLD)
+						.fillColor(COLORS.black)
+						.text(getText('invoice.terms'), 40, lastContentY, { width: 515 })
+					doc.font(FONT_REGULAR).text(terminos, 40, doc.y + 2, { width: 515 })
+					lastContentY = doc.y
+				}
 				let thankYouY = lastContentY + footerMargin
 				if (thankYouY > 780) {
 					doc.addPage()
@@ -579,20 +609,40 @@ class PDFService {
 		return Number(pct.toFixed(2))
 	}
 
+	// Porcentaje de descuento guardado: ausente o no válido (ventas antiguas) => 0, sin inventar valor
+	static normalizarPorcentaje(valor) {
+		if (valor === null || valor === undefined) return 0
+		const n = Number(valor)
+		return Number.isFinite(n) && n > 0 ? Number(n.toFixed(2)) : 0
+	}
+
 	// Labor ausente, nulo o no válido => 0
 	static normalizarLabor(valor) {
 		const n = Number(valor)
 		return Number.isFinite(n) && n > 0 ? n : 0
 	}
 
-	// Formatear fecha
-	static formatearFecha(fechaISO) {
-		const fecha = new Date(fechaISO)
-		return fecha.toLocaleDateString('en-US', {
+	// Fecha y hora de emisión en la zona horaria configurada. Los datetime('now') de SQLite son UTC.
+	static formatearFecha(valor, timeZone) {
+		let texto = valor
+		if (typeof texto === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(texto)) {
+			texto = `${texto.replace(' ', 'T')}Z`
+		}
+		const fecha = new Date(texto)
+		if (Number.isNaN(fecha.getTime())) return String(valor ?? '')
+		const opciones = {
 			year: 'numeric',
 			month: '2-digit',
 			day: '2-digit',
-		})
+			hour: '2-digit',
+			minute: '2-digit',
+			hourCycle: 'h23',
+		}
+		try {
+			return fecha.toLocaleString('en-US', { ...opciones, timeZone })
+		} catch {
+			return fecha.toLocaleString('en-US', opciones)
+		}
 	}
 }
 

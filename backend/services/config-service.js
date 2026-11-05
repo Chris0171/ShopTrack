@@ -22,6 +22,8 @@ const DEFAULT_CONFIG = {
 	numeroInicial: 1000,
 	ivaPredeterminado: 0.21,
 	incluirLogo: true,
+	// Texto de términos y condiciones al final de la factura; vacío = no se imprime
+	terminosCondiciones: '',
 
 	// Información de la empresa
 	nombre: 'Mi Empresa',

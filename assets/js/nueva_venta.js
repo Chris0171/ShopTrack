@@ -28,6 +28,9 @@ export function initNuevaVenta() {
 	const laborInput = document.getElementById('laborVenta')
 	const laborWrapper = document.getElementById('laborWrapper')
 	const laborError = document.getElementById('laborError')
+	const descuentoWrapper = document.getElementById('descuentoWrapper')
+	const descuentoError = document.getElementById('descuentoError')
+	const descuentoImporteTexto = document.getElementById('descuentoImporte')
 	const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda')
 	const laborResumen = document.getElementById('laborResumen')
 	const laborResumenValor = document.getElementById('laborResumenValor')
@@ -236,9 +239,12 @@ export function initNuevaVenta() {
 		}
 	}
 
-	// Event listener para descuento
-	descuentoInput.addEventListener('change', () => {
+	// Descuento (%): actualizar al escribir y avisar al confirmar un valor inválido
+	descuentoInput.addEventListener('input', actualizarTotales)
+	descuentoInput.addEventListener('change', async () => {
 		actualizarTotales()
+		const descuento = leerPorcentaje(descuentoInput, 'El descuento')
+		if (!descuento.ok) await showModalInfo(descuento.error, 'Aviso', 'warning')
 	})
 
 	// Labor: actualizar total al escribir y avisar al confirmar un valor inválido
@@ -654,16 +660,37 @@ export function initNuevaVenta() {
 		return { ok: true, value: Math.round(n * 100) / 100 }
 	}
 
+	// Porcentaje opcional (0-100): vacío => 0; negativo, mayor que 100 o no numérico => error
+	function leerPorcentaje(input, nombre) {
+		const raw = input.value.trim()
+		if (input.validity?.badInput) {
+			return { ok: false, error: `${nombre} no es un porcentaje válido.` }
+		}
+		if (raw === '') return { ok: true, value: 0 }
+		const n = Number(raw)
+		if (!Number.isFinite(n)) {
+			return { ok: false, error: `${nombre} no es un porcentaje válido.` }
+		}
+		if (n < 0) return { ok: false, error: `${nombre} no puede ser negativo.` }
+		if (n > 100) {
+			return { ok: false, error: `${nombre} no puede superar el 100 %.` }
+		}
+		return { ok: true, value: Math.round(n * 100) / 100 }
+	}
+
 	// Total = Subtotal + Labor + Tax - Descuento; Tax = redondear((Subtotal + Labor) × tasa, 2)
+	// Descuento = redondear(Subtotal × % / 100, 2) solo sobre el subtotal de productos
 	// (aritmética en céntimos; misma fórmula que backend/services/money-utils.js)
 	function calcularImportes() {
 		const subtotalC = Math.round(
 			productosVenta.reduce((acc, p) => acc + p.precio * p.cantidad, 0) * 100,
 		)
 		const labor = leerMonto(laborInput, 'Labor')
-		const descuento = leerMonto(descuentoInput, 'El descuento')
+		const descuento = leerPorcentaje(descuentoInput, 'El descuento')
 		const laborC = labor.ok ? Math.round(labor.value * 100) : 0
-		const descuentoC = descuento.ok ? Math.round(descuento.value * 100) : 0
+		const descuentoC = descuento.ok
+			? Math.round((subtotalC * Math.round(descuento.value * 100)) / 10000)
+			: 0
 		const impuestosC = Math.round(
 			((subtotalC + laborC) * Math.round(tasaImpuesto * 1e6)) / 1e6,
 		)
@@ -671,6 +698,7 @@ export function initNuevaVenta() {
 		return {
 			labor,
 			descuento,
+			descuentoImporte: descuentoC / 100,
 			subtotal: subtotalC / 100,
 			impuestos: impuestosC / 100,
 			totalSinNegativo: Math.max(0, totalC) / 100,
@@ -702,6 +730,14 @@ export function initNuevaVenta() {
 		laborInput.setAttribute('aria-invalid', String(!r.labor.ok))
 		laborError.textContent = r.labor.ok ? '' : r.labor.error
 		laborError.classList.toggle('hidden', r.labor.ok)
+		descuentoWrapper.classList.toggle('nueva-venta__group--error', !r.descuento.ok)
+		descuentoInput.setAttribute('aria-invalid', String(!r.descuento.ok))
+		descuentoError.textContent = r.descuento.ok ? '' : r.descuento.error
+		descuentoError.classList.toggle('hidden', r.descuento.ok)
+		descuentoImporteTexto.textContent =
+			r.descuento.ok && r.descuentoImporte > 0
+				? `-$${r.descuentoImporte.toFixed(2)}`
+				: ''
 	}
 
 	// FINALIZAR VENTA
@@ -776,7 +812,8 @@ export function initNuevaVenta() {
 		// Crear venta con detalles y actualizar stock (backend)
 		const subtotal = importes.subtotal
 		const impuestos = importes.impuestos
-		const descuento = importes.descuento.value
+		const descuentoPorcentaje = importes.descuento.value
+		const descuento = importes.descuentoImporte
 		const labor = importes.labor.value
 		const motivoDescuento = motivoDescuentoInput.value.trim()
 		const total = importes.totalSinNegativo
@@ -787,6 +824,7 @@ export function initNuevaVenta() {
 			impuestos,
 			total,
 			descuento,
+			descuentoPorcentaje,
 			motivoDescuento,
 			labor,
 			tasaImpuesto,
@@ -840,6 +878,7 @@ export function initNuevaVenta() {
 				subtotal,
 				impuestos,
 				descuento,
+				descuentoPorcentaje,
 				labor,
 				tasaImpuesto,
 				total,

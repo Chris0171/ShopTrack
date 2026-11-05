@@ -83,7 +83,8 @@ test.before(async () => {
 		.readFileSync(path.join(ROOT, 'backend/db/database.sql'), 'utf8')
 		.replace(/^labor REAL NOT NULL DEFAULT 0,\r?\n/m, '')
 		.replace(/^tasaImpuesto REAL,\r?\n/m, '')
-	assert.ok(!/labor|tasaImpuesto/.test(sql.split('INSERT INTO Marca')[0]))
+		.replace(/^descuentoPorcentaje REAL,\r?\n/m, '')
+	assert.ok(!/labor|tasaImpuesto|descuentoPorcentaje/.test(sql.split('INSERT INTO Marca')[0]))
 	const legacy = new sqlite3.Database(dbFile)
 	await new Promise((res, rej) => legacy.exec(sql, (e) => (e ? rej(e) : res())))
 	await run(legacy, "INSERT INTO Clientes (nombre) VALUES ('Cliente legado')")
@@ -181,6 +182,7 @@ test('Migración: añade labor y tasaImpuesto sin perder datos; idempotente', as
 	const cols = await all(db, 'PRAGMA table_info(Venta)')
 	assert.equal(cols.find((c) => c.name === 'labor').dflt_value, '0')
 	assert.ok(cols.some((c) => c.name === 'tasaImpuesto'))
+	assert.ok(cols.some((c) => c.name === 'descuentoPorcentaje'))
 	const old = await venta(LEGACY_VENTA)
 	assert.equal(old.total, 121)
 	assert.equal(old.labor, 0)
@@ -220,7 +222,8 @@ test('Labor > 0 con 8,25 %: base 130, Tax 10.73 (medio céntimo hacia arriba), t
 	const v = await venta(idVenta)
 	assert.deepEqual([v.labor, v.impuestos, v.total], [30, 10.73, 140.73])
 	const text = await pdfHistorial(idVenta)
-	assertOrden(text, ['Subtotal:', 'Labor:', 'Tax (8.25%):', 'Descuento:', 'TOTAL:'])
+	assertOrden(text, ['Subtotal:', 'Labor:', 'Tax (8.25%):', 'TOTAL:'])
+	assert.ok(!text.includes('Descuento')) // sin descuento no hay línea
 	assert.equal(text.split('Labor').length - 1, 1)
 	assert.ok(text.includes('$30.00') && text.includes('$10.73') && text.includes('$140.73'))
 	assert.ok(text.includes('$100.00')) // subtotal de productos sin Labor

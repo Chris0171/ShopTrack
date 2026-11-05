@@ -61,7 +61,20 @@ function createWindow(
 
 // Menu.setApplicationMenu(null)
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+	// No se abre ninguna ventana si el esquema de la base de datos no se pudo preparar
+	try {
+		await db.ready
+	} catch (error) {
+		log.error('Inicialización de la base de datos fallida:', error)
+		dialog.showErrorBox(
+			'ShopTrack',
+			`No se pudo preparar la base de datos, por lo que la aplicación se cerrará para proteger sus datos.\n\nDetalle: ${error.message}`,
+		)
+		app.exit(1)
+		return
+	}
+
 	// ** Obtener parámetros de la pantalla
 	const primaryDisplay = screen.getPrimaryDisplay()
 	const { width, height } = primaryDisplay.workAreaSize

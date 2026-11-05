@@ -2,6 +2,8 @@ const db = require('../db/initDatabase')
 const configService = require('../services/config-service')
 const {
 	parseMonto,
+	parsePorcentaje,
+	calcularDescuento,
 	calcularImpuesto,
 	calcularTotal,
 	toCents,
@@ -22,6 +24,8 @@ function resolverTasa(solicitada) {
 
 // Valida labor/descuento, impuestos (si hay tasa) y total:
 // Tax = round((subtotal + labor) * tasa, 2); total = subtotal + tax + labor - descuento
+// Con descuentoPorcentaje (no nulo): descuento = round(subtotal * % / 100, 2) sobre el subtotal de productos.
+// Sin él (ventas antiguas o llamadas heredadas) `descuento` se valida como importe.
 function validarImportes({
 	subtotal,
 	impuestos,
@@ -29,6 +33,7 @@ function validarImportes({
 	descuento,
 	labor,
 	tasaImpuesto = null,
+	descuentoPorcentaje = null,
 }) {
 	const lab = parseMonto(labor, 'Labor')
 	if (!lab.ok) return { error: lab.error }
@@ -36,6 +41,18 @@ function validarImportes({
 	if (!desc.ok) return { error: desc.error }
 	if ([subtotal, impuestos, total].some((n) => !Number.isFinite(Number(n)))) {
 		return { error: 'Subtotal, impuestos y total deben ser numéricos.' }
+	}
+	let porcentaje = null
+	if (descuentoPorcentaje != null) {
+		const p = parsePorcentaje(descuentoPorcentaje, 'El descuento')
+		if (!p.ok) return { error: p.error }
+		porcentaje = p.value
+		const esperadoDesc = calcularDescuento(subtotal, porcentaje)
+		if (toCents(desc.value) !== toCents(esperadoDesc)) {
+			return {
+				error: `El importe del descuento (${desc.value.toFixed(2)}) no coincide con el ${porcentaje}% del subtotal (${esperadoDesc.toFixed(2)}).`,
+			}
+		}
 	}
 	if (tasaImpuesto != null) {
 		const esperadoImp = calcularImpuesto(subtotal, lab.value, tasaImpuesto)
@@ -60,7 +77,12 @@ function validarImportes({
 			error: `El total (${Number(total).toFixed(2)}) no coincide con subtotal + labor + impuestos - descuento (${esperado.toFixed(2)}).`,
 		}
 	}
-	return { labor: lab.value, descuento: desc.value, total: esperado }
+	return {
+		labor: lab.value,
+		descuento: desc.value,
+		descuentoPorcentaje: porcentaje,
+		total: esperado,
+	}
 }
 
 module.exports = {
@@ -91,6 +113,7 @@ module.exports = {
 			motivoDescuento = '',
 			labor = 0,
 			tasaImpuesto,
+			descuentoPorcentaje = null,
 		},
 		callback,
 	) {
@@ -112,12 +135,13 @@ module.exports = {
 			descuento,
 			labor,
 			tasaImpuesto: tasa,
+			descuentoPorcentaje,
 		})
 		if (importes.error) return callback(new Error(importes.error))
 
 		const sql = `
-            INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento, motivoDescuento, labor, tasaImpuesto)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento, motivoDescuento, labor, tasaImpuesto, descuentoPorcentaje)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
 		const stmt = db.prepare(sql)
 		stmt.run(
@@ -130,6 +154,7 @@ module.exports = {
 				motivoDescuento,
 				importes.labor,
 				tasa,
+				importes.descuentoPorcentaje,
 			],
 			function (err) {
 				if (err) return callback(err)
@@ -150,6 +175,7 @@ module.exports = {
 			motivoDescuento = '',
 			labor = 0,
 			tasaImpuesto,
+			descuentoPorcentaje = null,
 			detalles = [],
 		},
 		callback,
@@ -175,6 +201,7 @@ module.exports = {
 			descuento,
 			labor,
 			tasaImpuesto: tasa,
+			descuentoPorcentaje,
 		})
 		if (importes.error) return callback(new Error(importes.error))
 
@@ -193,8 +220,8 @@ module.exports = {
 		}
 
 		const insertVentaSql = `
-            INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento, motivoDescuento, labor, tasaImpuesto)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento, motivoDescuento, labor, tasaImpuesto, descuentoPorcentaje)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
 		const insertDetalleSql = `
             INSERT INTO DetalleVenta 
@@ -230,6 +257,7 @@ module.exports = {
 					motivoDescuento,
 					importes.labor,
 					tasa,
+					importes.descuentoPorcentaje,
 				],
 				function (err) {
 					if (err) return rollback(err)
@@ -309,10 +337,15 @@ module.exports = {
 			labor = 0,
 		} = data
 		// Se conserva la tasa original de la venta; las ventas antiguas (NULL) no se recalculan
-		db.get('SELECT tasaImpuesto FROM Venta WHERE id = ?', [id], (e, row) => {
+		db.get('SELECT tasaImpuesto, descuentoPorcentaje FROM Venta WHERE id = ?', [id], (e, row) => {
 			if (e) return callback(e)
 			if (!row) return callback(new Error('Venta no encontrada'))
 			const tasa = row.tasaImpuesto
+			// Si no se indica, se conserva el porcentaje guardado (NULL en ventas antiguas)
+			const porcentaje =
+				data.descuentoPorcentaje !== undefined
+					? data.descuentoPorcentaje
+					: row.descuentoPorcentaje
 			const importes = validarImportes({
 				subtotal,
 				impuestos,
@@ -320,11 +353,12 @@ module.exports = {
 				descuento,
 				labor,
 				tasaImpuesto: tasa,
+				descuentoPorcentaje: porcentaje,
 			})
 			if (importes.error) return callback(new Error(importes.error))
 			const sql = `
             UPDATE Venta
-            SET idCliente = ?, subtotal = ?, impuestos = ?, total = ?, descuento = ?, motivoDescuento = ?, labor = ?
+            SET idCliente = ?, subtotal = ?, impuestos = ?, total = ?, descuento = ?, motivoDescuento = ?, labor = ?, descuentoPorcentaje = ?
             WHERE id = ?
         `
 			db.run(
@@ -337,6 +371,7 @@ module.exports = {
 					importes.descuento,
 					motivoDescuento,
 					importes.labor,
+					importes.descuentoPorcentaje,
 					id,
 				],
 				function (err) {

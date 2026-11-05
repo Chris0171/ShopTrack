@@ -24,6 +24,30 @@ function parseMonto(value, nombre = 'Importe') {
 	return { ok: true, value: fromCents(toCents(num)) }
 }
 
+// Porcentaje de descuento opcional (0-100, hasta 2 decimales). Vacío o null => 0.
+function parsePorcentaje(value, nombre = 'El descuento') {
+	if (value === undefined || value === null) return { ok: true, value: 0 }
+	if (typeof value === 'string' && value.trim() === '') return { ok: true, value: 0 }
+	if (typeof value === 'boolean') {
+		return { ok: false, error: `${nombre} no es un porcentaje válido.` }
+	}
+	const num = typeof value === 'number' ? value : Number(String(value).trim())
+	if (!Number.isFinite(num)) {
+		return { ok: false, error: `${nombre} no es un porcentaje válido.` }
+	}
+	if (num < 0) return { ok: false, error: `${nombre} no puede ser negativo.` }
+	if (num > 100) {
+		return { ok: false, error: `${nombre} no puede superar el 100 %.` }
+	}
+	return { ok: true, value: Math.round(num * 100) / 100 }
+}
+
+// Descuento = redondear(Subtotal × porcentaje / 100, 2), solo sobre el subtotal de productos.
+// El porcentaje se pasa a centésimas enteras para redondear sin ruido binario.
+function calcularDescuento(subtotal, porcentaje) {
+	return fromCents(Math.round((toCents(subtotal) * Math.round(porcentaje * 100)) / 10000))
+}
+
 // Tax = redondear((Subtotal + Labor) × tasa, 2). `tasa` es una fracción (0.1 = 10 %).
 // La tasa se pasa a millonésimas enteras para que los medios céntimos redondeen sin ruido binario.
 function calcularImpuesto(subtotal, labor, tasa) {
@@ -38,4 +62,12 @@ function calcularTotal({ subtotal = 0, impuestos = 0, labor = 0, descuento = 0 }
 	)
 }
 
-module.exports = { toCents, fromCents, parseMonto, calcularImpuesto, calcularTotal }
+module.exports = {
+	toCents,
+	fromCents,
+	parseMonto,
+	parsePorcentaje,
+	calcularDescuento,
+	calcularImpuesto,
+	calcularTotal,
+}

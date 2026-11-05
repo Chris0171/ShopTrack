@@ -134,3 +134,62 @@ test('Arranque real de initDatabase dos veces sobre la misma BD: sin errores ni 
 	assert.match(segunda, /RESULT {"n":12,"d":12}/)
 	for (const salida of [primera, segunda]) assert.doesNotMatch(salida, /UNIQUE|Error exec SQL/)
 })
+
+// --- Migración de Venta.descuentoPorcentaje ---
+const SQL_1_0_4 = SQL.replace(/^labor REAL NOT NULL DEFAULT 0,\r?\n/m, '')
+	.replace(/^tasaImpuesto REAL,\r?\n/m, '')
+	.replace(/^descuentoPorcentaje REAL,\r?\n/m, '')
+
+test('Migración: añade descuentoPorcentaje (nullable) a una base 1.0.4 sin tocar ventas ni importes', async () => {
+	const db = abrir()
+	await aplicarEsquema(db, SQL_1_0_4)
+	await run(db, "INSERT INTO Clientes (nombre) VALUES ('C')")
+	await run(db, 'INSERT INTO Venta (idCliente, subtotal, impuestos, total, descuento) VALUES (1, 100, 21, 111, 10), (1, 50, 5, 55, 0)')
+	const antes = await all(db, 'SELECT id, subtotal, impuestos, total, descuento FROM Venta ORDER BY id')
+
+	await migrarVenta(db)
+	const col = (await all(db, 'PRAGMA table_info(Venta)')).find((c) => c.name === 'descuentoPorcentaje')
+	assert.ok(col)
+	assert.equal(col.notnull, 0)
+	assert.equal(col.dflt_value, null)
+	assert.deepEqual(await all(db, 'SELECT id, subtotal, impuestos, total, descuento FROM Venta ORDER BY id'), antes)
+	assert.deepEqual((await all(db, 'SELECT descuentoPorcentaje p, labor, tasaImpuesto t FROM Venta')).map((r) => ({ ...r })), [
+		{ p: null, labor: 0, t: null },
+		{ p: null, labor: 0, t: null },
+	])
+	// Idempotente: repetir no falla ni duplica
+	await migrarVenta(db)
+	await aplicarEsquema(db, SQL)
+	assert.equal((await all(db, 'PRAGMA table_info(Venta)')).filter((c) => c.name === 'descuentoPorcentaje').length, 1)
+	await cerrar(db)
+})
+
+test('Migración: un fallo se propaga y no deja columnas a medias', async () => {
+	const db = abrir()
+	await run(db, 'CREATE TABLE Otra (id INTEGER)')
+	await assert.rejects(migrarVenta(db), /no such table/)
+
+	// Venta es una vista: ningún ALTER es posible
+	const db2 = abrir()
+	await run(db2, 'CREATE VIEW Venta AS SELECT 1 AS id')
+	await assert.rejects(migrarVenta(db2), /view/i)
+	await run(db2, 'SELECT 1') // sin transacción abierta
+	await cerrar(db)
+	await cerrar(db2)
+})
+
+test('initDatabase: si la migración falla, ready se rechaza y la app no continúa en silencio', () => {
+	const dir = tmpDir()
+	fs.mkdirSync(path.join(dir, 'data'))
+	const f = path.join(dir, 'data', 'shoptrack.db')
+	const script = `
+		const sqlite3 = require(${JSON.stringify(path.join(ROOT, 'node_modules/sqlite3'))})
+		const pre = new sqlite3.Database(${JSON.stringify(f)})
+		pre.exec('CREATE VIEW Venta AS SELECT 1 AS id', () => pre.close(() => {
+			const db = require(${JSON.stringify(path.join(ROOT, 'backend/db/initDatabase'))})
+			db.ready.then(() => console.log('RESULT resuelto'), (e) => console.log('RESULT rechazado: ' + e.message))
+				.then(() => process.exit(0))
+		}))`
+	const out = execFileSync(process.execPath, ['-e', script], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+	assert.match(out, /RESULT rechazado:/)
+})

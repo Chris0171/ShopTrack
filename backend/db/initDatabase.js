@@ -23,6 +23,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 const { aplicarEsquema, migrarVenta } = require('./schema-init')
 
+// Si el esquema o una migración fallan se rechaza `ready`: la app no debe seguir con una base incompatible.
 async function inicializar() {
 	await new Promise((resolve) =>
 		db.run('PRAGMA foreign_keys = ON;', (err) => {
@@ -33,25 +34,22 @@ async function inicializar() {
 		}),
 	)
 
-	if (fs.existsSync(sqlPath)) {
-		try {
-			await aplicarEsquema(db, fs.readFileSync(sqlPath, 'utf8'))
-			console.log('✔ Esquema y datos iniciales aplicados desde database.sql')
-		} catch (error) {
-			console.error('Error exec SQL:', error.message)
-		}
-	} else {
-		console.warn('⚠ database.sql no encontrado')
+	if (!fs.existsSync(sqlPath)) {
+		throw new Error('No se encontró database.sql')
 	}
-
 	try {
+		await aplicarEsquema(db, fs.readFileSync(sqlPath, 'utf8'))
+		console.log('✔ Esquema y datos iniciales aplicados desde database.sql')
 		await migrarVenta(db)
 	} catch (error) {
-		console.error('Error migrando Venta:', error.message)
+		console.error('Error al inicializar la base de datos:', error.message)
+		throw error
 	}
 }
 
 const readyPromise = inicializar()
+// Evita un aviso de promesa sin capturar si nadie espera `ready`; los que esperan reciben el rechazo igualmente
+readyPromise.catch(() => {})
 
 module.exports = db
 module.exports.ready = readyPromise
