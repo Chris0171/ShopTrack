@@ -263,7 +263,7 @@
 				"subtotal": "Subtotal",
 				"taxes": "Impuestos (IVA)",
 				"discount": "Descuento",
-				"discountReason": "Motivo del Descuento",
+				"discountReason": "Motivo del Descuento (Opcional)",
 				"labor": "Labor",
 				"tax": "Tax",
 				"total": "Total Final",
