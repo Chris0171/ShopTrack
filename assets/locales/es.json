@@ -283,7 +283,7 @@
 				"creditCard": "Credit card",
 				"debitCard": "Debit card",
 				"invoiceNumber": "Número de Factura",
-				"observations": "Observaciones",
+				"observations": "Notas",
 				"generate": "Generar Factura",
 				"downloadPDF": "Descargar PDF",
 				"placeholderInvoiceNumber": "Ej: F-2025-001",
