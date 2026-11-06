@@ -69,8 +69,15 @@ module.exports = function registerFacturaIPC(ipcMain) {
 		'factura:generarPDF',
 		async (event, { factura, cliente, detalles }) => {
 			try {
+				// Términos guardados al emitir la factura (nunca los de la configuración actual)
+				const guardada = await new Promise((resolve) =>
+					facturaController.getByNumero(factura.numeroFactura, (err, row) =>
+						resolve(err ? null : row),
+					),
+				)
 				const datosFactura = {
 					numeroFactura: factura.numeroFactura,
+					terminos: guardada?.terminos ?? '',
 					fechaEmision: factura.fechaEmision,
 					cliente: cliente,
 					detalles: detalles,
@@ -168,6 +175,7 @@ module.exports = function registerFacturaIPC(ipcMain) {
 			// Preparar datos para PDF
 			const datosFactura = {
 				numeroFactura: factura.numeroFactura,
+				terminos: factura.terminos ?? '',
 				fechaEmision: factura.fechaEmision,
 				cliente: cliente,
 				detalles: detalles,

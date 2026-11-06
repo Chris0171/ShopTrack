@@ -49,6 +49,20 @@ function loadConfig() {
 	ensureDataDirectory()
 
 	try {
+		// Primera ejecución: se crea con los valores por defecto; 'wx' nunca sobrescribe un archivo existente
+		if (!fs.existsSync(CONFIG_PATH)) {
+			try {
+				fs.writeFileSync(CONFIG_PATH, JSON.stringify(DEFAULT_CONFIG, null, 2), {
+					flag: 'wx',
+				})
+				console.log('✓ config.json creado con la configuración por defecto')
+			} catch (error) {
+				if (error.code !== 'EEXIST') {
+					console.error('No se pudo crear config.json:', error.message)
+				}
+			}
+		}
+
 		if (fs.existsSync(CONFIG_PATH)) {
 			const data = fs.readFileSync(CONFIG_PATH, 'utf-8')
 			const config = JSON.parse(data)
@@ -105,12 +119,32 @@ function setConfigValue(key, value) {
 	return saveConfig(config)
 }
 
+// Límite de los términos y condiciones (el HTML usa el mismo valor en maxlength)
+const MAX_TERMINOS = 5000
+
+// Valida en el servidor los campos con restricciones; no depende de la interfaz
+function normalizarUpdates(updates) {
+	if (!updates || !('terminosCondiciones' in updates)) return updates
+	const t = updates.terminosCondiciones
+	if (t != null && typeof t !== 'string') {
+		throw new Error('Los términos y condiciones deben ser texto.')
+	}
+	const texto = (t ?? '').trim()
+	if (texto.length > MAX_TERMINOS) {
+		throw new Error(
+			`Los términos y condiciones no pueden superar los ${MAX_TERMINOS} caracteres (actual: ${texto.length}).`,
+		)
+	}
+	return { ...updates, terminosCondiciones: texto }
+}
+
 /**
  * Actualiza múltiples valores de configuración
  * @param {object} updates - Objeto con valores a actualizar
  * @returns {object} - Configuración actualizada
  */
 function updateConfig(updates) {
+	updates = normalizarUpdates(updates)
 	const config = loadConfig()
 	const updated = { ...config, ...updates }
 

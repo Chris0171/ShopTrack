@@ -21,7 +21,12 @@ const db = new sqlite3.Database(dbPath, (err) => {
 	else console.log('✔ SQLite conectado en:', dbPath)
 })
 
-const { aplicarEsquema, migrarVenta } = require('./schema-init')
+const {
+	aplicarEsquema,
+	migrarVenta,
+	migrarFactura,
+	validarEsquema,
+} = require('./schema-init')
 
 // Si el esquema o una migración fallan se rechaza `ready`: la app no debe seguir con una base incompatible.
 async function inicializar() {
@@ -41,6 +46,8 @@ async function inicializar() {
 		await aplicarEsquema(db, fs.readFileSync(sqlPath, 'utf8'))
 		console.log('✔ Esquema y datos iniciales aplicados desde database.sql')
 		await migrarVenta(db)
+		await migrarFactura(db)
+		await validarEsquema(db)
 	} catch (error) {
 		console.error('Error al inicializar la base de datos:', error.message)
 		throw error

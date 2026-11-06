@@ -547,16 +547,16 @@ class PDFService {
 				const footerMargin = 20
 				let lastContentY = posY + (datos.observaciones ? 90 : 60)
 
-				// Términos y condiciones: texto único de la configuración (vacío = no se imprime)
-				const terminos = String(config.terminosCondiciones || '').trim()
+				// Términos y condiciones guardados con la factura (vacío = no se imprime); conserva saltos de línea
+				const terminos = String(datos.terminos || '').trim()
 				if (terminos) {
 					doc.fontSize(8).font(FONT_BOLD)
 					const alturaTitulo = doc.heightOfString(getText('invoice.terms'), {
 						width: 515,
 					})
 					doc.font(FONT_REGULAR)
-					const alturaTexto = doc.heightOfString(terminos, { width: 515 })
-					if (lastContentY + alturaTitulo + alturaTexto > 760) {
+					// Solo se salta de página si no cabe el título y unas líneas; el resto fluye a la siguiente
+					if (lastContentY + alturaTitulo + 40 > 760) {
 						doc.addPage()
 						lastContentY = 50
 					}

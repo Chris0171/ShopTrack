@@ -5,7 +5,7 @@ const os = require('os')
 const path = require('path')
 const { execFileSync } = require('child_process')
 const sqlite3 = require('sqlite3')
-const { aplicarEsquema, migrarVenta } = require('../backend/db/schema-init')
+const { aplicarEsquema, migrarVenta, migrarFactura } = require('../backend/db/schema-init')
 
 const ROOT = path.join(__dirname, '..')
 const SQL = fs.readFileSync(path.join(ROOT, 'backend/db/database.sql'), 'utf8')
@@ -193,3 +193,108 @@ test('initDatabase: si la migración falla, ready se rechaza y la app no contin�
 	const out = execFileSync(process.execPath, ['-e', script], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 	assert.match(out, /RESULT rechazado:/)
 })
+
+// --- Validación final del esquema ---
+const { validarEsquema, ESQUEMA_REQUERIDO } = require('../backend/db/schema-init')
+
+test('validarEsquema: esquema completo y migrado es válido; no modifica nada', async () => {
+	const db = abrir()
+	await aplicarEsquema(db, SQL)
+	const antes = await all(db, "SELECT name, sql FROM sqlite_master ORDER BY name")
+	await validarEsquema(db)
+	assert.deepEqual(await all(db, "SELECT name, sql FROM sqlite_master ORDER BY name"), antes)
+	await cerrar(db)
+})
+
+test('validarEsquema: una base 1.0.4 sin migrar se rechaza con tabla y columnas; migrada es válida', async () => {
+	const db = abrir()
+	await aplicarEsquema(db, SQL_1_0_4.replace(/^terminos TEXT,\r?\n/m, ''))
+	await assert.rejects(validarEsquema(db), (e) => {
+		assert.match(e.message, /tabla Venta: faltan las columnas labor, tasaImpuesto, descuentoPorcentaje/)
+		assert.match(e.message, /tabla Factura: faltan las columnas terminos/)
+		return true
+	})
+	// la validación no añadió ninguna columna
+	assert.ok(!(await all(db, 'PRAGMA table_info(Venta)')).some((c) => c.name === 'labor'))
+	await migrarVenta(db)
+	await migrarFactura(db)
+	await validarEsquema(db)
+	await cerrar(db)
+})
+
+test('validarEsquema: columnas y tablas ausentes se nombran y los datos no se tocan', async () => {
+	const db = abrir()
+	const incompleto = SQL.replace(/^stockMinimo INTEGER NOT NULL DEFAULT 0,\r?\n/m, '')
+	assert.notEqual(incompleto, SQL)
+	await aplicarEsquema(db, incompleto)
+	await run(db, 'DROP TABLE ProductoFotos')
+	await run(db, "INSERT INTO Producto (NroParte, Descripcion, Cantidad, Precio, marcaId) VALUES ('X','d',1,1,1)")
+	const filas = await all(db, 'SELECT * FROM Producto')
+	await assert.rejects(validarEsquema(db), (e) => {
+		assert.match(e.message, /falta la tabla ProductoFotos/)
+		assert.match(e.message, /tabla Producto: faltan las columnas stockMinimo/)
+		return true
+	})
+	assert.deepEqual(await all(db, 'SELECT * FROM Producto'), filas)
+	assert.ok(!(await all(db, 'PRAGMA table_info(Producto)')).some((c) => c.name === 'stockMinimo'))
+	await cerrar(db)
+})
+
+test('ESQUEMA_REQUERIDO coincide con el esquema que crea database.sql + migraciones', async () => {
+	const db = abrir()
+	await aplicarEsquema(db, SQL)
+	const real = {}
+	for (const t of await all(db, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")) {
+		real[t.name] = (await all(db, `PRAGMA table_info("${t.name}")`)).map((c) => c.name).sort()
+	}
+	const requerido = Object.fromEntries(Object.entries(ESQUEMA_REQUERIDO).map(([t, c]) => [t, [...c].sort()]))
+	assert.deepEqual(real, requerido)
+	await cerrar(db)
+})
+
+test('initDatabase: base con esquema incompleto rechaza ready con el detalle y no añade columnas', () => {
+	const dir = tmpDir()
+	fs.mkdirSync(path.join(dir, 'data'))
+	const f = path.join(dir, 'data', 'shoptrack.db')
+	const script = `
+		const sqlite3 = require(${JSON.stringify(path.join(ROOT, 'node_modules/sqlite3'))})
+		const sql = require('fs').readFileSync(${JSON.stringify(path.join(ROOT, 'backend/db/database.sql'))}, 'utf8').replace(/^stockMinimo INTEGER NOT NULL DEFAULT 0,\\r?\\n/m, '')
+		const pre = new sqlite3.Database(${JSON.stringify(f)})
+		pre.exec(sql, () => pre.close(() => {
+			const db = require(${JSON.stringify(path.join(ROOT, 'backend/db/initDatabase'))})
+			db.ready.then(() => console.log('RESULT resuelto'), (e) => console.log('RESULT rechazado: ' + e.message))
+				.then(() => db.all('PRAGMA table_info(Producto)', (e, c) => { console.log('COLS ' + c.map((x) => x.name).join(',')); process.exit(0) }))
+		}))`
+	const out = execFileSync(process.execPath, ['-e', script], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+	assert.match(out, /RESULT rechazado: Esquema de la base de datos incompleto \(tabla Producto: faltan las columnas stockMinimo\)/)
+	assert.ok(!/COLS .*stockMinimo/.test(out))
+})
+
+for (const tag of ['v1.0.0', 'v1.0.1', 'v1.0.2', 'v1.0.3', 'v1.0.4']) {
+	test(`Versión publicada ${tag}: su base se inicializa y supera la validación (datos conservados)`, async (t) => {
+		let sqlTag
+		try {
+			sqlTag = execFileSync('git', ['show', `${tag}:backend/db/database.sql`], { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 26 })
+		} catch {
+			return t.skip(`tag ${tag} no disponible en este clon`)
+		}
+		const dir = tmpDir()
+		fs.mkdirSync(path.join(dir, 'data'))
+		const file = path.join(dir, 'data', 'shoptrack.db')
+		const pre = abrir(file)
+		await new Promise((res) => pre.exec(sqlTag, () => res())) // como hacía esa versión: el error de exec solo se registraba
+		const filasAntes = {}
+		for (const tb of ['Marca', 'Producto', 'Clientes', 'Venta', 'DetalleVenta', 'Factura']) filasAntes[tb] = (await all(pre, `SELECT COUNT(*) n FROM ${tb}`))[0].n
+		await cerrar(pre)
+		const script = `const db = require(${JSON.stringify(path.join(ROOT, 'backend/db/initDatabase'))});db.ready.then(() => console.log('RESULT ok'), (e) => console.log('RESULT rechazado: ' + e.message)).then(() => process.exit(0))`
+		const out = execFileSync(process.execPath, ['-e', script], { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+		assert.match(out, /RESULT ok/, out)
+		const post = abrir(file)
+		for (const [tb, n] of Object.entries(filasAntes)) {
+			const despues = (await all(post, `SELECT COUNT(*) n FROM ${tb}`))[0].n
+			assert.ok(despues >= n, `${tb}: ${despues} < ${n}`) // las marcas iniciales pueden completarse; nada se pierde
+			if (tb !== 'Marca') assert.equal(despues, n, tb)
+		}
+		await cerrar(post)
+	})
+}

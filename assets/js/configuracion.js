@@ -10,6 +10,9 @@ export function initConfiguracion() {
 	const numeroInicial = document.getElementById('numeroInicial')
 	const ivaPredeterminado = document.getElementById('ivaPredeterminado')
 	const incluirLogo = document.getElementById('incluirLogo')
+	const terminosCondiciones = document.getElementById('terminosCondiciones')
+	const btnGuardarTerminos = document.getElementById('btnGuardarTerminos')
+	const terminosEstado = document.getElementById('terminosEstado')
 
 	const nombreEmpresa = document.getElementById('nombreEmpresa')
 	const rfcEmpresa = document.getElementById('rfcEmpresa')
@@ -104,6 +107,7 @@ export function initConfiguracion() {
 		ivaPredeterminado.value =
 			(config.ivaPredeterminado * 100).toFixed(2) || '21.00'
 		incluirLogo.checked = config.incluirLogo !== false
+		terminosCondiciones.value = config.terminosCondiciones || ''
 
 		// Empresa
 		nombreEmpresa.value = config.nombre || ''
@@ -112,6 +116,30 @@ export function initConfiguracion() {
 		emailEmpresa.value = config.email || ''
 		direccionEmpresa.value = config.direccion || ''
 	}
+
+	// Términos y condiciones: se guardan solos (config:set fusiona con el resto de la configuración)
+	function mostrarEstadoTerminos(texto, ok) {
+		terminosEstado.textContent = texto
+		terminosEstado.className = `font-semibold ${ok ? 'text-green-700' : 'text-red-700'}`
+	}
+	terminosCondiciones.addEventListener('input', () => mostrarEstadoTerminos('', true))
+	btnGuardarTerminos.addEventListener('click', async () => {
+		btnGuardarTerminos.disabled = true
+		try {
+			const res = await window.api.config.set({
+				terminosCondiciones: terminosCondiciones.value.trim(),
+			})
+			if (!res?.ok) throw new Error(res?.error || 'Error desconocido')
+			mostrarEstadoTerminos(`✓ ${window.i18n.t('config.termsSaved')}`, true)
+		} catch (error) {
+			mostrarEstadoTerminos(
+				`${window.i18n.t('config.termsSaveError')}: ${error.message}`,
+				false,
+			)
+		} finally {
+			btnGuardarTerminos.disabled = false
+		}
+	})
 
 	// Guardar configuración en backend e i18n
 	btnGuardar.addEventListener('click', async () => {

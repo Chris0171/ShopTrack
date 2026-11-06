@@ -8,6 +8,7 @@ release/
 # No ignorar la carpeta build/ porque contiene recursos para el empaquetado
 # build/ 
 
+# Datos locales de cada instalación
 data/
 
 # Binarios grandes

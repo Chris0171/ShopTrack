@@ -37,24 +37,65 @@ async function aplicarEsquema(db, sql) {
 	}
 }
 
+// Factura.terminos: instantánea de los términos vigentes al emitir. NULL = factura anterior (sin términos).
+const COLUMNAS_FACTURA = [['terminos', 'TEXT']]
+
 // Todas las columnas pendientes se añaden en una sola transacción; si falla, no queda nada a medias.
-async function migrarVenta(db) {
-	const cols = await all(db, 'PRAGMA table_info(Venta)')
-	const pendientes = COLUMNAS_VENTA.filter(
+async function agregarColumnas(db, tabla, columnas) {
+	const cols = await all(db, `PRAGMA table_info(${tabla})`)
+	const pendientes = columnas.filter(
 		([nombre]) => !cols.some((c) => c.name === nombre),
 	)
 	if (!pendientes.length) return
 	await exec(db, 'BEGIN IMMEDIATE')
 	try {
 		for (const [nombre, definicion] of pendientes) {
-			await run(db, `ALTER TABLE Venta ADD COLUMN ${nombre} ${definicion}`)
+			await run(db, `ALTER TABLE ${tabla} ADD COLUMN ${nombre} ${definicion}`)
 		}
 		await exec(db, 'COMMIT')
 	} catch (error) {
 		await exec(db, 'ROLLBACK').catch(() => {})
 		throw error
 	}
-	for (const [nombre] of pendientes) console.log(`✔ Columna Venta.${nombre} añadida`)
+	for (const [nombre] of pendientes) console.log(`✔ Columna ${tabla}.${nombre} añadida`)
 }
 
-module.exports = { aplicarEsquema, migrarVenta }
+const migrarVenta = (db) => agregarColumnas(db, 'Venta', COLUMNAS_VENTA)
+const migrarFactura = (db) => agregarColumnas(db, 'Factura', COLUMNAS_FACTURA)
+
+// Tablas y columnas que usa la aplicación actual (controladores y servicios).
+const ESQUEMA_REQUERIDO = {
+	Clientes: ['id', 'nombre', 'telefono', 'email', 'direccion'],
+	DetalleVenta: ['id', 'idVenta', 'idProducto', 'cantidad', 'precioUnitario', 'tasaAplicada', 'totalLinea'],
+	Factura: ['id', 'idVenta', 'numeroFactura', 'fechaEmision', 'subtotal', 'impuestos', 'total', 'metodoPago', 'observaciones', 'estado', 'rutaPDF', 'terminos'],
+	Marca: ['id', 'nombre', 'activo'],
+	Producto: ['id', 'NroParte', 'Descripcion', 'Cantidad', 'stockMinimo', 'Precio', 'Tasas', 'activo', 'marcaId', 'precioCosto', 'ubicacion'],
+	ProductoFotos: ['id', 'idProducto', 'nombreImagen', 'esPrincipal', 'orden'],
+	ProductoNumerosParte: ['id', 'idProducto', 'nroParte', 'esPrincipal'],
+	Venta: ['id', 'idCliente', 'fecha', 'subtotal', 'impuestos', 'total', 'descuento', 'motivoDescuento', 'labor', 'tasaImpuesto', 'descuentoPorcentaje'],
+}
+
+// Solo lectura: rechaza con un mensaje claro si falta alguna tabla o columna; no modifica nada.
+async function validarEsquema(db, requerido = ESQUEMA_REQUERIDO) {
+	const problemas = []
+	for (const [tabla, columnas] of Object.entries(requerido)) {
+		const existentes = (await all(db, `PRAGMA table_info("${tabla}")`)).map((c) => c.name)
+		if (!existentes.length) {
+			problemas.push(`falta la tabla ${tabla}`)
+			continue
+		}
+		const ausentes = columnas.filter((c) => !existentes.includes(c))
+		if (ausentes.length) problemas.push(`tabla ${tabla}: faltan las columnas ${ausentes.join(', ')}`)
+	}
+	if (problemas.length) {
+		throw new Error(`Esquema de la base de datos incompleto (${problemas.join('; ')}).`)
+	}
+}
+
+module.exports = {
+	aplicarEsquema,
+	migrarVenta,
+	migrarFactura,
+	validarEsquema,
+	ESQUEMA_REQUERIDO,
+}

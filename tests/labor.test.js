@@ -196,7 +196,12 @@ test('Migración: añade labor y tasaImpuesto sin perder datos; idempotente', as
 			process.exit(0)
 		}))`
 	const out = execFileSync(process.execPath, ['-e', script], { cwd: tmp, encoding: 'utf8' })
-	assert.equal(out.trim().split('\n').pop(), '2')
+	const ultimaLinea = out
+		.replace(/\x1B\[[0-9;]*m/g, '')
+		.trim()
+		.split('\n')
+		.pop()
+	assert.equal(ultimaLinea, '2')
 })
 
 test('Tasa 8,25 % y Labor 0: Tax 8.25, total 108.25, sin línea Labor', async () => {

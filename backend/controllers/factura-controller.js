@@ -66,6 +66,7 @@ module.exports = {
 			observaciones = '',
 			estado = 'emitida',
 			rutaPDF = null,
+			terminos,
 		},
 		callback,
 	) {
@@ -75,12 +76,17 @@ module.exports = {
 			)
 		}
 
+		// Instantánea de los términos vigentes: la factura los conserva aunque cambie la configuración
+		const terminosFactura = String(
+			terminos ?? configService.getConfig().terminosCondiciones ?? '',
+		).trim()
+
 		// Generar numeroFactura si no se proporciona
 		const procesarCreacion = (numFacturaFinal) => {
 			const sql = `
                 INSERT INTO Factura 
-                (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado, rutaPDF)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (idVenta, numeroFactura, subtotal, impuestos, total, metodoPago, observaciones, estado, rutaPDF, terminos)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `
 			const stmt = db.prepare(sql)
 			stmt.run(
@@ -94,6 +100,7 @@ module.exports = {
 					observaciones,
 					estado,
 					rutaPDF,
+					terminosFactura,
 				],
 				function (err) {
 					if (err) return callback(err)
@@ -191,6 +198,15 @@ module.exports = {
 			if (err) return callback(err)
 			callback(null, row)
 		})
+	},
+
+	// 🔹 Obtener factura por número
+	getByNumero: function (numeroFactura, callback) {
+		db.get(
+			'SELECT * FROM Factura WHERE numeroFactura = ?',
+			[numeroFactura],
+			(err, row) => (err ? callback(err) : callback(null, row)),
+		)
 	},
 
 	// 🔹 Obtener facturas por venta

@@ -94,6 +94,7 @@ metodoPago TEXT NOT NULL DEFAULT 'efectivo',
 observaciones TEXT,
 estado TEXT NOT NULL DEFAULT 'emitida',
 rutaPDF TEXT,
+terminos TEXT,
 
 FOREIGN KEY (idVenta) REFERENCES Venta(id)
 );
