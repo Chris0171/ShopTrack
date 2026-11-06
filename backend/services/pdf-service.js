@@ -549,22 +549,35 @@ class PDFService {
 
 				// Términos y condiciones guardados con la factura (vacío = no se imprime); conserva saltos de línea
 				const terminos = String(datos.terminos || '').trim()
+
 				if (terminos) {
+					const paddingSuperior = 25
+
 					doc.fontSize(8).font(FONT_BOLD)
+
 					const alturaTitulo = doc.heightOfString(getText('invoice.terms'), {
 						width: 515,
 					})
+
 					doc.font(FONT_REGULAR)
-					// Solo se salta de página si no cabe el título y unas líneas; el resto fluye a la siguiente
-					if (lastContentY + alturaTitulo + 40 > 760) {
+
+					if (lastContentY + paddingSuperior + alturaTitulo + 40 > 760) {
 						doc.addPage()
 						lastContentY = 50
 					}
+
 					doc
 						.font(FONT_BOLD)
 						.fillColor(COLORS.black)
-						.text(getText('invoice.terms'), 40, lastContentY, { width: 515 })
-					doc.font(FONT_REGULAR).text(terminos, 40, doc.y + 2, { width: 515 })
+						.text(getText('invoice.terms'), 40, lastContentY + paddingSuperior, {
+							width: 515,
+						})
+
+					doc.font(FONT_REGULAR).text(terminos, 40, doc.y + 2, {
+						width: 515,
+						align: 'justify',
+					})
+
 					lastContentY = doc.y
 				}
 				let thankYouY = lastContentY + footerMargin
